@@ -1,10 +1,14 @@
+/* María Herrero Rodríguez
+CLASE EMPLEADO
+*/
+
 public class Empleado extends Persona {
     public Empleado(){
         super();
         numempleados++;
     }
 
-    public Empleado(int cod, String nombre, String email, long telefono){
+    public Empleado(int cod, String nombre, String email, String telefono){
         super(cod, nombre, email, telefono);
         numempleados++;
     }

@@ -1,3 +1,7 @@
+/* María Herrero Rodríguez
+CLASE PERSONA, creada para unificar clases que comparten mismo atributos y métodos
+*/
+
 public class Persona{
     public static int numempleados = 0;
     public static int numclientes = 0;
@@ -5,16 +9,16 @@ public class Persona{
     protected int codigo;
     protected String nombre;
     protected String email;
-    protected long telefono;
+    protected String telefono;
 
     public Persona() {
         codigo = 0;
         nombre = "No especificado";
         email = "No especificado";
-        telefono = 0;
+        telefono = "";
     }
 
-    public Persona(int codigo, String nombre, String email, long telefono) {
+    public Persona(int codigo, String nombre, String email, String telefono) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.email = email;
@@ -33,7 +37,7 @@ public class Persona{
         return email;
     }
 
-    public long getTelefono(){
+    public String getTelefono(){
         return telefono;
     }
 
@@ -49,7 +53,7 @@ public class Persona{
         this.email = email;
     }
 
-    public void setTelefono(long telefono){
+    public void setTelefono(String telefono){
         this.telefono = telefono;
     }
 

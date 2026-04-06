@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Proveedor extends Persona{
     private ArrayList<Producto> productos = new ArrayList<>();
 
-    public Proveedor(int cod, String nombre, String email, long telefono){
+    public Proveedor(int cod, String nombre, String email, String telefono){
         super(cod, nombre, email, telefono);
         numproveedores++;
     }

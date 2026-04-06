@@ -14,7 +14,7 @@ public class Cliente extends Persona{
         numclientes++;
     }
 
-    public Cliente(int cod, String nombre, String email, long telefono){
+    public Cliente(int cod, String nombre, String email, String telefono){
         super(cod, nombre, email, telefono);
         numclientes++;
         this.reservas = new ArrayList<>();
