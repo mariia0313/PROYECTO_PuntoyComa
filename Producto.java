@@ -4,14 +4,7 @@ public class Producto{
     private String descrip;
     private int stock;
     private int stock_min;
-
-    public Producto() {
-        cod = contador;
-        nombre = "No especificado";
-        descrip = "No especificado";
-        stock = 0;
-        stock_min = 0;
-    }
+    private static int contador = 0;
 
     public Producto(String n, String d, int s, int sm) {
         cod = contador;
@@ -19,6 +12,7 @@ public class Producto{
         descrip = d;
         stock = s;
         stock_min = sm;
+        contador++;
     }
 
     public void setCod(int c){
