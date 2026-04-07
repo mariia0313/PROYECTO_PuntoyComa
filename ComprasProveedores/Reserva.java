@@ -1,3 +1,5 @@
+package ComprasProveedores;
+
 public abstract class Reserva {
 
     protected static int cont = 1;

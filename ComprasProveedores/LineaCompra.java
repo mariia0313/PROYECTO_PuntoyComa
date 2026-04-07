@@ -1,3 +1,5 @@
+package ComprasProveedores;
+
 public class LineaCompra {
     private int num_linea;
     private double precio_unidad;

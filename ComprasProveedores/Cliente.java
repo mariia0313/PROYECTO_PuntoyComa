@@ -1,3 +1,5 @@
+package ComprasProveedores;
+
 /* María Herrero Rodríguez
 CLASE CLIENTE, arraylist de las reservas que ha hecho.
 */
@@ -8,15 +10,8 @@ public class Cliente extends Persona{
     
     private ArrayList<Reserva> reservas;
 
-    public Cliente(){
-        super();
-        this.reservas = new ArrayList<>();
-        numclientes++;
-    }
-
-    public Cliente(int cod, String nombre, String email, String telefono){
-        super(cod, nombre, email, telefono);
-        numclientes++;
+    public Cliente(String identificador, String nombre, String email, String telefono){
+        super(identificador, nombre, email, telefono);
         this.reservas = new ArrayList<>();
     }
 

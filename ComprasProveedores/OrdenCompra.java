@@ -1,3 +1,7 @@
+package ComprasProveedores;
+
+import ComprasProveedores.LineaCompra;
+import ComprasProveedores.Empleado;
 import java.util.ArrayList;
 import java.time.LocalDate;
 

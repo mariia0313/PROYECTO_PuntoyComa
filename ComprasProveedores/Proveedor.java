@@ -1,15 +1,19 @@
+package ComprasProveedores;
+
 /* María Herrero Rodríguez
 CLASE PROVEEDOR con arrraylist de los productos que vende
 */
 
+import ComprasProveedores.Producto;
+import ComprasProveedores.Persona;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class Proveedor extends Persona{
     private ArrayList<Producto> productos = new ArrayList<>();
 
-    public Proveedor(int cod, String nombre, String email, String telefono){
-        super(cod, nombre, email, telefono);
-        numproveedores++;
+    public Proveedor(String identificador, String nombre, String email, String telefono){
+        super(identificador, nombre, email, telefono);
     }
 
     public void addAnyadirProducto(String n, String d, int s, int sm){
@@ -51,10 +55,15 @@ public class Proveedor extends Persona{
     public int getCod(){
         return codigo;
     }
+    
+    public void setCod(int cod){
+    this.codigo = cod;
+    }
+    
 
 
     public String toString(){
-         String rdo = "PROVEEDOR CON CÓDIGO: " + codigo + "\n Nombre: " + nombre + "\nEmail: " + email + "\nTeléfono: " + telefono;
+         String rdo = "PROVEEDOR CON CÓDIGO: " + codigo + "\n Identificador: " + identificador + "\n Nombre: " + nombre + "\nEmail: " + email + "\nTeléfono: " + telefono;
         return rdo;
     }
 }

@@ -1,16 +1,13 @@
+package ComprasProveedores;
+
 /* María Herrero Rodríguez
 CLASE EMPLEADO
 */
 
 public class Empleado extends Persona {
-    public Empleado(){
-        super();
-        numempleados++;
-    }
 
-    public Empleado(int cod, String nombre, String email, String telefono){
-        super(cod, nombre, email, telefono);
-        numempleados++;
+    public Empleado(String identificador, String nombre, String email, String telefono){
+        super(identificador, nombre, email, telefono);
     }
 
     public String toString() {

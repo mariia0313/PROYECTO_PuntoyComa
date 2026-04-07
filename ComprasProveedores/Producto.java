@@ -1,3 +1,5 @@
+package ComprasProveedores;
+
 public class Producto{
     private int cod;
     private String nombre;
