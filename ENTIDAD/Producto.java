@@ -1,5 +1,4 @@
-package ComprasProveedores;
-
+package ENTIDAD;
 public class Producto{
     private int cod;
     private String nombre;
