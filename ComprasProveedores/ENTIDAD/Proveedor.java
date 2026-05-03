@@ -1,11 +1,9 @@
-package ComprasProveedores;
+package ComprasProveedores.ENTIDAD;
 
 /* María Herrero Rodríguez
 CLASE PROVEEDOR con arrraylist de los productos que vende
 */
 
-import ComprasProveedores.Producto;
-import ComprasProveedores.Persona;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -50,14 +48,6 @@ public class Proveedor extends Persona{
         for (Producto x : productos){
             System.out.println(x);
         }
-    }
-
-    public int getCod(){
-        return codigo;
-    }
-    
-    public void setCod(int cod){
-    this.codigo = cod;
     }
     
 

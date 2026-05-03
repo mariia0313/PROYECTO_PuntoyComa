@@ -1,4 +1,4 @@
-package ComprasProveedores;
+package ComprasProveedores.ENTIDAD;
 
 public class Producto{
     private int cod;
