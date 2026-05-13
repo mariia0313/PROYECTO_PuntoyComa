@@ -4,10 +4,8 @@
  */
 package ComprasProveedores.DAO;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.*;
+import java.sql.*;
 import java.util.Scanner;
 
 /**
@@ -223,6 +221,7 @@ public class ProductosDAO {
             System.out.println("1. Añadir producto");
             System.out.println("2. Modificar producto");
             System.out.println("3. Ver productos");
+            System.out.println("4. Insertar productos desde un archivo .csv");
             System.out.println("0. Salir");
             opcion = leer.nextInt();
             leer.nextLine();
@@ -238,6 +237,12 @@ public class ProductosDAO {
                 case 3:
                     mostrarProductos(con);
                     break;
+                    
+                case 4:
+                    System.out.println("Inserte la ruta del archivo a cargar");
+                    String ruta = leer.nextLine();
+                    cargarProductosDesdeCSV(con, ruta);
+                    break;
 
                 case 0:
                     System.out.println("Saliendo...");
@@ -250,6 +255,45 @@ public class ProductosDAO {
         } while (opcion != 0);
     }
 
+    /**
+     * Lee un archivo CSV de productos y los inserta en la base de datos.
+     * Formato esperado del CSV: nombre, precio, stock, id_proveedor
+     *
+     * * @param con Conexión activa a la base de datos.
+     * @param rutaArchivo Ruta del archivo .csv (ej: "productos.csv").
+     */
+    public void cargarProductosDesdeCSV(Connection con, String rutaArchivo) {
+        String sql = "INSERT INTO Productos (Nombre, Precio_unidad, Stock, Proveedor) VALUES (?, ?, ?, ?)";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo)); PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            String linea;
+            int filasInsertadas = 0;
+
+            while ((linea = br.readLine()) != null) {
+                String[] datos = linea.split(",");
+
+                try {
+                    pstmt.setString(1, datos[0].trim());          
+                    pstmt.setDouble(2, Double.parseDouble(datos[1].trim()));
+                    pstmt.setInt(3, Integer.parseInt(datos[2].trim()));
+                    pstmt.setInt(4, Integer.parseInt(datos[3].trim()));
+
+                    pstmt.executeUpdate();
+                    filasInsertadas++;
+
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Error en línea: " + linea + ". Saltando registro...");
+                }
+            }
+
+            System.out.println("Carga finalizada. Se han insertado " + filasInsertadas + " productos.");
+
+        } catch (IOException | SQLException e) {
+            System.err.println("Error al procesar el archivo o la base de datos: " + e.getMessage());
+        }
+    }
+    
     private static void printSQLException(SQLException e) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
