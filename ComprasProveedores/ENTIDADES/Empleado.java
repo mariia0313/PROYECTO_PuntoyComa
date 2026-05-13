@@ -106,8 +106,18 @@ public class Empleado extends Persona {
      * @return String con código, nombre, email, teléfono y cargo.
      */
     public String toString() {
-        String rdo = "EMPLEADO CON CÓDIGO: " + super.codigo + "\n Nombre: " + super.nombre + "\nEmail: " + super.email + "\nTeléfono: " + telefono + "\nCargo: "+ cargo;
-        return rdo;
+
+        return "----------------------------------------------------\n"
+                + "  FICHA DE EMPLEADO [ ID: " + codigo + " ]\n"
+                + "----------------------------------------------------\n"
+                + "  Nombre:       " + nombre + "\n"
+                + "  Cargo:        " + cargo + "\n"
+                + "  DNI/NIE:      " + identificador + "\n"
+                + "  Contrato:     " + contrato + "\n"
+                + "  Alta:         " + (fecha_antig != null ? fecha_antig : "---") + "\n"
+                + "  Email:        " + email + "\n"
+                + "  Estado:       " + estado + "\n"
+                + "----------------------------------------------------";
     }
 
    

@@ -6,6 +6,9 @@ package ComprasProveedores.DAO;
 
 import ComprasProveedores.ENTIDAD.Producto;
 import ComprasProveedores.ENTIDAD.Proveedor;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -171,21 +174,25 @@ public class ProveedorDAO {
                 System.out.println("Introduzca el nuevo valor para " + campo + ":");
                 nuevo = leer.nextLine();                
                 
-                try {
-                stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                String query = "SELECT * FROM proveedores WHERE cod_proveedor = " + cod;
-                ResultSet rs = stmt.executeQuery(query);
+                if (opcion != 0){
+                    try {
+                        stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                        String query = "SELECT * FROM proveedores WHERE cod_proveedor = " + cod;
+                        ResultSet rs = stmt.executeQuery(query);
 
-                if (rs.next()) {
-                    rs.updateString(campo, nuevo);
-                    rs.updateRow();
-                    System.out.println("Campo '" + campo + "' actualizado correctamente");
+                        if (rs.next()) {
+                            rs.updateString(campo, nuevo);
+                            rs.updateRow();
+                            System.out.println("Campo '" + campo + "' actualizado correctamente");
+                        }
+                    } catch (SQLException e) {
+                        System.out.println("Error al actualizar la base de datos: " + e.getMessage());
+                    } finally {
+                        if (stmt != null) {
+                            stmt.close();
+                        }
+                    }
                 }
-            } catch (SQLException e) {
-                System.out.println("Error al actualizar la base de datos: " + e.getMessage());
-            } finally {
-                if (stmt != null) stmt.close();
-            }
 
             } while (opcion != 0);
         } else {
@@ -201,13 +208,14 @@ public class ProveedorDAO {
      * @param leer Scanner para la navegación por opciones.
      * @throws SQLException Si ocurre un error en los métodos invocados.
      */
-    public void menu(Connection con, Scanner leer) throws SQLException {
+    public void menu(Connection con, Scanner leer) throws SQLException, IOException {
         int opcion;
         do {
             System.out.println("      SISTEMA DE GESTIÓN DE PROVEEDORES    ");
             System.out.println("1. Añadir proveedor");
             System.out.println("2. Modificar proveedor");
-            System.out.println("3. Ver rpoveedores");
+            System.out.println("3. Ver proveedores");
+            System.out.println("4. Generar informe de los proveedores y sus productos");
             System.out.println("0. Salir");
             opcion = leer.nextInt();
             leer.nextLine();
@@ -223,6 +231,11 @@ public class ProveedorDAO {
                 case 3:
                     mostrarProveedores(con);
                     break;
+                    
+                case 4:
+                    crearInformeProveedores(con);
+                    break;
+
 
                 case 0:
                     System.out.println("Saliendo...");
@@ -308,6 +321,56 @@ public class ProveedorDAO {
         }
 
         return proveedores;
+    }
+    
+    /**
+     * Consulta los proveedores del ArrayList, los añade a la lista y genera el
+     * archivo "Informe_Proveedores.html".
+     * @param con Conexión activa a la base de datos.
+     * @throws SQLException Si falla la consulta o el cierre del Statement.
+     */
+    public void crearInformeProveedores(Connection con) throws SQLException, IOException {
+        ArrayList<Proveedor> proveedores = rellenarProductosProveedores(con);
+        File f = new File("Informe_Proveedores.html");
+        FileWriter fw = null;
+
+        try {
+            fw = new FileWriter(f);
+            
+            fw.write("<html><head><meta charset='UTF-8'><title>Informe Proveedores</title></head><body>");
+            fw.write("<h1>Informe de Proveedores y Productos</h1>");
+
+            fw.write("<table border='1' cellpadding='10' cellspacing='0' style='width:100%;'>");
+            fw.write("<tr style='background-color: #eee;'><th>Datos del Proveedor</th><th>Catálogo de Productos</th></tr>");
+
+            for (Proveedor p : proveedores) {
+                fw.write("<tr>");
+
+                fw.write("<td valign='top'>" + p.toString() + "</td>");
+
+                fw.write("<td>");
+                ArrayList<Producto> productos = p.getProductos();
+
+                if (productos != null && !productos.isEmpty()) {
+                    fw.write("<ul>");
+                    for (Producto prod : productos) {
+                        fw.write("<li>" + prod.toString() + "</li>");
+                    }
+                    fw.write("</ul>");
+                } else {
+                    fw.write("<i>No hay productos registrados para este proveedor.</i>");
+                }
+
+                fw.write("</td>");
+                fw.write("</tr>");
+            }
+
+            fw.write("</table></body></html>");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            fw.close();
+        }
     }
 
 

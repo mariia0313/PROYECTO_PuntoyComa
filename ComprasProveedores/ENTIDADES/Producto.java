@@ -86,11 +86,13 @@ public class Producto{
      * @return String multilínea con todos los detalles del producto.
      */
     public String toString() {
-        return "PRODUCTO #" + cod + "\n"
-                + "Nombre: " + nombre + "\n"
-                + "Descripción: " + descrip + "\n"
-                + "Stock: " + stock + " (Mín. " + stock_min + ")\n"
-                + "Estado: " + estado + "\n"
-                + "Precio: " + precio + "€";
+        return String.format(
+                "    > [%3d] %-15s | Precio: %7.2f eur | Stock: %d | Est: %s",
+                cod,
+                nombre,
+                precio,
+                stock,
+                estado
+        );
     }
 }
