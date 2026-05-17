@@ -94,6 +94,10 @@ public class Proveedor extends Persona{
             }
         }
     }
+    
+    public ArrayList<Producto> getProductos(){
+        return productos;
+    }
 
     /**
      * Devuelve una representación en texto de la ficha del proveedor,
@@ -102,14 +106,15 @@ public class Proveedor extends Persona{
      * * @return String formateado con la información detallada del proveedor.
      */
     public String toString() {
-        return "=== DATOS DEL PROVEEDOR ===\n"
-                + "Código:        " + codigo + "\n"
-                + "Identificador: " + identificador + "\n"
-                + "Nombre:        " + nombre + "\n"
-                + "Email:         " + email + "\n"
-                + "Teléfono:      " + telefono + "\n"
-                + "Estado:        " + estado + "\n"
-                + "Catálogo:      " + productos.size() + " productos registrados\n"
-                + "===========================";
+        return "----------------------------------------------------\n"
+                + "  FICHA DE PROVEEDOR [ ID: " + codigo + " ]\n"
+                + "----------------------------------------------------\n"
+                + "  Nombre:       " + nombre + "\n"
+                + "  Identificador:" + identificador + "\n"
+                + "  Email:        " + email + "\n"
+                + "  Telefono:     " + telefono + "\n"
+                + "  Estado:       " + estado + "\n"
+                + "  Catalogo:     " + productos.size() + " productos registrados\n"
+                + "----------------------------------------------------";
     }
 }

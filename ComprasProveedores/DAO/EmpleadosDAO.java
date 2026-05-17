@@ -4,11 +4,15 @@
  */
 package ComprasProveedores.DAO;
 
+import ComprasProveedores.ENTIDAD.Empleado;
+import ComprasProveedores.ENTIDAD.Usuario;
+import java.io.*;
 import ComprasProveedores.ENTIDADES.Empleado;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -24,7 +28,7 @@ public class EmpleadosDAO {
      * @param con Conexión activa a la base de datos.
      * @throws SQLException Si ocurre un error durante la ejecución del INSERT.
      */
-    public static void crearEmpleado(Scanner leer, Connection con) throws SQLException {
+    public void crearEmpleado(Scanner leer, Connection con) throws SQLException {
 
         System.out.println("Introduzca el DNI del nuevo empleado");
         String dni = leer.nextLine();
@@ -71,7 +75,7 @@ public class EmpleadosDAO {
      * @param con Conexión activa a la base de datos.
      * @throws SQLException Si hay errores en la consulta SELECT.
      */
-    public static void mostrarEmpleados(Connection con) throws SQLException {
+    public void mostrarEmpleados(Connection con) throws SQLException {
         Statement stmt = null;
         String query = "SELECT * from empleados";
         try {
@@ -117,7 +121,7 @@ public class EmpleadosDAO {
      * @param codigo Código numérico del empleado a buscar.
      * @return true si el empleado existe, false en caso contrario.
      */
-    public static boolean existeEmpleado(Connection con, int codigo) {
+    public boolean existeEmpleado(Connection con, int codigo) {
         Statement stmt = null;
         String query = "SELECT Cod_empleado FROM empleados";
         boolean existe = false;
@@ -143,7 +147,7 @@ public class EmpleadosDAO {
      * @param leer Scanner para la navegación y entrada de nuevos datos.
      * @throws SQLException Si ocurre un error al actualizar los registros.
      */
-    public static void modificarEmpleado(Connection con, Scanner leer) throws SQLException {
+    public void modificarEmpleado(Connection con, Scanner leer) throws SQLException {
         int opcion = 0;
         int cod = 0;
         Statement stmt = null;
@@ -214,27 +218,27 @@ public class EmpleadosDAO {
                 System.out.println("Introduzca el nuevo " + campo);
                 nuevo = leer.nextLine();
                 
+                if (opcion !=0){
+                    try {
+                        stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                        String query = "SELECT * from empleados where cod_empleado = " + cod;
+                        ResultSet rs = stmt.executeQuery(query);
+                        java.sql.Date fechaActual = java.sql.Date.valueOf(java.time.LocalDate.now());
+                        while (rs.next()) {
+                            rs.updateString(campo, nuevo);
+                            rs.updateRow();
+                            if (campo.equalsIgnoreCase("Estado") && nuevo.equalsIgnoreCase("Inactivo")) {
+                                rs.updateDate("fecha_despido", fechaActual);
+                                rs.updateRow();
+                            }
+                            System.out.println("Campo actualizado correctamente");
+                        }
 
-                try {
-                    stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                    String query = "SELECT * from empleados where cod_empleado = " + cod;
-                    ResultSet rs = stmt.executeQuery(query);
-                    java.sql.Date fechaActual = java.sql.Date.valueOf(java.time.LocalDate.now());
-                    while (rs.next()) {
-                        rs.updateString(campo, nuevo);
-                        rs.updateRow();
-                        if (campo.equalsIgnoreCase("Estado") && nuevo.equalsIgnoreCase("Inactivo")) {
-                        rs.updateDate("fecha_despido", fechaActual );
-                        rs.updateRow();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } finally {
+                        stmt.close();
                     }
-                        System.out.println("Campo actualizado correctamente");
-                    }
-                    
-                    
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } finally {
-                    stmt.close();
                 }
 
             } while (opcion != 0);
@@ -251,12 +255,13 @@ public class EmpleadosDAO {
      * @param leer Scanner para la entrada de opciones.
      * @throws SQLException Si ocurre un error en las operaciones llamadas.
      */
-    public void menu(Connection con, Scanner leer) throws SQLException {
+    public void menu(Connection con, Scanner leer) throws SQLException, IOException {
         int opcion;
         do {
             System.out.println("1. Añadir empleado");
             System.out.println("2. Modificar empleado");
             System.out.println("3. Ver empleados");
+            System.out.println("4. Crear informe completo de los empleados");
             System.out.println("0. Salir");
             opcion = leer.nextInt();
             leer.nextLine();
@@ -271,6 +276,10 @@ public class EmpleadosDAO {
                         
                     case 3:
                         mostrarEmpleados(con);
+                        break;
+                        
+                    case 4:
+                        crearInformeEmpleados(con);
                         break;
                                 
                     case 0:
@@ -329,6 +338,79 @@ public class EmpleadosDAO {
         }
 
         return empleado; // Si no lo encuentra, devuelve null
+    }
+    
+    /**
+     * Genera un informe en archivo html que incluye la ficha del empleado
+     * y, en caso de tenerlo, el detalle de su cuenta de usuario mediante su
+     * toString.
+     * * @param con Conexión activa a la base de datos.
+     * @throws SQLException Si hay errores de acceso a datos.
+     * @throws IOException Si hay errores al escribir el archivo.
+     */
+    public void crearInformeEmpleados(Connection con) throws SQLException, IOException {
+        ArrayList<Empleado> listaTemporal = new ArrayList<>();
+        String query = "SELECT * FROM empleados";
+
+        try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                Empleado emp = new Empleado(
+                        rs.getInt("Cod_empleado"),
+                        rs.getString("Id_empleado"),
+                        rs.getString("Nombre"),
+                        rs.getString("Email"),
+                        rs.getString("Telefono"),
+                        rs.getString("Cargo"),
+                        rs.getString("tipo_contrato"),
+                        rs.getDate("fecha_nacimiento"),
+                        rs.getDate("fecha_antiguedad"),
+                        rs.getDate("fecha_despido"),
+                        rs.getString("Estado")
+                );
+                listaTemporal.add(emp);
+            }
+        }
+
+        File f = new File("Informe_Completo_Empleados.html");
+        FileWriter fw = null;
+        
+        try {
+            
+            fw = new FileWriter(f);
+
+            fw.write("<html><body>");
+            fw.write("<h1>Informe Detallado de Empleados</h1>");
+            fw.write("<table border='1' cellpadding='10' cellspacing='0'>");
+            fw.write("<tr><th>Ficha del Empleado</th><th>Detalles de Usuario</th></tr>");
+
+            for (Empleado e : listaTemporal) {
+                fw.write("<tr>");
+
+                fw.write("<td>" + e.toString() + "</td>");
+
+                String queryUser = "SELECT * FROM usuarios WHERE empleado = " + e.getCodigo();
+                try (Statement stmtU = con.createStatement(); ResultSet rsU = stmtU.executeQuery(queryUser)) {
+                    if (rsU.next()) {
+                        Usuario usu = new Usuario(
+                                rsU.getString("nom_user"),
+                                rsU.getString("contrasenya"),
+                                rsU.getInt("empleado")
+                        );
+                        usu.setId(rsU.getInt("id_user"));
+
+                        fw.write("<td>" + usu.toString() + "</td>");
+                    } else {
+                        fw.write("<td>[ Sin usuario asignado ]</td>");
+                    }
+                }
+                fw.write("</tr>");
+            }
+            fw.write("</table></body></html>");
+        } catch (IOException e){
+            e.printStackTrace();
+        } finally {
+            fw.close();
+        }
     }
 
     private static void printSQLException(SQLException e) {

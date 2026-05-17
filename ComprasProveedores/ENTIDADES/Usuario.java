@@ -35,5 +35,8 @@ public class Usuario {
         this.id = id;
     }
     
+    public String toString() {
+        return "    > CREDENCIALES ACCESO | Usuario: " + nombre + " | ID Sistema: " + id;
+    }
     
 }
