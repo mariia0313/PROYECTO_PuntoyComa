@@ -1,4 +1,4 @@
-package ComprasProveedores.ENTIDAD;
+package ComprasProveedores.ENTIDADES;
 
 /**
  * Representa un producto dentro del catálogo del sistema. Contiene información

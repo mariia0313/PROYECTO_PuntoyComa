@@ -1,4 +1,4 @@
-package ComprasProveedores.ENTIDAD;
+package ComprasProveedores.ENTIDADES;
 
 /**
  * Clase Persona que sirve como base para unificar los atributos y métodos comunes 

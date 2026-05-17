@@ -4,8 +4,8 @@
  */
 package ComprasProveedores.DAO;
 
-import ComprasProveedores.ENTIDAD.Empleado;
-import ComprasProveedores.ENTIDAD.Proveedor;
+import ComprasProveedores.ENTIDADES.Empleado;
+import ComprasProveedores.ENTIDADES.Proveedor;
 import java.util.Scanner;
 import java.sql.*;
 import java.util.ArrayList;

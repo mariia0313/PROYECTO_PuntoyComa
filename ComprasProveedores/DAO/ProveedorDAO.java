@@ -9,6 +9,8 @@ import ComprasProveedores.ENTIDAD.Proveedor;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import ComprasProveedores.ENTIDADES.Producto;
+import ComprasProveedores.ENTIDADES.Proveedor;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
