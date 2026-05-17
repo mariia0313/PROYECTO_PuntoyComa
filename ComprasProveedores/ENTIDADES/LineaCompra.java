@@ -1,4 +1,4 @@
-package ComprasProveedores.ENTIDAD;
+package ComprasProveedores.ENTIDADES;
 
 /**
  * Representa cada una de las líneas detalladas dentro de una Orden de Compra.
