@@ -7,6 +7,7 @@ package ComprasProveedores.DAO;
 import ComprasProveedores.ENTIDAD.Empleado;
 import ComprasProveedores.ENTIDAD.Usuario;
 import java.io.*;
+import ComprasProveedores.ENTIDADES.Empleado;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

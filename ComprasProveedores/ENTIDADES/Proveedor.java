@@ -1,4 +1,4 @@
-package ComprasProveedores.ENTIDAD;
+package ComprasProveedores.ENTIDADES;
 
 /**
  * Clase que representa a un proveedor externo.

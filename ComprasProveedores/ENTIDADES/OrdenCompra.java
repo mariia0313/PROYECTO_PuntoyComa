@@ -1,4 +1,4 @@
-package ComprasProveedores.ENTIDAD;
+package ComprasProveedores.ENTIDADES;
 
 import java.util.ArrayList;
 import java.time.LocalDate;

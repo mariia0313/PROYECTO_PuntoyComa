@@ -1,6 +1,6 @@
-package ComprasProveedores.ENTIDAD;
+package ComprasProveedores.ENTIDADES;
 
-import ComprasProveedores.ENTIDAD.Persona;
+import ComprasProveedores.ENTIDADES.Persona;
 import java.util.Date;
 
 /**
