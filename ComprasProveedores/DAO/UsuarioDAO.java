@@ -1,7 +1,7 @@
 package ComprasProveedores.DAO;
 
-import ComprasProveedores.ENTIDAD.Empleado;
-import ComprasProveedores.ENTIDAD.Usuario;
+import ComprasProveedores.ENTIDADES.Empleado;
+import ComprasProveedores.ENTIDADES.Usuario;
 import java.util.Scanner;
 import java.sql.*;
 

@@ -4,8 +4,8 @@
  */
 package ComprasProveedores.DAO;
 
-import ComprasProveedores.ENTIDAD.Producto;
-import ComprasProveedores.ENTIDAD.Proveedor;
+import ComprasProveedores.ENTIDADES.Producto;
+import ComprasProveedores.ENTIDADES.Proveedor;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
