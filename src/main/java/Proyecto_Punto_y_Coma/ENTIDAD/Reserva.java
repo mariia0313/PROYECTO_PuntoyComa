@@ -44,8 +44,14 @@ public class Reserva implements java.io.Serializable {
         if (tipoReserva instanceof Actividad) {
             dias=1;
         } else {
+
+            if (fechaFin.before(fechaInicio)) {
+                throw new IllegalArgumentException("La fecha de fin no puede ser anterior a la fecha de inicio");
+            }
+
             dias = (fechaFin.getTime() - fechaInicio.getTime()) / (1000 * 60 * 60 * 24);
-            if (dias <= 0) dias = 1;
+            
+            if (dias == 0) dias = 1;
         }
         return tipoReserva.total() * dias;
     }
