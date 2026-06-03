@@ -1,0 +1,72 @@
+package Proyecto_Punto_y_Coma.ENTIDAD;
+
+/**
+ * Representa una reserva de tipo actividad.
+ * Extiende TipoReserva añadiendo horaInicio, horaFin y estado.
+ * @author David Catalán Aragó
+ * @see TipoReserva
+ */
+public class Actividad extends TipoReserva {
+
+    private String horaInicio;
+    private String horaFin;
+    private String estado;
+
+    /**
+     * Constructor de Actividad.
+     * @param cod        Código identificador.
+     * @param nombre     Nombre de la actividad.
+     * @param precioBase Precio base de la actividad.
+     * @param iva        IVA aplicado (entre 0 y 1).
+     * @param capacidad  Capacidad máxima de participantes.
+     * @param horaInicio Hora de inicio (ej: "10:00").
+     * @param horaFin    Hora de fin (ej: "12:00").
+     * @param estado     Estado (ej: "Disponible", "Completa", "Cancelada").
+     */
+    public Actividad(int cod, String nombre, double precioBase, double iva, int capacidad, String horaInicio, String horaFin, String estado) {
+        super(cod, nombre, precioBase, iva, capacidad);
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
+        this.estado = estado;
+    }
+
+    @Override
+    public double precioIVA(){
+        return super.precioBase * super.iva;
+    }
+
+    /** @return Hora de inicio de la actividad. */
+    public String getHoraInicio(){
+        return horaInicio;
+    }
+
+    /** @param horaInicio Hora de inicio a asignar. */
+    public void setHoraInicio(String horaInicio){
+        this.horaInicio = horaInicio;
+    }
+
+    /** @return Hora de fin de la actividad. */
+    public String getHoraFin(){
+        return horaFin;
+    }
+
+    /** @param horaFin Hora de fin a asignar. */
+    public void setHoraFin(String horaFin) {
+        this.horaFin = horaFin;
+    }
+
+    /** @return Estado de la actividad. */
+    public String getEstado(){
+        return estado;
+    }
+
+    /** @param estado Estado a asignar. */
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "--- ACTIVIDAD ---" + "\n" + super.toString() + "\nHora Inicio: " + horaInicio + "\nHora Fin: " + horaFin + "\nEstado: " + estado;
+    }
+}
