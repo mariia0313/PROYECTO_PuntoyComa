@@ -1,7 +1,5 @@
 package Proyecto_Punto_y_Coma.ENTIDAD;
 
-import java.util.Date;
-
 /**
  * Representa una reserva concreta del hotel.
  * Une un Cliente con un TipoReserva para unas fechas determinadas.
@@ -13,9 +11,10 @@ public class Reserva implements java.io.Serializable {
     private int cod;
     private Cliente2 cliente;
     private TipoReserva tipoReserva;
-    private Date fechaInicio;
-    private Date fechaFin;
+    private java.sql.Date fechaInicio;
+    private java.sql.Date fechaFin;
     private String estado;
+    private String tipoRecurso;
 
     /**
      * Constructor de Reserva.
@@ -25,12 +24,13 @@ public class Reserva implements java.io.Serializable {
      * @param fechaInicio Fecha de inicio de la reserva.
      * @param fechaFin    Fecha de fin de la reserva.
      */
-    public Reserva(int cod, Cliente2 cliente, TipoReserva tipoReserva, Date fechaInicio, Date fechaFin) {
+    public Reserva(int cod, Cliente2 cliente, TipoReserva tipoReserva, java.sql.Date fechaInicio, java.sql.Date fechaFin, String tipoRecurso) {
         this.cod = cod;
         this.cliente = cliente;
         this.tipoReserva = tipoReserva;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
+        this.tipoRecurso = tipoRecurso;
         this.estado = "Alta";
     }
 
@@ -41,7 +41,7 @@ public class Reserva implements java.io.Serializable {
      */
     public double calcularPrecioTotal() {
         long dias;
-        if (tipoReserva instanceof Actividad) {
+        if (tipoReserva instanceof Actividad || tipoReserva instanceof SalaEvento) {
             dias=1;
         } else {
 
@@ -63,7 +63,7 @@ public class Reserva implements java.io.Serializable {
      * @param otraFechaFin    Fecha de fin de la otra reserva.
      * @return true si hay solapamiento de fechas.
      */
-    public boolean seSolapa(Date otraFechaInicio, Date otraFechaFin){
+    public boolean seSolapa(java.sql.Date otraFechaInicio, java.sql.Date otraFechaFin){
         return this.fechaInicio.before(otraFechaFin) && this.fechaFin.after(otraFechaInicio);
     }
 
@@ -103,22 +103,22 @@ public class Reserva implements java.io.Serializable {
     }
 
     /** @return Fecha de inicio de la reserva. */
-    public Date getFechaInicio(){
+    public java.sql.Date getFechaInicio(){
         return fechaInicio;
     }
 
     /** @param fechaInicio Fecha de inicio a asignar. */
-    public void setFechaInicio(Date fechaInicio){
+    public void setFechaInicio(java.sql.Date fechaInicio){
         this.fechaInicio = fechaInicio;
     }
 
     /** @return Fecha de fin de la reserva. */
-    public Date getFechaFin(){
+    public java.sql.Date getFechaFin(){
         return fechaFin;
     }
 
     /** @param fechaFin Fecha de fin a asignar. */
-    public void setFechaFin(Date fechaFin){
+    public void setFechaFin(java.sql.Date fechaFin){
         this.fechaFin = fechaFin; 
     }
 
@@ -130,6 +130,16 @@ public class Reserva implements java.io.Serializable {
     /** @param estado Estado a asignar. */
     public void setEstado(String estado){
         this.estado = estado;
+    }
+
+    /** @return Tipo del recurso reservado. */
+    public String getTipoRecurso() {
+        return tipoRecurso;
+    }
+
+    /** @param tipoRecurso Tipo del recurso a asignar. */
+    public void setTipoRecurso(String tipoRecurso) {
+        this.tipoRecurso = tipoRecurso;
     }
 
     @Override

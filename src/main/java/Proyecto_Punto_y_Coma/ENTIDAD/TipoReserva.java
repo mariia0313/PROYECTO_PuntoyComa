@@ -13,6 +13,7 @@ public abstract class TipoReserva implements java.io.Serializable {
     protected double precioBase;
     protected double iva;
     protected int capacidad;
+    protected String estado;
 
     /**
      * Constructor de TipoReserva.
@@ -22,19 +23,22 @@ public abstract class TipoReserva implements java.io.Serializable {
      * @param iva        IVA aplicado (entre 0 y 1, ej: 0.21).
      * @param capacidad  Capacidad máxima de personas.
      */
-    public TipoReserva(int cod, String nombre, double precioBase, double iva, int capacidad) {
+    public TipoReserva(int cod, String nombre, double precioBase, double iva, int capacidad, String estado) {
         this.cod = cod;
         this.nombre = nombre;
         this.precioBase = precioBase;
         this.iva = iva;
         this.capacidad = capacidad;
+        this.estado = estado;
     }
 
     /**
      * Calcula el importe del IVA sobre el precio base.
      * @return Importe del IVA.
      */
-    public abstract double precioIVA();
+    public double precioIVA(){
+        return this.precioBase * this.iva;
+    }
 
     /**
      * Calcula el precio total sumando precio base e IVA.
@@ -99,6 +103,13 @@ public abstract class TipoReserva implements java.io.Serializable {
     /** @param capacidad Capacidad a asignar. */
     public void setCapacidad(int capacidad){
         this.capacidad = capacidad;
+    }
+
+    public String getEstado(){
+        return estado;
+    }
+    public void setEstado(String estado){
+        this.estado = estado;
     }
 
     @Override

@@ -26,23 +26,26 @@ public class ClienteDAO {
         System.out.println("Introduzca el teléfono del cliente");
         String telefono = leer.nextLine();
 
-        Statement stmt = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            stmt = con.createStatement();
-            String insert = "INSERT INTO clientes (nombre, dni, email, telefono) VALUES ('"+ nombre + "', '" + dni + "', '" + email + "', '" + telefono + "')";
-            stmt.executeUpdate(insert);
-
-            rs = stmt.executeQuery("SELECT cod_cliente FROM clientes WHERE dni = '" + dni + "'");
+            String insert = "INSERT INTO clientes (nombre, dni, email, telefono) VALUES (?, ?, ?, ?)";
+            ps = con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, nombre);
+            ps.setString(2, dni);
+            ps.setString(3, email);
+            ps.setString(4, telefono);
+            ps.executeUpdate();
+            rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                System.out.println("Cliente creado con código: " + rs.getInt("cod_cliente"));
+                System.out.println("Cliente creado con código: " + rs.getInt(1));
             }
         } catch (SQLException e) {
             System.err.println("Error de base de datos en la operación:");
             e.printStackTrace();
         } finally {
             if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
+            if (ps != null) ps.close();
         }
     }
 
@@ -85,11 +88,9 @@ public class ClienteDAO {
         boolean existe = false;
         try {
             stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT cod_cliente FROM clientes");
-            while (rs.next()) {
-                if (rs.getInt("cod_cliente") == codigo) {
-                    existe = true;
-                }
+            ResultSet rs = stmt.executeQuery("SELECT cod FROM clientes WHERE cod = " + codigo);
+            if (rs.next()) {
+                existe = true;
             }
         } catch (SQLException e) {
             System.err.println("Error de base de datos en la operación:");
@@ -111,7 +112,7 @@ public class ClienteDAO {
         ResultSet rs = null;
         try {
             stmt = con.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM clientes WHERE cod_cliente = " + codigo);
+            rs = stmt.executeQuery("SELECT * FROM clientes WHERE cod = " + codigo);
             if (rs.next()) {
                 int cod = rs.getInt("cod_cliente");
                 String nombre = rs.getString("nombre");
@@ -140,7 +141,7 @@ public class ClienteDAO {
         System.out.println("Introduzca el código del cliente a eliminar:");
         int cod = leer.nextInt();
 
-        String sql = "DELETE FROM clientes WHERE cod_cliente = ?";
+        String sql = "DELETE FROM clientes WHERE cod = ?";
         PreparedStatement ps = null;
         try {
             ps = con.prepareStatement(sql);
