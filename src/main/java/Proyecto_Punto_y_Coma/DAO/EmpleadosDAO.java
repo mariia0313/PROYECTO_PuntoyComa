@@ -23,19 +23,24 @@ public class EmpleadosDAO {
      */
     private String seleccionarCargo(Scanner leer) {
         int opc;
+        String cargo = "";
         do {
             System.out.println("Seleccione el cargo del empleado:");
-            System.out.println("1. Admin");
+            System.out.println("1. Administrador");
             System.out.println("2. Encargado Compras");
+            System.out.println("3. Encargado Reservas");
             System.out.print("Elija una opción: ");
             opc = leer.nextInt();
             leer.nextLine();
             switch (opc) {
-                case 1: return "Admin";
-                case 2: return "Encargado Compras";
+                case 1: cargo = "Administrador";
+                case 2: cargo = "Encargado Compras";
+                case 3: cargo = "Encargado Reservas";
                 default: System.out.println("Opción no válida.");
             }
-        } while (true);
+
+            return cargo;
+        } while (opc > 3 && opc < 1);
     }
 
     /**
