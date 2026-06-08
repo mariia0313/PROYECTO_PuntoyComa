@@ -1,5 +1,6 @@
 package Proyecto_Punto_y_Coma.ENTIDAD;
 
+import java.time.LocalTime;
 /**
  * Representa una reserva de tipo actividad.
  * Extiende TipoReserva añadiendo horaInicio, horaFin y estado.
@@ -8,9 +9,8 @@ package Proyecto_Punto_y_Coma.ENTIDAD;
  */
 public class Actividad extends TipoReserva {
 
-    private String horaInicio;
-    private String horaFin;
-    private String estado;
+    private LocalTime horaInicio;
+    private LocalTime horaFin;
 
     /**
      * Constructor de Actividad.
@@ -23,35 +23,29 @@ public class Actividad extends TipoReserva {
      * @param horaFin    Hora de fin (ej: "12:00").
      * @param estado     Estado (ej: "Disponible", "Completa", "Cancelada").
      */
-    public Actividad(int cod, String nombre, double precioBase, double iva, int capacidad, String horaInicio, String horaFin, String estado) {
-        super(cod, nombre, precioBase, iva, capacidad);
+    public Actividad(int cod, String nombre, double precioBase, double iva, int capacidad, LocalTime horaInicio, LocalTime horaFin, String estado) {
+        super(cod, nombre, precioBase, iva, capacidad, estado);
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
-        this.estado = estado;
-    }
-
-    @Override
-    public double precioIVA(){
-        return super.precioBase * super.iva;
     }
 
     /** @return Hora de inicio de la actividad. */
-    public String getHoraInicio(){
+    public LocalTime getHoraInicio(){
         return horaInicio;
     }
 
     /** @param horaInicio Hora de inicio a asignar. */
-    public void setHoraInicio(String horaInicio){
+    public void setHoraInicio(LocalTime horaInicio){
         this.horaInicio = horaInicio;
     }
 
     /** @return Hora de fin de la actividad. */
-    public String getHoraFin(){
+    public LocalTime getHoraFin(){
         return horaFin;
     }
 
     /** @param horaFin Hora de fin a asignar. */
-    public void setHoraFin(String horaFin) {
+    public void setHoraFin(LocalTime horaFin) {
         this.horaFin = horaFin;
     }
 

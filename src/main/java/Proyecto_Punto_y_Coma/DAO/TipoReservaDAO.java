@@ -32,6 +32,7 @@ public class TipoReservaDAO {
 
         System.out.println("Introduzca la capacidad de personas");
         int capacidad = leer.nextInt();
+        leer.nextLine();
 
         System.out.println("Introduzca el tipo de alojamiento (ej: Habitacion Doble, Suite)");
         String tipoAlojamiento = leer.nextLine();
@@ -40,9 +41,9 @@ public class TipoReservaDAO {
         ResultSet rs = null;
         try {
             stmt = con.createStatement();
-            stmt.executeUpdate("INSERT INTO alojamientos (nombre, precio_base, iva, capacidad, tipo_alojamiento) VALUES ('" + nombre + "', " + precioBase + ", " + iva + ", " + capacidad + ", '" + tipoAlojamiento + "')");
-            rs = stmt.executeQuery("SELECT cod_alojamiento FROM alojamientos WHERE nombre = '" + nombre + "' ORDER BY cod_alojamiento DESC LIMIT 1");
-              if (rs.next()) System.out.println("Alojamiento creado con codigo: " + rs.getInt("cod_alojamiento"));
+            stmt.executeUpdate("INSERT INTO alojamientos (nombre, precio_base, iva, capacidad, tipo_alojamiento, estado) VALUES ('" + nombre + "', " + precioBase + ", " + iva + ", " + capacidad + ", '" + tipoAlojamiento + "', 'Disponible')");
+            rs = stmt.executeQuery("SELECT cod FROM alojamientos WHERE nombre = '" + nombre + "' ORDER BY cod DESC LIMIT 1");
+              if (rs.next()) System.out.println("Alojamiento creado con codigo: " + rs.getInt("cod"));
         } catch (SQLException e) {
             System.err.println("Error de base de datos en la operación:");
             e.printStackTrace();
@@ -64,12 +65,13 @@ public class TipoReservaDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM alojamientos");
             while (rs.next()) {
                 System.out.println("**********************************");
-                System.out.println("Codigo: " + rs.getInt("cod_alojamiento"));
+                System.out.println("Codigo: " + rs.getInt("cod"));
                 System.out.println("Nombre: " + rs.getString("nombre"));
                 System.out.println("Precio base/noche: " + rs.getDouble("precio_base"));
                 System.out.println("IVA: " + (rs.getDouble("iva") * 100) + "%");
                 System.out.println("Capacidad: " + rs.getInt("capacidad"));
                 System.out.println("Tipo: " + rs.getString("tipo_alojamiento"));
+                System.out.println("Estado: " + rs.getString("estado"));
             }
             System.out.println("**********************************");
         } catch (SQLException e) {
@@ -89,7 +91,7 @@ public class TipoReservaDAO {
     public static void modificarAlojamiento(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el codigo del alojamiento a modificar");
         int cod = leer.nextInt();
-        if (!existeRecurso(con, "alojamientos", "cod_alojamiento", cod)) {
+        if (!existeRecurso(con, "alojamientos", "cod", cod)) {
             System.out.println("Alojamiento no encontrado en la base de datos");
         } else{
             int opcion = 0;
@@ -101,8 +103,11 @@ public class TipoReservaDAO {
                 System.out.println("3. IVA");
                 System.out.println("4. Capacidad");
                 System.out.println("5. Tipo alojamiento");
+                System.out.println("6. Estado");
                 System.out.println("0. Salir");
                 opcion = leer.nextInt();
+                leer.nextLine();
+
                 String campo = "";
                 switch (opcion) {
                     case 1:
@@ -120,6 +125,9 @@ public class TipoReservaDAO {
                     case 5:
                         campo = "tipo_alojamiento";
                         break;
+                    case 6:
+                        campo = "estado";
+                        break;
                     case 0:
                         System.out.println("Saliendo...");
                         break;
@@ -127,13 +135,24 @@ public class TipoReservaDAO {
                     System.out.println("Opcion no valida");
                     break;
                 }
-                if (opcion > 0 && opcion <= 5) {
+                if (opcion > 0 && opcion <= 6) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
                     String nuevo = leer.nextLine();
-                    String sql = "UPDATE alojamientos SET " + campo + " = ? WHERE cod_alojamiento = ?";
+                    String sql = "UPDATE alojamientos SET " + campo + " = ? WHERE cod = ?";
                     try {
                         ps = con.prepareStatement(sql);
-                        ps.setString(1, nuevo);
+                        switch (opcion) {
+                            case 2:
+                            case 3:
+                                ps.setDouble(1, Double.parseDouble(nuevo));
+                                break;
+                            case 4:
+                                ps.setInt(1, Integer.parseInt(nuevo));
+                                break;
+                            default:
+                                ps.setString(1, nuevo);
+                                break;
+                        }
                         ps.setInt(2, cod);
                         
                         int filas = ps.executeUpdate();
@@ -165,8 +184,9 @@ public class TipoReservaDAO {
         ResultSet rs = null;
         try {
             stmt = con.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM alojamientos WHERE cod_alojamiento = " + codigo);
-            if (rs.next()) alojamiento = new Alojamiento(rs.getInt("cod_alojamiento"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getString("tipo_alojamiento"));
+            rs = stmt.executeQuery("SELECT * FROM alojamientos WHERE cod = " + codigo);
+            if (rs.next()) alojamiento = new Alojamiento(rs.getInt("cod"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getString("tipo_alojamiento"), rs.getString("estado"));
+            else System.out.println("Aviso: No se encontró alojamiento con código " + codigo);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -188,7 +208,7 @@ public class TipoReservaDAO {
         System.out.println("Introduzca el código del alojamiento a eliminar:");
         int cod = leer.nextInt();
 
-        String sql = "DELETE FROM alojamientos WHERE cod_alojamiento = ?";
+        String sql = "DELETE FROM alojamientos WHERE cod = ?";
         PreparedStatement ps = null;
         try {
             ps = con.prepareStatement(sql);
@@ -224,6 +244,7 @@ public class TipoReservaDAO {
 
         System.out.println("Introduzca la capacidad maxima de participantes");
         int capacidad = leer.nextInt();
+        leer.nextLine();
 
         System.out.println("Introduzca la hora de inicio (ej: 10:00)");
         String horaInicio = leer.nextLine();
@@ -239,8 +260,8 @@ public class TipoReservaDAO {
         try {
             stmt = con.createStatement();
             stmt.executeUpdate("INSERT INTO actividades (nombre, precio_base, iva, capacidad, hora_inicio, hora_fin, estado) VALUES ('" + nombre + "', " + precioBase + ", " + iva + ", " + capacidad + ", '" + horaInicio + "', '" + horaFin + "', '" + estado + "')");
-            rs = stmt.executeQuery("SELECT cod_actividad FROM actividades WHERE nombre = '" + nombre + "' ORDER BY cod_actividad DESC LIMIT 1");
-            if (rs.next()) System.out.println("Actividad creada con codigo: " + rs.getInt("cod_actividad"));
+            rs = stmt.executeQuery("SELECT cod FROM actividades WHERE nombre = '" + nombre + "' ORDER BY cod DESC LIMIT 1");
+            if (rs.next()) System.out.println("Actividad creada con codigo: " + rs.getInt("cod"));
         } catch (SQLException e) {
             System.err.println("Error de base de datos en la operación:");
             e.printStackTrace();
@@ -262,7 +283,7 @@ public class TipoReservaDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM actividades");
             while (rs.next()) {
                 System.out.println("**********************************");
-                System.out.println("Codigo: " + rs.getInt("cod_actividad"));
+                System.out.println("Codigo: " + rs.getInt("cod"));
                 System.out.println("Nombre: " + rs.getString("nombre"));
                 System.out.println("Precio base: " + rs.getDouble("precio_base"));
                 System.out.println("IVA: " + (rs.getDouble("iva") * 100) + "%");
@@ -291,7 +312,7 @@ public class TipoReservaDAO {
         System.out.println("Introduzca el codigo de la actividad a modificar");
         int cod = leer.nextInt();
         
-        if (!existeRecurso(con, "actividades", "cod_actividad", cod)) {
+        if (!existeRecurso(con, "actividades", "cod", cod)) {
             System.out.println("Actividad no encontrada en la base de datos");
         } else {
             int opcion = 0;
@@ -307,6 +328,7 @@ public class TipoReservaDAO {
                 System.out.println("7. Estado");
                 System.out.println("0. Salir");
                 opcion = leer.nextInt();
+                leer.nextLine();
                 
                 String campo = "";
                 switch (opcion) {
@@ -343,10 +365,21 @@ public class TipoReservaDAO {
                     System.out.println("Introduzca el nuevo valor para " + campo);
                     String nuevo = leer.nextLine();
                     
-                    String sql = "UPDATE actividades SET " + campo + " = ? WHERE cod_actividad = ?";
+                    String sql = "UPDATE actividades SET " + campo + " = ? WHERE cod = ?";
                     try {
                         ps = con.prepareStatement(sql);
-                        ps.setString(1, nuevo);
+                        switch (opcion) {
+                            case 2:
+                            case 3:
+                                ps.setDouble(1, Double.parseDouble(nuevo));
+                                break;
+                            case 4:
+                                ps.setInt(1, Integer.parseInt(nuevo));
+                                break;
+                            default:
+                                ps.setString(1, nuevo);
+                                break;
+                        }
                         ps.setInt(2, cod);
                         
                         int filas = ps.executeUpdate();
@@ -378,8 +411,9 @@ public class TipoReservaDAO {
         ResultSet rs = null;
         try {
             stmt = con.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM actividades WHERE cod_actividad = " + codigo);
-            if (rs.next()) actividad = new Actividad(rs.getInt("cod_actividad"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getString("hora_inicio"), rs.getString("hora_fin"), rs.getString("estado"));
+            rs = stmt.executeQuery("SELECT * FROM actividades WHERE cod = " + codigo);
+            if (rs.next()) actividad = new Actividad(rs.getInt("cod"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getObject("hora_inicio", java.time.LocalTime.class), rs.getObject("hora_fin", java.time.LocalTime.class), rs.getString("estado"));
+            else System.out.println("Aviso: No se encontró alojamiento con código " + codigo);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -400,7 +434,7 @@ public class TipoReservaDAO {
     public static void eliminarActividad(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código de la actividad a eliminar:");
         int cod = leer.nextInt();
-        String sql = "DELETE FROM actividades WHERE cod_actividad = ?";
+        String sql = "DELETE FROM actividades WHERE cod = ?";
         PreparedStatement ps = null;
         try {
             ps = con.prepareStatement(sql);
@@ -436,6 +470,7 @@ public class TipoReservaDAO {
 
         System.out.println("Introduzca la capacidad maxima de personas");
         int capacidad = leer.nextInt();
+        leer.nextLine();
 
         System.out.println("Introduzca la hora de inicio disponible (ej: 09:00)");
         String horaInicio = leer.nextLine();
@@ -447,9 +482,9 @@ public class TipoReservaDAO {
         ResultSet rs = null;
         try {
             stmt = con.createStatement();
-            stmt.executeUpdate("INSERT INTO salas_evento (nombre, precio_base, iva, capacidad, hora_inicio, hora_fin) VALUES ('" + nombre + "', " + precioBase + ", " + iva + ", " + capacidad + ", '" + horaInicio + "', '" + horaFin + "')");
-            rs = stmt.executeQuery("SELECT cod_sala FROM salas_evento WHERE nombre = '" + nombre + "' ORDER BY cod_sala DESC LIMIT 1");
-            if (rs.next()) System.out.println("Sala de evento creada con codigo: " + rs.getInt("cod_sala"));
+            stmt.executeUpdate("INSERT INTO salas_evento (nombre, precio_base, iva, capacidad, hora_inicio, hora_fin, estado) VALUES ('" + nombre + "', " + precioBase + ", " + iva + ", " + capacidad + ", '" + horaInicio + "', '" + horaFin + "', 'Disponible')");
+            rs = stmt.executeQuery("SELECT cod FROM salas_evento WHERE nombre = '" + nombre + "' ORDER BY cod DESC LIMIT 1");
+            if (rs.next()) System.out.println("Sala de evento creada con codigo: " + rs.getInt("cod"));
         } catch (SQLException e) {
             System.err.println("Error de base de datos en la operación:");
             e.printStackTrace();
@@ -471,13 +506,14 @@ public class TipoReservaDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM salas_evento");
             while (rs.next()) {
                 System.out.println("**********************************");
-                System.out.println("Codigo: " + rs.getInt("cod_sala"));
+                System.out.println("Codigo: " + rs.getInt("cod"));
                 System.out.println("Nombre sala: " + rs.getString("nombre"));
                 System.out.println("Precio base/hora: "+ rs.getDouble("precio_base"));
                 System.out.println("IVA: " + (rs.getDouble("iva") * 100) + "%");
                 System.out.println("Capacidad: " + rs.getInt("capacidad"));
                 System.out.println("Hora inicio: " + rs.getString("hora_inicio"));
                 System.out.println("Hora fin: " + rs.getString("hora_fin"));
+                System.out.println("Estado: " + rs.getString("estado"));
             }
             System.out.println("**********************************");
         } catch (SQLException e) {
@@ -499,7 +535,7 @@ public class TipoReservaDAO {
         System.out.println("Introduzca el codigo de la sala a modificar");
         int cod = leer.nextInt();
         
-        if (!existeRecurso(con, "salas_evento", "cod_sala", cod)) {
+        if (!existeRecurso(con, "salas_evento", "cod", cod)) {
             System.out.println("Sala de evento no encontrada en la base de datos");
         } else {
             int opcion = 0;
@@ -512,8 +548,10 @@ public class TipoReservaDAO {
                 System.out.println("4. Capacidad");
                 System.out.println("5. Hora inicio");
                 System.out.println("6. Hora fin");
+                System.out.println("7. Estado");
                 System.out.println("0. Salir");
                 opcion = leer.nextInt();
+                leer.nextLine();
                 
                 String campo = "";
                 switch (opcion) {
@@ -535,6 +573,9 @@ public class TipoReservaDAO {
                     case 6:
                         campo = "hora_fin";
                         break;
+                    case 7:
+                        campo = "estado";
+                        break;
                     case 0:
                         System.out.println("Saliendo...");
                         break;
@@ -543,14 +584,25 @@ public class TipoReservaDAO {
                         break;
                 }
                 
-                if (opcion > 0 && opcion <= 6) {
+                if (opcion > 0 && opcion <= 7) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
                     String nuevo = leer.nextLine();
                     
-                    String sql = "UPDATE salas_evento SET " + campo + " = ? WHERE cod_sala = ?";
+                    String sql = "UPDATE salas_evento SET " + campo + " = ? WHERE cod = ?";
                     try {
                         ps = con.prepareStatement(sql);
-                        ps.setString(1, nuevo);
+                        switch (opcion) {
+                            case 2:
+                            case 3:
+                                ps.setDouble(1, Double.parseDouble(nuevo));
+                                break;
+                            case 4:
+                                ps.setInt(1, Integer.parseInt(nuevo));
+                                break;
+                            default:
+                                ps.setString(1, nuevo);
+                                break;
+                        }
                         ps.setInt(2, cod);
                         
                         int filas = ps.executeUpdate();
@@ -582,8 +634,9 @@ public class TipoReservaDAO {
         ResultSet rs = null;
         try {
             stmt = con.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM salas_evento WHERE cod_sala = " + codigo);
-            if (rs.next()) sala = new SalaEvento(rs.getInt("cod_sala"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getString("hora_inicio"), rs.getString("hora_fin"));
+            rs = stmt.executeQuery("SELECT * FROM salas_evento WHERE cod = " + codigo);
+            if (rs.next()) sala = new SalaEvento(rs.getInt("cod"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getObject("hora_inicio", java.time.LocalTime.class), rs.getObject("hora_fin", java.time.LocalTime.class), rs.getString("estado"));
+            else System.out.println("Aviso: No se encontró alojamiento con código " + codigo);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -604,7 +657,7 @@ public class TipoReservaDAO {
     public static void eliminarSalaEvento(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código de la sala a eliminar:");
         int cod = leer.nextInt();
-        String sql = "DELETE FROM salas_evento WHERE cod_sala = ?";
+        String sql = "DELETE FROM salas_evento WHERE cod = ?";
         PreparedStatement ps = null;
         try {
             ps = con.prepareStatement(sql);
@@ -635,9 +688,9 @@ public class TipoReservaDAO {
         boolean existe = false;
         try {
             stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT " + columna + " FROM " + tabla);
-            while (rs.next()) {
-                if (rs.getInt(columna) == codigo) existe = true;
+            ResultSet rs = stmt.executeQuery("SELECT " + columna + " FROM " + tabla + " WHERE " + columna + " = " + codigo);
+            if (rs.next()) {
+                existe = true;
             }
         } catch (SQLException e) {
             System.err.println("Error de base de datos en la operación:");
@@ -661,6 +714,8 @@ public class TipoReservaDAO {
             System.out.println("3. Salas de Evento");
             System.out.println("0. Volver al menú principal");
             opcion = leer.nextInt();
+            leer.nextLine();
+
             switch (opcion) {
                 case 1: menuAlojamiento(con, leer); break;
                 case 2: menuActividad(con, leer); break;
@@ -688,7 +743,8 @@ public class TipoReservaDAO {
             System.out.println("4. Eliminar alojamiento");
             System.out.println("0. Volver");
             opcion = leer.nextInt();
-            leer.nextLine(); // Limpiar buffer
+            leer.nextLine();
+
             switch (opcion) {
                 case 1: crearAlojamiento(leer, con); break;
                 case 2: modificarAlojamiento(con, leer); break;
@@ -717,6 +773,8 @@ public class TipoReservaDAO {
             System.out.println("4. Eliminar actividad");
             System.out.println("0. Volver");
             opcion = leer.nextInt();
+            leer.nextLine();
+
             switch (opcion) {
                 case 1: crearActividad(leer, con); break;
                 case 2: modificarActividad(con, leer); break;
@@ -745,6 +803,8 @@ public class TipoReservaDAO {
             System.out.println("4. Eliminar sala de evento");
             System.out.println("0. Volver");
             opcion = leer.nextInt();
+            leer.nextLine();
+            
             switch (opcion) {
                 case 1: crearSalaEvento(leer, con); break;
                 case 2: modificarSalaEvento(con, leer); break;

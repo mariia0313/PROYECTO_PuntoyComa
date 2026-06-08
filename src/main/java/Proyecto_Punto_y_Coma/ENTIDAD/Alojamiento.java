@@ -1,5 +1,6 @@
 package Proyecto_Punto_y_Coma.ENTIDAD;
 
+import java.time.LocalTime;
 /**
  * Representa una reserva de tipo alojamiento.
  * Extiende TipoReserva añadiendo el tipo de alojamiento.
@@ -19,14 +20,9 @@ public class Alojamiento extends TipoReserva {
      * @param capacidad       Capacidad de personas.
      * @param tipoAlojamiento Tipo (ej: "Habitación Doble", "Suite"...).
      */
-    public Alojamiento(int cod, String nombre, double precioBase, double iva, int capacidad, String tipoAlojamiento) {
-        super(cod, nombre, precioBase, iva, capacidad);
+    public Alojamiento(int cod, String nombre, double precioBase, double iva, int capacidad, String tipoAlojamiento, String estado) {
+        super(cod, nombre, precioBase, iva, capacidad, estado);
         this.tipoAlojamiento = tipoAlojamiento;
-    }
-
-    @Override
-    public double precioIVA(){
-        return super.precioBase * super.iva;
     }
 
     /** @return Tipo de alojamiento. */
