@@ -103,11 +103,12 @@ public class Producto{
      */
     public String toString() {
         return String.format(
-                "    > [%3d] %-15s | Precio: %7.2f eur | Stock: %d | Est: %s",
+                "    > [%3d] %-15s | Precio: %7.2f eur | Stock: %d | Min: %d | Est: %s",
                 cod,
                 nombre,
                 precio,
                 stock,
+                stock_min,
                 estado
         );
     }

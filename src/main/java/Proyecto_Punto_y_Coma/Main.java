@@ -28,8 +28,7 @@ public class Main {
             System.out.println("1. Iniciar sesión");
             System.out.println("2. Crear usuario");
             System.out.println("0. Salir del programa");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
             
             switch (opcion) {
                 case 1:
@@ -37,14 +36,13 @@ public class Main {
                     if (empleado != null) {
                         String cargo = empleado.getCargo();
                         switch (cargo) {
-                            case "Admin":
+                            case "Administrador":
                                 do {
                                     System.out.println("      ADMINISTRACIÓN   ");
                                     System.out.println("1. Gestión de empleados");
                                     System.out.println("2. Gestión de usuarios");
                                     System.out.println("0. Salir");
-                                    opcion2 = leer.nextInt();
-                                    leer.nextLine();
+                                    opcion2 = ConexionBD.leerEntero(leer);
                                     switch (opcion2){
                                         case 1:
                                             emp_dao.menu(con, leer);
@@ -68,8 +66,7 @@ public class Main {
                                     System.out.println("2. Gestión de productos");
                                     System.out.println("3. Gestión de pedidos");
                                     System.out.println("0. Salir");
-                                    opcion2 = leer.nextInt();
-                                    leer.nextLine();
+                                    opcion2 = ConexionBD.leerEntero(leer);
                                     switch (opcion2) {
                                         case 1:
                                             prov_dao.menu(con, leer);

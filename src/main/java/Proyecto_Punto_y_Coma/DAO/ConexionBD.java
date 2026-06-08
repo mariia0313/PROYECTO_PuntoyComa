@@ -4,6 +4,7 @@
  */
 package Proyecto_Punto_y_Coma.DAO;
 import java.sql.*;
+import java.util.Scanner;
 /**
  * Gestiona la conexión y desconexión con la base de datos MySQL del proyecto.
  * @author María Herrero Rodríguez
@@ -43,6 +44,16 @@ public class ConexionBD {
         if (con != null) con.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+    
+    public static int leerEntero(Scanner leer) {
+        while (true) {
+            try {
+                return Integer.parseInt(leer.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.print("Entrada invalida. Introduzca un numero: ");
+            }
         }
     }
     
