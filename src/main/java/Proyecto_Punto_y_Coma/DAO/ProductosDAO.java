@@ -147,8 +147,7 @@ public class ProductosDAO {
                 System.out.println("7. Modificar estado");
                 System.out.println("0. Salir");
                 System.out.print("Elija una opción: ");
-                opcion = leer.nextInt();
-                leer.nextLine();
+                opcion = ConexionBD.leerEntero(leer);
 
                 switch (opcion) {
                 case 1:
@@ -239,8 +238,7 @@ public class ProductosDAO {
             System.out.println("5. Ajustar stock de un producto");
             System.out.println("0. Salir");
             System.out.print("Elija una opción: ");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
             switch (opcion) {
                 case 1:
                     crearProducto(leer, con);
@@ -255,8 +253,22 @@ public class ProductosDAO {
                     break;
                     
                 case 4:
-                    System.out.println("Inserte la ruta del archivo a cargar");
-                    String ruta = leer.nextLine();
+                    File csvDefault = new File("productos_importar.csv");
+                    String ruta;
+                    if (csvDefault.exists()) {
+                        System.out.println("Archivo encontrado: " + csvDefault.getAbsolutePath());
+                        System.out.print("Usar este archivo? (s/n): ");
+                        String resp = leer.nextLine();
+                        if (resp.equalsIgnoreCase("s")) {
+                            ruta = csvDefault.getPath();
+                        } else {
+                            System.out.println("Inserte la ruta del archivo a cargar");
+                            ruta = leer.nextLine();
+                        }
+                    } else {
+                        System.out.println("Inserte la ruta del archivo a cargar");
+                        ruta = leer.nextLine();
+                    }
                     cargarProductosDesdeCSV(con, ruta);
                     break;
 
@@ -289,57 +301,60 @@ public class ProductosDAO {
         int id = leer.nextInt();
         leer.nextLine();
 
-        if (!existeProducto(con, id)) {
-            System.out.println("El producto no existe.");
-            return;
-        }
+        if (existeProducto(con, id)) {
+            String sqlStock = "SELECT Nombre, Stock FROM productos WHERE ID_producto = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sqlStock)) {
+                pstmt.setInt(1, id);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String nombre = rs.getString("Nombre");
+                        int stockActual = rs.getInt("Stock");
+                        System.out.println("Producto: " + nombre + " | Stock actual: " + stockActual);
 
-        String sqlStock = "SELECT Nombre, Stock FROM productos WHERE ID_producto = ?";
-        try (PreparedStatement pstmt = con.prepareStatement(sqlStock)) {
-            pstmt.setInt(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    String nombre = rs.getString("Nombre");
-                    int stockActual = rs.getInt("Stock");
-                    System.out.println("Producto: " + nombre + " | Stock actual: " + stockActual);
+                        System.out.println("¿Añadir (1) o quitar (2) stock?");
+                        System.out.print("Elija una opción: ");
+                        int op = leer.nextInt();
+                        System.out.println("Cantidad:");
+                        int cantidad = leer.nextInt();
+                        leer.nextLine();
 
-                    System.out.println("¿Añadir (1) o quitar (2) stock?");
-                    System.out.print("Elija una opción: ");
-                    int op = leer.nextInt();
-                    System.out.println("Cantidad:");
-                    int cantidad = leer.nextInt();
-                    leer.nextLine();
-
-                    if (cantidad <= 0) {
-                        System.out.println("La cantidad debe ser positiva.");
-                        return;
-                    }
-
-                    int nuevoStock;
-                    if (op == 1) {
-                        nuevoStock = stockActual + cantidad;
-                    } else if (op == 2) {
-                        nuevoStock = stockActual - cantidad;
-                        if (nuevoStock < 0) {
-                            System.out.println("No se puede quitar más stock del disponible.");
-                            return;
+                        if (cantidad > 0) {
+                            int nuevoStock;
+                            if (op == 1) {
+                                nuevoStock = stockActual + cantidad;
+                                String update = "UPDATE productos SET Stock = ? WHERE ID_producto = ?";
+                                try (PreparedStatement pstmtUpd = con.prepareStatement(update)) {
+                                    pstmtUpd.setInt(1, nuevoStock);
+                                    pstmtUpd.setInt(2, id);
+                                    pstmtUpd.executeUpdate();
+                                    System.out.println("Stock actualizado: " + stockActual + " → " + nuevoStock);
+                                }
+                            } else if (op == 2) {
+                                nuevoStock = stockActual - cantidad;
+                                if (nuevoStock >= 0) {
+                                    String update = "UPDATE productos SET Stock = ? WHERE ID_producto = ?";
+                                    try (PreparedStatement pstmtUpd = con.prepareStatement(update)) {
+                                        pstmtUpd.setInt(1, nuevoStock);
+                                        pstmtUpd.setInt(2, id);
+                                        pstmtUpd.executeUpdate();
+                                        System.out.println("Stock actualizado: " + stockActual + " → " + nuevoStock);
+                                    }
+                                } else {
+                                    System.out.println("No se puede quitar más stock del disponible.");
+                                }
+                            } else {
+                                System.out.println("Opción no válida.");
+                            }
+                        } else {
+                            System.out.println("La cantidad debe ser positiva.");
                         }
-                    } else {
-                        System.out.println("Opción no válida.");
-                        return;
-                    }
-
-                    String update = "UPDATE productos SET Stock = ? WHERE ID_producto = ?";
-                    try (PreparedStatement pstmtUpd = con.prepareStatement(update)) {
-                        pstmtUpd.setInt(1, nuevoStock);
-                        pstmtUpd.setInt(2, id);
-                        pstmtUpd.executeUpdate();
-                        System.out.println("Stock actualizado: " + stockActual + " → " + nuevoStock);
                     }
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } else {
+            System.out.println("El producto no existe.");
         }
     }
 

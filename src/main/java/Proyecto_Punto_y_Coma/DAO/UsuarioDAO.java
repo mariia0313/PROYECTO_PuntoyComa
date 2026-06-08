@@ -175,8 +175,7 @@ public class UsuarioDAO {
         System.out.println("1. Nombre de usuario");
         System.out.println("2. Contraseña");
         System.out.print("Elija una opción: ");
-        int opcion = leer.nextInt();
-        leer.nextLine();
+        int opcion = ConexionBD.leerEntero(leer);
 
         try {
             String query = "SELECT * FROM usuarios WHERE empleado = ?";
@@ -266,8 +265,7 @@ public class UsuarioDAO {
             System.out.println("0. Volver al menú principal");
             System.out.print("Elija una opción: ");
 
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
 
             switch (opcion) {
                 case 1:

@@ -22,25 +22,77 @@ public class EmpleadosDAO {
      * asegurando que coincida con los roles del sistema.
      */
     private String seleccionarCargo(Scanner leer) {
-        int opc;
         String cargo = "";
+        boolean valido = false;
         do {
             System.out.println("Seleccione el cargo del empleado:");
             System.out.println("1. Administrador");
             System.out.println("2. Encargado Compras");
             System.out.println("3. Encargado Reservas");
+            System.out.println("4. Otro");
             System.out.print("Elija una opción: ");
-            opc = leer.nextInt();
-            leer.nextLine();
+            int opc = ConexionBD.leerEntero(leer);
             switch (opc) {
-                case 1: cargo = "Administrador";
-                case 2: cargo = "Encargado Compras";
-                case 3: cargo = "Encargado Reservas";
-                default: System.out.println("Opción no válida.");
+                case 1:
+                    cargo = "Administrador";
+                    valido = true;
+                    break;
+                case 2:
+                    cargo = "Encargado Compras";
+                    valido = true;
+                    break;
+                case 3:
+                    cargo = "Encargado Reservas";
+                    valido = true;
+                    break;
+                case 4:
+                    System.out.print("Introduzca el cargo: ");
+                    cargo = leer.nextLine();
+                    valido = true;
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    break;
             }
+        } while (!valido);
+        return cargo;
+    }
 
-            return cargo;
-        } while (opc > 3 && opc < 1);
+    private String seleccionarContrato(Scanner leer) {
+        String contrato = "";
+        boolean valido = false;
+        do {
+            System.out.println("Seleccione el tipo de contrato:");
+            System.out.println("1. Indefinido");
+            System.out.println("2. Temporal");
+            System.out.println("3. Practicas");
+            System.out.println("4. Otro");
+            System.out.print("Elija una opción: ");
+            int opc = ConexionBD.leerEntero(leer);
+            switch (opc) {
+                case 1:
+                    contrato = "Indefinido";
+                    valido = true;
+                    break;
+                case 2:
+                    contrato = "Temporal";
+                    valido = true;
+                    break;
+                case 3:
+                    contrato = "Practicas";
+                    valido = true;
+                    break;
+                case 4:
+                    System.out.print("Introduzca el tipo de contrato: ");
+                    contrato = leer.nextLine();
+                    valido = true;
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    break;
+            }
+        } while (!valido);
+        return contrato;
     }
 
     /**
@@ -63,8 +115,7 @@ public class EmpleadosDAO {
         String cargo = seleccionarCargo(leer);
         System.out.println("Introduzca el NUSS del nuevo empleado");
         String nuss = leer.nextLine();
-        System.out.println("Introduzca el contrato del nuevo empleado");
-        String contrato = leer.nextLine();
+        String contrato = seleccionarContrato(leer);
         java.sql.Date fechaNac = null;
         do {
             System.out.println("Introduzca la fecha de nacimiento (YYYY-MM-DD)");
@@ -239,6 +290,8 @@ public class EmpleadosDAO {
                     case 11:
                         campo = "fecha_despido";
                         break;
+                    case 0:
+                        System.out.println("Saliendo...");
                     default:
                         System.out.println("Opción no válida");
                         break;
@@ -246,6 +299,8 @@ public class EmpleadosDAO {
                 
                 if (opcion == 5) {
                     nuevo = seleccionarCargo(leer);
+                } else if (opcion == 7) {
+                    nuevo = seleccionarContrato(leer);
                 } else if (opcion == 10) {
                     System.out.println("Seleccione el nuevo estado:");
                     System.out.println("1. Activo");
@@ -262,7 +317,7 @@ public class EmpleadosDAO {
                         case 4: nuevo = "Suspendido"; break;
                         default: nuevo = "Activo"; break;
                     }
-                } else {
+                } else if (opcion != 0) {
                     System.out.println("Introduzca el nuevo " + campo);
                     nuevo = leer.nextLine();
                 }
@@ -312,8 +367,7 @@ public class EmpleadosDAO {
             System.out.println("4. Crear informe completo de los empleados");
             System.out.println("0. Salir");
             System.out.print("Elija una opción: ");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
                 switch (opcion) {
                     case 1:
                         crearEmpleado(leer, con);
@@ -414,44 +468,60 @@ public class EmpleadosDAO {
         File dir = new File("Informes");
         if (!dir.exists()) dir.mkdirs();
         File f = new File(dir, "Informe_Completo_Empleados.html");
-        
-        try (FileWriter fw = new FileWriter(f)) {
 
-            fw.write("<html><body>");
+        try (FileWriter fw = new FileWriter(f)) {
+            fw.write("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Informe de Empleados</title>");
+            fw.write("<style>");
+            fw.write("body { font-family: Arial, sans-serif; margin: 20px; }");
+            fw.write("h1 { color: #2c3e50; text-align: center; }");
+            fw.write("table { border-collapse: collapse; width: 100%; margin-top: 20px; }");
+            fw.write("th { background-color: #3498db; color: white; padding: 10px; }");
+            fw.write("td { padding: 8px; vertical-align: top; }");
+            fw.write("tr:nth-child(even) { background-color: #f2f2f2; }");
+            fw.write(".activo { color: green; font-weight: bold; }");
+            fw.write(".inactivo { color: red; font-weight: bold; }");
+            fw.write("</style></head><body>");
             fw.write("<h1>Informe Detallado de Empleados</h1>");
-            fw.write("<table border='1' cellpadding='10' cellspacing='0'>");
-            fw.write("<tr><th>Ficha del Empleado</th><th>Detalles de Usuario</th></tr>");
+
+            fw.write("<table>");
+            fw.write("<tr><th>Cod</th><th>Nombre</th><th>DNI</th><th>Cargo</th><th>Contrato</th><th>NUSS</th><th>Email</th><th>Telefono</th><th>F. Nacimiento</th><th>F. Antiguedad</th><th>F. Despido</th><th>Estado</th><th>Usuario</th></tr>");
 
             for (Empleado e : listaTemporal) {
                 fw.write("<tr>");
-
-                fw.write("<td>" + e.toString() + "</td>");
+                fw.write("<td>" + e.getCodigo() + "</td>");
+                fw.write("<td>" + e.getNombre() + "</td>");
+                fw.write("<td>" + e.getIdentificador() + "</td>");
+                fw.write("<td>" + e.getCargo() + "</td>");
+                fw.write("<td>" + e.getContrato() + "</td>");
+                fw.write("<td>" + e.getNuss() + "</td>");
+                fw.write("<td>" + e.getEmail() + "</td>");
+                fw.write("<td>" + e.getTelefono() + "</td>");
+                fw.write("<td>" + (e.getFecha_nac() != null ? e.getFecha_nac() : "---") + "</td>");
+                fw.write("<td>" + (e.getFecha_antig() != null ? e.getFecha_antig() : "---") + "</td>");
+                fw.write("<td>" + (e.getFecha_desp() != null ? e.getFecha_desp() : "---") + "</td>");
+                String classEstado = (e.getEstado() != null && e.getEstado().equalsIgnoreCase("Activo")) ? "activo" : "inactivo";
+                fw.write("<td class='" + classEstado + "'>" + e.getEstado() + "</td>");
 
                 String queryUser = "SELECT * FROM usuarios WHERE empleado = ?";
                 try (PreparedStatement pstmtU = con.prepareStatement(queryUser)) {
                     pstmtU.setInt(1, e.getCodigo());
                     try (ResultSet rsU = pstmtU.executeQuery()) {
                         if (rsU.next()) {
-                            Usuario usu = new Usuario(
-                                    rsU.getString("nom_user"),
-                                    rsU.getString("contrasenya"),
-                                    rsU.getInt("empleado")
-                            );
-                            usu.setId(rsU.getInt("id_user"));
-
-                            fw.write("<td>" + usu.toString() + "</td>");
+                            fw.write("<td>" + rsU.getString("nom_user") + "</td>");
                         } else {
-                            fw.write("<td>[ Sin usuario asignado ]</td>");
+                            fw.write("<td>---</td>");
                         }
                     }
                 }
                 fw.write("</tr>");
             }
-            fw.write("</table></body></html>");
+            fw.write("</table>");
+            fw.write("<p style='margin-top:20px; color:#7f8c8d; font-size:12px;'>Generado el " + java.time.LocalDate.now() + "</p>");
+            fw.write("</body></html>");
         } catch (IOException e){
             e.printStackTrace();
         }
-        }
+    }
 
     private static void printSQLException(SQLException e) {
         throw new UnsupportedOperationException("Error de Base de Datos: " + e.getMessage()); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody

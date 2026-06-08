@@ -82,6 +82,11 @@ public abstract class Persona{
         this.telefono = telefono;
     }
     
+    /** @return El identificador de la persona. */
+    public String getIdentificador(){
+        return identificador;
+    }
+
     /** @param identificador Nuevo identificador a asignar. */
     public void setIdentificador(String identificador){
         this.identificador = identificador;

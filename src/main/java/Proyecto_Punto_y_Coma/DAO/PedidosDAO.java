@@ -86,10 +86,10 @@ public class PedidosDAO {
                             int idProd = leer.nextInt();
 
                             boolean pertenece = false;
-                            for (Producto p : proveedor.getProductos()) {
-                                if (p.getCOD() == idProd) {
+                            ArrayList<Producto> productosProv = proveedor.getProductos();
+                            for (int i = 0; i < productosProv.size() && !pertenece; i++) {
+                                if (productosProv.get(i).getCOD() == idProd) {
                                     pertenece = true;
-                                    break;
                                 }
                             }
 
@@ -340,8 +340,7 @@ public class PedidosDAO {
             System.out.println("6. Ver pedidos pendientes");
             System.out.println("0. Salir");
             System.out.print("Elija una opción: ");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
 
             switch (opcion) {
                 case 1:
@@ -399,8 +398,9 @@ public class PedidosDAO {
      */
     public void generarFactura(Connection con, int idPedido) {
         String sqlCab = "SELECT oc.No_orden, oc.Direccion, oc.Fecha, oc.Telefono, oc.Empleado, "
-                      + "oc.Precio_total, oc.Proveedor "
-                      + "FROM Orden_compra oc WHERE oc.No_orden = ?";
+                      + "oc.Precio_total, oc.Proveedor, pv.Nombre AS nom_prov, pv.Id_proveedor "
+                      + "FROM Orden_compra oc JOIN Proveedores pv ON oc.Proveedor = pv.Cod_proveedor "
+                      + "WHERE oc.No_orden = ?";
         String sqlLin = "SELECT lc.No_linea, lc.Cantidad, lc.Producto, p.Nombre, p.Precio_unidad "
                       + "FROM Lineas_compra lc JOIN Productos p ON lc.Producto = p.ID_producto "
                       + "WHERE lc.No_compra = ?";
@@ -421,6 +421,8 @@ public class PedidosDAO {
                 String telefono = rsCab.getString("Telefono");
                 int codEmpleado = rsCab.getInt("Empleado");
                 double totalBD = rsCab.getDouble("Precio_total");
+                String nomProv = rsCab.getString("nom_prov");
+                String idProv = rsCab.getString("Id_proveedor");
 
                 EmpleadosDAO empDAO = new EmpleadosDAO();
                 Empleado empleado = empDAO.obtenerEmpleadoPorId(con, codEmpleado);
@@ -442,8 +444,51 @@ public class PedidosDAO {
 
                 File f = new File(dir, "Factura_" + numOrden + ".html");
                 try (FileWriter fw = new FileWriter(f)) {
-                    fw.write("<html><head><meta charset='UTF-8'><title>Factura #" + numOrden + "</title></head><body>");
-                    fw.write("<pre>" + orden.toString() + "</pre>");
+                    fw.write("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Factura #" + numOrden + "</title>");
+                    fw.write("<style>");
+                    fw.write("body { font-family: Arial, sans-serif; margin: 40px; }");
+                    fw.write(".header { text-align: center; border-bottom: 3px solid #2c3e50; padding-bottom: 20px; }");
+                    fw.write(".header h1 { color: #2c3e50; margin: 0; }");
+                    fw.write(".datos { margin: 20px 0; }");
+                    fw.write(".datos td { padding: 4px 10px; }");
+                    fw.write("table { border-collapse: collapse; width: 100%; margin: 20px 0; }");
+                    fw.write("th { background-color: #34495e; color: white; padding: 10px; text-align: left; }");
+                    fw.write("td { padding: 8px; border-bottom: 1px solid #ddd; }");
+                    fw.write("tr:nth-child(even) { background-color: #f9f9f9; }");
+                    fw.write(".total { text-align: right; font-size: 1.3em; font-weight: bold; color: #2c3e50; margin-top: 20px; }");
+                    fw.write(".footer { text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 10px; }");
+                    fw.write("</style></head><body>");
+                    fw.write("<div class='header'>");
+                    fw.write("<h1>FACTURA</h1>");
+                    fw.write("<p>Orden de Compra Nº " + numOrden + "</p>");
+                    fw.write("</div>");
+
+                    fw.write("<div class='datos'>");
+                    fw.write("<table>");
+                    fw.write("<tr><td><strong>Fecha:</strong></td><td>" + fecha + "</td></tr>");
+                    fw.write("<tr><td><strong>Proveedor:</strong></td><td>" + nomProv + " (" + idProv + ")</td></tr>");
+                    fw.write("<tr><td><strong>Direccion:</strong></td><td>" + direccion + "</td></tr>");
+                    fw.write("<tr><td><strong>Telefono:</strong></td><td>" + telefono + "</td></tr>");
+                    fw.write("<tr><td><strong>Empleado:</strong></td><td>" + (empleado != null ? empleado.getNombre() : "---") + "</td></tr>");
+                    fw.write("</table>");
+                    fw.write("</div>");
+
+                    fw.write("<table>");
+                    fw.write("<tr><th>Linea</th><th>Producto</th><th>Precio Unidad</th><th>Cantidad</th><th>Total</th></tr>");
+                    for (LineaCompra l : orden.getLineas()) {
+                        fw.write("<tr>");
+                        fw.write("<td>" + l.getNumLinea() + "</td>");
+                        fw.write("<td>" + l.getNombreProducto() + "</td>");
+                        fw.write("<td>" + String.format("%.2f", l.getPrecioUnidad()) + " €</td>");
+                        fw.write("<td>" + l.getCantidad() + "</td>");
+                        fw.write("<td>" + String.format("%.2f", l.getPrecioTotal()) + " €</td>");
+                        fw.write("</tr>");
+                    }
+                    fw.write("</table>");
+
+                    fw.write("<div class='total'>TOTAL: " + String.format("%.2f", totalBD) + " €</div>");
+
+                    fw.write("<div class='footer'>Generado el " + java.time.LocalDate.now() + " | Hotel Punto y Coma</div>");
                     fw.write("</body></html>");
                 }
 

@@ -138,8 +138,7 @@ public class ProveedorDAO {
                 System.out.println("5. Modificar estado");
                 System.out.println("0. Salir");
                 System.out.print("Elija una opción: ");
-                opcion = leer.nextInt();
-                leer.nextLine();
+                opcion = ConexionBD.leerEntero(leer);
 
                 switch (opcion) {
                     case 1:
@@ -166,9 +165,18 @@ public class ProveedorDAO {
                         break;
                 }
                 
-                if (opcion >0 && opcion <6) {
-                System.out.println("Introduzca el nuevo valor para " + campo + ":");
-                nuevo = leer.nextLine();                
+                if (opcion > 0 && opcion < 6) {
+                    if (opcion == 5) {
+                        System.out.println("Seleccione el nuevo estado:");
+                        System.out.println("1. Activo");
+                        System.out.println("2. Inactivo");
+                        System.out.print("Elija una opción: ");
+                        int opEst = ConexionBD.leerEntero(leer);
+                        nuevo = (opEst == 1) ? "Activo" : "Inactivo";
+                    } else {
+                        System.out.println("Introduzca el nuevo valor para " + campo + ":");
+                        nuevo = leer.nextLine();
+                    }
                     try {
                         String query = "SELECT * FROM proveedores WHERE cod_proveedor = ?";
                         PreparedStatement pstmt = con.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -209,8 +217,7 @@ public class ProveedorDAO {
             System.out.println("4. Generar informe de los proveedores y sus productos");
             System.out.println("0. Salir");
             System.out.print("Elija una opción: ");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
             switch (opcion) {
                 case 1:
                     crearProveedor(leer, con);
@@ -326,44 +333,59 @@ public class ProveedorDAO {
         File dir = new File("Informes");
         if (!dir.exists()) dir.mkdirs();
         File f = new File(dir, "Informe_Proveedores.html");
-        FileWriter fw = null;
 
-        try {
-            fw = new FileWriter(f);
-            
-            fw.write("<html><head><meta charset='UTF-8'><title>Informe Proveedores</title></head><body>");
+        try (FileWriter fw = new FileWriter(f)) {
+            fw.write("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Informe Proveedores</title>");
+            fw.write("<style>");
+            fw.write("body { font-family: Arial, sans-serif; margin: 20px; }");
+            fw.write("h1 { color: #2c3e50; text-align: center; }");
+            fw.write("h2 { color: #2980b9; }");
+            fw.write("table { border-collapse: collapse; width: 100%; margin-top: 20px; }");
+            fw.write("th { background-color: #2980b9; color: white; padding: 10px; }");
+            fw.write("td { padding: 8px; border: 1px solid #ddd; }");
+            fw.write("tr:nth-child(even) { background-color: #f9f9f9; }");
+            fw.write(".activo { color: green; font-weight: bold; }");
+            fw.write(".inactivo { color: red; font-weight: bold; }");
+            fw.write(".bajo-stock { color: orange; font-weight: bold; }");
+            fw.write("</style></head><body>");
             fw.write("<h1>Informe de Proveedores y Productos</h1>");
 
-            fw.write("<table border='1' cellpadding='10' cellspacing='0' style='width:100%;'>");
-            fw.write("<tr style='background-color: #eee;'><th>Datos del Proveedor</th><th>Catálogo de Productos</th></tr>");
-
             for (Proveedor p : proveedores) {
-                fw.write("<tr>");
+                fw.write("<h2>Proveedor: " + p.getNombre() + " (ID: " + p.getCodigo() + ")</h2>");
+                fw.write("<table>");
+                fw.write("<tr><th>CIF</th><th>Nombre</th><th>Email</th><th>Telefono</th><th>Estado</th></tr>");
+                String classEst = (p.getEstado() != null && p.getEstado().equalsIgnoreCase("Activo")) ? "activo" : "inactivo";
+                fw.write("<tr><td>" + p.getIdentificador() + "</td><td>" + p.getNombre() + "</td><td>" + p.getEmail() + "</td><td>" + p.getTelefono() + "</td><td class='" + classEst + "'>" + p.getEstado() + "</td></tr>");
+                fw.write("</table>");
 
-                fw.write("<td valign='top'>" + p.toString() + "</td>");
-
-                fw.write("<td>");
+                fw.write("<h3>Catalogo de Productos</h3>");
                 ArrayList<Producto> productos = p.getProductos();
-
                 if (productos != null && !productos.isEmpty()) {
-                    fw.write("<ul>");
+                    fw.write("<table>");
+                    fw.write("<tr><th>Cod</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Stock Min</th><th>Estado</th></tr>");
                     for (Producto prod : productos) {
-                        fw.write("<li>" + prod.toString() + "</li>");
+                        String classProd = (prod.getEstado() != null && prod.getEstado().equalsIgnoreCase("Activo")) ? "activo" : "inactivo";
+                        String stockClass = (prod.getStock() < prod.getStockMin()) ? "bajo-stock" : "";
+                        fw.write("<tr>");
+                        fw.write("<td>" + prod.getCOD() + "</td>");
+                        fw.write("<td>" + prod.getNombre() + "</td>");
+                        fw.write("<td>" + String.format("%.2f", prod.getPrecio()) + " €</td>");
+                        fw.write("<td class='" + stockClass + "'>" + prod.getStock() + "</td>");
+                        fw.write("<td>" + prod.getStockMin() + "</td>");
+                        fw.write("<td class='" + classProd + "'>" + prod.getEstado() + "</td>");
+                        fw.write("</tr>");
                     }
-                    fw.write("</ul>");
+                    fw.write("</table>");
                 } else {
-                    fw.write("<i>No hay productos registrados para este proveedor.</i>");
+                    fw.write("<p><i>No hay productos registrados para este proveedor.</i></p>");
                 }
-
-                fw.write("</td>");
-                fw.write("</tr>");
+                fw.write("<hr>");
             }
 
-            fw.write("</table></body></html>");
+            fw.write("<p style='color:#7f8c8d; font-size:12px;'>Generado el " + java.time.LocalDate.now() + "</p>");
+            fw.write("</body></html>");
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            fw.close();
         }
     }
 
