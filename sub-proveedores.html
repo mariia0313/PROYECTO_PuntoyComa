@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Punto y Coma - Gestión de Proveedores</title>
+    <link rel="icon" type="image/x-icon" href="./Img/favicon/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+         /* CLASES CREADAS PARA CUESTIONES DE ESTETICA */
+        .text-gold { color: #D4AF37; }
+        .border-gold { border-color: #D4AF37; }
+        .bg-gold { background-color: #D4AF37; }
+        .btn-gold {background-color: #D4AF37; border-color: #D4AF37;}
+        .navbar-logo { width: 8%;}
+        .nav-link:hover, .nav-link.active { 
+            color: #D4AF37; 
+            border-bottom: 2px solid #D4AF37; 
+        }
+
+        /* PLACEHOLDER CON BORDE DISCONTINUO */
+        .placeholder-img { 
+            background: #1a1a1a; 
+            border: 2px dashed #D4AF37;
+            color: #D4AF37; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-gold sticky-top">
+    <div class="container">
+        <img src="./Img/Icono.png" alt="Logo" class="navbar-logo px-3">
+        <a class="navbar-brand" href="index.html">
+            <strong class="text-gold">HOTEL PUNTO Y COMA</strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto text-uppercase">
+                <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="que-ofrecemos.html">Qué ofrecemos</a></li>
+                <li class="nav-item"><a class="nav-link" href="reservas.html">Reservas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Mantenimiento</a></li>
+                <li class="nav-item"><a class="nav-link active" href="sub-proveedores.html">Proveedores</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-5">
+    <div class="row g-5">
+        
+        <div class="col-md-12 col-lg-7">
+            <section class="mb-5">
+                <h2 class="display-6 fw-bold mb-4">NUESTROS PRODUCTOS</h2>
+                <p>En el Hotel Punto y Coma, la calidad no es negociable. Seleccionamos cada insumo bajo los estándares más estrictos de la industria hotelera de lujo, desde productos frescos de temporada hasta textiles de la más alta suavidad.</p>
+                <div class="col">
+                        <img src="./Img/img7.png" class="img-fluid rounded shadow-lg border border-dark" alt="Imagen comida">
+                    </div>
+            </section>
+        </div>
+
+            
+            <div class="col-md-12 col-lg-5">
+                <div class="card border-gold shadow-sm mb-4">
+                    <div class="card-body p-4 text-center">
+                        <h4 class="card-title fw-bold mb-3">¿QUIERES SER NUESTRO PROVEEDOR?</h4>
+                        <p class="card-text text-muted mb-4">Buscamos empresas que apuesten por la innovación y la calidad superior.</p>
+                        <a href="form-colaborador.html" class="btn btn-gold btn-lg w-100 mb-3">COLABORA CON NOSOTROS</a>
+                        <hr>
+                        <div class="list-group list-group-flush text-start">
+                            <a href="requisitos-calidad.html" class="list-group-item list-group-item-action border-0 px-0">
+                                <i class="bi bi-check-circle"></i> Ver requisitos técnicos
+                            </a>
+                            <a href="FAQ.html" class="list-group-item list-group-item-action border-0 px-0">
+                                <i class="bi bi-info-circle"></i> Preguntas frecuentes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                        <h3 class="h4 fw-bold mb-3">ALGUNOS DE NUESTROS PROVEEDORES</h3>
+                        <p>Contamos con una red de colaboradores locales e internacionales que comparten nuestro compromiso con la sostenibilidad y la excelencia.</p>
+                        <div class="row g-3">
+                            <div class="col-6 col-sm-4">
+                                <img src="./Img/prov1.png" class="img-fluid rounded shadow-lg border border-dark" alt="Proveedor 1">
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <img src="./Img/prov2.png" class="img-fluid rounded shadow-lg border border-dark" alt="Proveedor 2">
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <img src="./Img/prov3.png" class="img-fluid rounded shadow-lg border border-dark" alt="Proveedor 3">
+                            </div>
+                        </div>
+                </div>
+            </div>
+                
+
+    </div>
+</main>
+
+<footer class="bg-dark text-white py-5 border-top border-gold">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-4">
+                <h6 class="text-gold fw-bold">CONTACTO</h6>
+                <p>Teléfono: +34 900 000 000</p>
+                <p>Email: info@puntoycoma.com</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h6 class="text-gold fw-bold">UBICACIÓN</h6>
+                <p>Calle Principal de la Gestión, 123</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p>HOTEL PUNTO Y COMA © 2026</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

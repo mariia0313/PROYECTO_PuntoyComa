@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Punto y Coma - Reservas</title>
+    <link rel="icon" type="image/x-icon" href="./Img/favicon/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .text-gold   { color: #D4AF37; }
+        .border-gold { border-color: #D4AF37 !important; }
+        .bg-gold     { background-color: #D4AF37; }
+        .navbar-logo { width: 8%; }
+        .nav-link:hover, .nav-link.active {
+            color: #D4AF37;
+            border-bottom: 2px solid #D4AF37;
+        }
+        .border-end-gold { border-right: 2px solid #D4AF37; }
+        .img-grande  { height: 220px; object-fit: cover; }
+        .img-pequena { height: 160px; object-fit: cover; }
+        .img-seccion { height: 130px; object-fit: cover; }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-gold sticky-top">
+    <div class="container">
+        <img src="./Img/Icono.png" alt="Logo" class="navbar-logo px-3">
+        <a class="navbar-brand" href="index.html"><strong class="text-gold">HOTEL PUNTO Y COMA</strong></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="./index.html">INICIO</a></li>
+                <li class="nav-item"><a class="nav-link" href="que-ofrecemos.html">QUÉ OFRECEMOS</a></li>
+                <li class="nav-item"><a class="nav-link active" href="./reservas.html">RESERVAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">MANTENIMIENTO</a></li>
+                <li class="nav-item"><a class="nav-link" href="sub-proveedores.html">PROVEEDORES</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-5">
+    <div class="row">
+
+        <div class="col-12 col-lg-5 pe-lg-4 border-end-gold mb-5 mb-lg-0">
+            <h1 class="fw-bold mb-3">Reservas</h1>
+            <p class="text-secondary">Reserve su estancia o experiencia con total comodidad. En el Hotel Punto y Coma ponemos a su disposición nuestros alojamientos de lujo, una amplia oferta de actividades exclusivas y elegantes salas de eventos para que cada momento sea inolvidable.</p>
+            <img src="./Img/ImagenExterior.png" alt="Interior del Hotel" class="img-fluid w-100 rounded shadow-lg border border-dark mb-3 img-grande">
+            <p class="text-secondary">Nuestro equipo de atención al huésped estará encantado de orientarle y personalizar cada detalle de su visita. Cada reserva incluye acceso prioritario a nuestros servicios de conserjería, garantizando una experiencia sin igual desde el primer momento de su llegada.</p>
+            <p class="text-secondary mb-3">Descubra una selección cuidadosamente curada de experiencias diseñadas para satisfacer los paladares más exigentes, combinando el lujo atemporal con la calidez de un servicio verdaderamente personalizado.</p>
+            <img src="./Img/Imagen2.jpg" alt="Detalle del Hotel" class="img-fluid w-100 rounded shadow-sm border border-dark img-pequena">
+        </div>
+
+        <div class="col-12 col-lg-7 ps-lg-4">
+
+            <section>
+                <h2 class="fw-bold mb-2">Alojamientos</h2>
+                <div class="row align-items-center">
+                    <div class="col-5">
+                        <p class="text-secondary mb-0 small">Nuestras habitaciones y suites han sido concebidas para ofrecer el máximo confort en un entorno de elegancia y privacidad absoluta. Cada espacio combina materiales nobles con la última tecnología para garantizar una estancia de lujo inigualable.</p>
+                    </div>
+                    <div class="col-7">
+                        <img src="./Img/alojamiento.png" alt="Alojamientos" class="img-fluid w-100 rounded shadow-sm border border-dark img-seccion">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a class="nav-link" href="./reservas_alojamiento.html">
+                        <button class="btn bg-gold fw-bold w-100 text-dark">Reservar ahora</button>
+                    </a>
+                </div>
+            </section>
+
+            <hr class="my-4">
+
+            <section>
+                <h2 class="fw-bold mb-2">Actividades</h2>
+                <div class="row align-items-center">
+                    <div class="col-5">
+                        <p class="text-secondary mb-0 small">Complemente su estancia con actividades inolvidables pensadas para todos los gustos: desde emocionantes rutas en cayac por aguas cristalinas hasta excursiones en bicicleta, paseos a caballo al atardecer y experiencias de snorkel guiadas, diseñadas para crear recuerdos únicos dentro y fuera del hotel.</p>
+                    </div>
+                    <div class="col-7">
+                        <img src="./Img/actividades.png" alt="Actividades" class="img-fluid w-100 rounded shadow-sm border border-dark img-seccion">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a class="nav-link" href="./reservas_actividades.html">
+                        <button class="btn bg-gold fw-bold w-100 text-dark">Reservar ahora</button>
+                    </a>
+                </div>
+            </section>
+
+            <hr class="my-4">
+
+            <section>
+                <h2 class="fw-bold mb-2">Salas de eventos</h2>
+                <div class="row align-items-center">
+                    <div class="col-5">
+                        <p class="text-secondary mb-0 small">Nuestros espacios para eventos combinan la grandiosidad arquitectónica con equipamientos de última generación. Perfectos para celebraciones privadas, reuniones de alto nivel o banquetes de gala con servicio de coordinación personalizado.</p>
+                    </div>
+                    <div class="col-7">
+                        <img src="./Img/sala_evento.jpg" alt="Salas de eventos" class="img-fluid w-100 rounded shadow-sm border border-dark img-seccion">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a class="nav-link" href="./reservas_salas.html">
+                        <button class="btn bg-gold fw-bold w-100 text-dark">Reservar ahora</button>
+                    </a>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+</main>
+
+<footer class="bg-dark text-white py-5 border-top border-gold">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-4">
+                <h6 class="text-gold fw-bold">CONTACTO</h6>
+                <p>Teléfono: +34 900 000 000</p>
+                <p>Email: info@puntoycoma.com</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h6 class="text-gold fw-bold">UBICACIÓN</h6>
+                <p>Calle Principal de la Gestión, 123</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p>HOTEL PUNTO Y COMA © 2026</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Punto y Coma - Inicio</title>
+    <link rel="icon" type="image/x-icon" href="./Img/favicon/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* CLASES CREADAS PARA CUESTIONES DE ESTETICA */
+        .text-gold { color: #D4AF37; }
+        .border-gold { border-color: #D4AF37; }
+        .bg-gold { background-color: #D4AF37; }
+        .navbar-logo { width: 8%;}
+        .nav-link:hover, .nav-link.active { 
+            color: #D4AF37; 
+            border-bottom: 2px solid #D4AF37; 
+        }
+        .img2{width: 55%;}
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-gold sticky-top">
+    <div class="container">
+        <img src="./Img/Icono.png" alt="Logo" class="navbar-logo px-3">
+        <a class="navbar-brand" href="index.html">
+            <strong class="text-gold">HOTEL PUNTO Y COMA</strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="index.html">INICIO</a></li>
+                <li class="nav-item"><a class="nav-link" href="que-ofrecemos.html">QUÉ OFRECEMOS</a></li>
+                <li class="nav-item"><a class="nav-link" href="reservas.html">RESERVAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">MANTENIMIENTO</a></li>
+                <li class="nav-item"><a class="nav-link" href="sub-proveedores.html">PROVEEDORES</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header class="container-fluid my-5 px-5">
+    <div class="row align-items-center">
+        <div class="col-md-6 col-lg-4">
+            <img src="./Img/ImagenExterior.png" class="img-fluid rounded shadow-lg border border-dark" alt="Exterior del Hotel">
+        </div>
+        <div class="col-md-6 col-lg-5">
+            <h1 class="fw-bold">HOTEL <span class="text-gold">PUNTO Y COMA</span></h1>
+            <p>Un santuario de sofisticación donde el legado histórico converge con el diseño contemporáneo. Inspirado en la elegancia de las grandes residencias europeas, ofrecemos una pausa exclusiva en el corazón de la ciudad, definida por un lujo silencioso y una atmósfera de absoluta privacidad.</p>
+            
+            <h3 class="fw-bold border-start border-gold border-4 ps-3">Nuestras instancias</h3>
+            <p>Desde el imponente patio interior hasta nuestros salones revestidos en maderas nobles y mármoles italianos. Cada estancia ha sido meticulosamente proyectada para deleitar los sentidos, combinando texturas ricas y una iluminación tenue que invita a la desconexión total en un entorno de confort inigualable.</p>
+            <div class="row">
+                <div class="col d-flex justify-content-center ">
+                    <img src="./Img/Imagen2.jpg" class="img-fluid rounded shadow-lg border border-dark img2 " alt="Interior del Hotel">
+                </div>
+            </div>    
+            </div>
+                <div class="col-md-12 col-lg-3 my-md-3 my-sm-3">
+                    <div class="card p-3 shadow border-gold">
+                        <div class="mb-2" style="height: 150px; overflow: hidden;">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3511.1548672963218!2d-0.12005807384675546!3d51.51759295762511!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b35813eef8b%3A0x27bb3071005c04be!2sRosewood%20London!5e0!3m2!1ses!2ses!4v1777999833503!5m2!1ses!2ses"
+                                width="100%" 
+                                height="100%"  
+                                allowfullscreen="" 
+                                loading="lazy">
+                            </iframe>
+                        </div>
+                        <h4 class="fw-bold">Dónde estamos</h4>
+                        <p>Nos encontramos en una ubicación inigualable que conecta la elegancia clásica con la modernidad británica. Disfrute de un acceso inmediato a las principales firmas de lujo, museos de clase mundial y la vibrante vida cosmopolita, todo mientras reside en un santuario de calma y distinción.</p>
+                    </div>
+                    <div class="my-5">
+                    <a href="que-ofrecemos.html" class="btn bg-gold text-dark fw-bold w-100">MÁS INFORMACIÓN</a>
+                </div>
+                </div>
+    </div>
+</header>
+
+
+<footer class="bg-dark text-white py-5 border-top border-gold">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-4">
+                <h6 class="text-gold fw-bold">CONTACTO</h6>
+                <p>Teléfono: +34 900 000 000</p>
+                <p>Email: info@puntoycoma.com</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h6 class="text-gold fw-bold">UBICACIÓN</h6>
+                <p>Calle Principal de la Gestión, 123</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p>HOTEL PUNTO Y COMA © 2026</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Punto y Coma - Requisitos Técnicos</title>
+    <link rel="icon" type="image/x-icon" href="./Img/favicon/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* CLASES CREADAS PARA CUESTIONES DE ESTETICA */
+        .text-gold { color: #D4AF37; }
+        .border-gold { border-color: #D4AF37; }
+        .bg-gold { background-color: #D4AF37; }
+        .btn-gold {background-color: #D4AF37; border-color: #D4AF37;}
+        .navbar-logo { width: 8%;}
+        .nav-link:hover, .nav-link.active { 
+            color: #D4AF37; 
+            border-bottom: 2px solid #D4AF37; 
+        }
+
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-gold sticky-top">
+    <div class="container">
+        <img src="./Img/Icono.png" alt="Logo" class="navbar-logo px-3">
+        <a class="navbar-brand" href="index.html">
+            <strong class="text-gold">HOTEL PUNTO Y COMA</strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto text-uppercase">
+                <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="que-ofrecemos.html">Qué ofrecemos</a></li>
+                <li class="nav-item"><a class="nav-link" href="reservas.html">Reservas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Mantenimiento</a></li>
+                <li class="nav-item"><a class="nav-link" href="sub-proveedores.html">Proveedores</a></li>
+                <li class="nav-item"><a class="nav-link active" href="requisitos-calidad.html">requisitos de Calidad</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="fw-bold border-bottom border-gold pb-3 mb-4">REQUISITOS <span class="text-gold">TÉCNICOS</span></h1>
+            <p>Para garantizar la excelencia en el Hotel Punto y Coma, nuestros proveedores deben cumplir los siguientes estándares de calidad:</p>
+            
+            <div class="row g-4 mt-2">
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-gold">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-gold">Certificaciones</h5>
+                            <p>Es obligatorio poseer certificados de sanidad (en alimentación) o normativas ISO de calidad vigentes para operar con nosotros.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-gold bg-dark text-white">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-gold">Sostenibilidad</h5>
+                            <p>Priorizamos colaboradores con embalajes biodegradables y políticas activas de reducción de huella de carbono.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-gold">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-gold">Puntualidad</h5>
+                            <p>Las entregas se realizarán exclusivamente en la zona de carga y descarga en horario de 06:00 a 09:00 AM.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-5 p-4 bg-white border border-gold rounded shadow-sm">
+                <h3 class="fw-bold">Proceso de Homologación</h3>
+                <p>Una vez enviado el formulario de contacto, nuestro equipo técnico revisará su propuesta detalladamente en un plazo máximo de 15 días hábiles.</p>
+                <a href="form-colaborador.html" class="btn bg-gold text-dark fw-bold">IR AL FORMULARIO DE CONTACTO</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-dark text-white py-5 border-top border-gold">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-4">
+                <h6 class="text-gold fw-bold">CONTACTO</h6>
+                <p>Teléfono: +34 900 000 000</p>
+                <p>Email: info@puntoycoma.com</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h6 class="text-gold fw-bold">UBICACIÓN</h6>
+                <p>Calle Principal de la Gestión, 123</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p>HOTEL PUNTO Y COMA © 2026</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

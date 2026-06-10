@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Punto y Coma - Qué Ofrecemos</title>
+    <link rel="icon" type="image/x-icon" href="./Img/favicon/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+         /* CLASES CREADAS PARA CUESTIONES DE ESTETICA */
+        .text-gold { color: #D4AF37; }
+        .border-gold { border-color: #D4AF37; }
+        .bg-gold { background-color: #D4AF37; }
+        .navbar-logo { width: 8%;}
+        .nav-link:hover, .nav-link.active { 
+            color: #D4AF37; 
+            border-bottom: 2px solid #D4AF37; 
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-gold sticky-top">
+    <div class="container">
+        <img src="./Img/Icono.png" alt="Logo" class="navbar-logo px-3">
+        <a class="navbar-brand" href="index.html">
+            <strong class="text-gold">HOTEL PUNTO Y COMA</strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto text-uppercase">
+                <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="que-ofrecemos.html">Qué ofrecemos</a></li>
+                <li class="nav-item"><a class="nav-link" href="reservas.html">Reservas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Mantenimiento</a></li>
+                <li class="nav-item"><a class="nav-link" href="sub-proveedores.html">Proveedores</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container-fluid my-5 px-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Nuestros <span class="text-gold">Servicios</span></h1>
+        <p>Una experiencia integral diseñada para clientes, empleados y colaboradores comerciales.</p>
+    </div>
+
+    <div class="row g-4 text-center">
+        <div class="col-md-12 col-lg-4">
+            <div class="card h-100 shadow-sm p-4 border-gold bg-dark text-white">
+                <h2 class="fw-bold text-gold">RESERVAS</h2>
+                <div class="row justify-content-center">
+                    <div class="col-3">
+                        <img src="./Img/img4.png" class="img-fluid rounded shadow-lg border border-dark" alt="Imagen proveedores">
+                    </div>
+                    <div class="col">
+                        <p>Sumérjase en la suavidad de nuestros linos egipcios y el confort de suites diseñadas para el silencio. El escenario perfecto para una desconexión total del mundo exterior</p>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-3">
+                        <img src="./Img/img5.png" class="img-fluid rounded shadow-lg border border-dark" alt="Imagen proveedores">
+                    </div>
+                    <div class="col">
+                        <p>Cada detalle de nuestras estancias, desde el mármol veteado hasta las esencias exclusivas, está pensado para transformar su higiene diaria en un ritual de spa privado.</p>
+                    </div>
+                </div>
+                <div class="mt-auto">
+                    <a href="reservas.html" class="btn bg-gold text-dark fw-bold w-100">Entrar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 col-lg-4">
+            <div class="card h-100 shadow-sm p-4 border-gold bg-dark text-white">
+                <h2 class="fw-bold text-gold">MANTENIMIENTO</h2>
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <img src="./Img/img3.png" class="img-fluid rounded shadow-lg border border-dark" alt="Imagen proveedores">
+                    </div>
+                    <div class="col">
+                        <p>Excelencia operativa en cada rincón. Este portal está dedicado exclusivamente a nuestro equipo técnico y operativo para la supervisión en tiempo real de las instalaciones.</p>
+                    </div>
+                </div>
+                <p>Garantizamos que cada engranaje del Hotel Punto y Coma funcione con la precisión de un reloj suizo, manteniendo los estándares de calidad que nuestros huéspedes exigen.</p>
+                <div class="mt-auto">
+                    <a href="#" class="btn bg-gold text-dark fw-bold w-100">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 col-lg-4">
+            <div class="card h-100 shadow-sm p-4 border-gold bg-dark text-white">
+                <h2 class="fw-bold text-gold">PROVEEDORES</h2>
+                <p>Buscamos la excelencia en cada suministro. Invitamos a artesanos, productores locales y empresas de servicios premium a formar parte de nuestra red de colaboradores.</p>
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <img src="./Img/img4.jpg" class="img-fluid rounded shadow-lg border border-dark" alt="Imagen proveedores">
+                    </div>
+                    <div class="col">
+                        <p>Acceda a nuestro panel de licitaciones para presentar propuestas que cumplan con nuestros criterios de sostenibilidad, calidad superior y compromiso con el lujo ético.</p>
+                    </div>
+                </div>
+                <div class="mt-auto">
+                    <a href="sub-proveedores.html" class="btn bg-gold text-dark fw-bold w-100">Acceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-dark text-white py-5 border-top border-gold">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-4">
+                <h6 class="text-gold fw-bold">CONTACTO</h6>
+                <p>Teléfono: +34 900 000 000</p>
+                <p>Email: info@puntoycoma.com</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h6 class="text-gold fw-bold">UBICACIÓN</h6>
+                <p>Calle Principal de la Gestión, 123</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p>HOTEL PUNTO Y COMA © 2026</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
