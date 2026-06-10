@@ -9,7 +9,7 @@ package Proyecto_Punto_y_Coma.ENTIDAD;
 public class Reserva implements java.io.Serializable {
 
     private int cod;
-    private Cliente2 cliente;
+    private Cliente cliente;
     private TipoReserva tipoReserva;
     private java.sql.Date fechaInicio;
     private java.sql.Date fechaFin;
@@ -23,8 +23,9 @@ public class Reserva implements java.io.Serializable {
      * @param tipoReserva Recurso reservado (Alojamiento, Actividad o SalaEvento).
      * @param fechaInicio Fecha de inicio de la reserva.
      * @param fechaFin    Fecha de fin de la reserva.
+     * * @param tipoRecurso    Nombre del tipo de recurso (Alojamiento, Actividad o SalaEvento).
      */
-    public Reserva(int cod, Cliente2 cliente, TipoReserva tipoReserva, java.sql.Date fechaInicio, java.sql.Date fechaFin, String tipoRecurso) {
+    public Reserva(int cod, Cliente cliente, TipoReserva tipoReserva, java.sql.Date fechaInicio, java.sql.Date fechaFin, String tipoRecurso) {
         this.cod = cod;
         this.cliente = cliente;
         this.tipoReserva = tipoReserva;
@@ -83,12 +84,12 @@ public class Reserva implements java.io.Serializable {
     }
 
     /** @return Cliente de la reserva. */
-    public Cliente2 getCliente(){
+    public Cliente getCliente(){
         return cliente;
     }
 
     /** @param cliente Cliente a asignar. */
-    public void setCliente(Cliente2 cliente){
+    public void setCliente(Cliente cliente){
         this.cliente = cliente;
     }
 

@@ -1,17 +1,22 @@
 package Proyecto_Punto_y_Coma.DAO;
 
-import Proyecto_Punto_y_Coma.ENTIDAD.Actividad;
-import Proyecto_Punto_y_Coma.ENTIDAD.Alojamiento;
-import Proyecto_Punto_y_Coma.ENTIDAD.Cliente2;
-import Proyecto_Punto_y_Coma.ENTIDAD.Reserva;
-import Proyecto_Punto_y_Coma.ENTIDAD.SalaEvento;
-import Proyecto_Punto_y_Coma.ENTIDAD.TipoReserva;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
+
+import Proyecto_Punto_y_Coma.ENTIDAD.Actividad;
+import Proyecto_Punto_y_Coma.ENTIDAD.Alojamiento;
+import Proyecto_Punto_y_Coma.ENTIDAD.Cliente;
+import Proyecto_Punto_y_Coma.ENTIDAD.Reserva;
+import Proyecto_Punto_y_Coma.ENTIDAD.SalaEvento;
+import Proyecto_Punto_y_Coma.ENTIDAD.TipoReserva;
 
 /**
  * Clase DAO para la gestión de Reservas.
@@ -31,7 +36,7 @@ public class ReservaDAO {
      */
     public static void crearReserva(Scanner leer, Connection con) throws SQLException {
         boolean valido = true;
-        Cliente2 cliente = null;
+        Cliente cliente = null;
         TipoReserva recurso = null;
         int codRecurso;
         java.sql.Date fechaInicio = null;
@@ -136,7 +141,7 @@ public class ReservaDAO {
                 // 1. Insertar en reservas
                 String sqlRes = "INSERT INTO reservas (id_cliente, fecha_inicio, fecha_fin, estado, tipo_recurso) VALUES (?, ?, ?, 'Alta', ?)";
                 PreparedStatement ps = con.prepareStatement(sqlRes, Statement.RETURN_GENERATED_KEYS);
-                ps.setInt(1, cliente.getCod());
+                ps.setInt(1, cliente.getCodigo());
                 ps.setDate(2, fechaInicio);
                 ps.setDate(3, fechaFin);
                 ps.setString(4, tipo);
@@ -180,7 +185,6 @@ public class ReservaDAO {
      * @return true si hay solapamiento, false si el recurso está libre.
      */
     private static boolean haySolapamiento(Connection con, String tipoRecurso, int idRecurso, java.sql.Date inicio, java.sql.Date fin) throws SQLException {
-        // Corregido: Buscamos por id_recurso y eliminamos tipo_recurso que ya no existe en la tabla
         String tablaPuente = tipoRecurso.equals("ALOJAMIENTO") ? "reserva_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "reserva_actividad" : "reserva_sala";
         String colPuente = tipoRecurso.equals("ALOJAMIENTO") ? "id_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "id_actividad" : "id_sala";
 
@@ -216,7 +220,7 @@ public class ReservaDAO {
      * @throws SQLException Si hay errores en la consulta SELECT.
      */
     public static void mostrarReservas(Connection con) throws SQLException {
-        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.dni, " +
+        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, " +
                    "ra.id_alojamiento, ract.id_actividad, rs.id_sala " +
                    "FROM reservas r " +
                    "JOIN clientes c ON r.id_cliente = c.cod " +
@@ -233,7 +237,7 @@ public class ReservaDAO {
                 int codReserva = rs.getInt("cod");
                 java.sql.Date fInicio = rs.getDate("fecha_inicio");
                 java.sql.Date fFin = rs.getDate("fecha_fin");
-                Cliente2 cliente = new Cliente2(rs.getInt("id_cliente"), rs.getString("nombre_cliente"), rs.getString("dni"), null, null);
+                Cliente cliente = new Cliente(rs.getInt("id_cliente"), rs.getString("nombre_cliente"), rs.getString("identificador"), null, null, "Activo");
 
                 int idRecurso = 0;
                 String tipoNombre = "";
@@ -268,7 +272,7 @@ public class ReservaDAO {
 
                 System.out.println("**********************************");
                 System.out.println("Codigo Reserva: " + codReserva);
-                System.out.println("Cliente:        " + rs.getString("nombre_cliente") + " (DNI: " + rs.getString("dni") + ")");
+                System.out.println("Cliente:        " + rs.getString("nombre_cliente") + " (Identificador: " + rs.getString("identificador") + ")");
                 System.out.println("Tipo Recurso:   " + tipoNombre + " (Cod: " + idRecurso + ")");
                 System.out.println("Fecha Inicio:   " + fInicio);
                 System.out.println("Fecha Fin:      " + fFin);
@@ -299,7 +303,7 @@ public class ReservaDAO {
         if (!ClienteDAO.existeCliente(con, codCliente)) {
             System.out.println("Cliente no encontrado.");
         } else {
-            String query = "SELECT r.*, c.nombre AS nombre_cliente, c.dni, " +
+            String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, " +
                        "ra.id_alojamiento, ract.id_actividad, rs.id_sala " +
                        "FROM reservas r " +
                        "JOIN clientes c ON r.id_cliente = c.cod " +
@@ -320,7 +324,7 @@ public class ReservaDAO {
                     hayReservas = true;
                     int codReserva = rs.getInt("cod");
 
-                    Cliente2 cliente = new Cliente2(rs.getInt("id_cliente"), rs.getString("nombre_cliente"), rs.getString("dni"), null, null);
+                    Cliente cliente = new Cliente(rs.getInt("id_cliente"), rs.getString("nombre_cliente"), rs.getString("identificador"), null, null, "Activo");
 
                     int idRecurso = 0;
                     String tipoNombre = "";
@@ -355,11 +359,12 @@ public class ReservaDAO {
 
                     System.out.println("**********************************");
                     System.out.println("Codigo Reserva: " + codReserva);
-                    System.out.println("Cliente:        " + rs.getString("nombre_cliente") + " (DNI: " + rs.getString("dni") + ")");
+                    System.out.println("Cliente:        " + rs.getString("nombre_cliente") + " (Identificador: " + rs.getString("identificador") + ")");
                     System.out.println("Tipo Recurso:   " + tipoNombre + " (Cod: " + idRecurso + ")");
                     System.out.println("Fecha Inicio:   " + rs.getDate("fecha_inicio"));
                     System.out.println("Fecha Fin:      " + rs.getDate("fecha_fin"));
                     System.out.println("Precio Total:   " + precioTotal + " EUR");
+                    System.out.println("Estado:   " + rs.getString("estado"));
                 }
 
                 if (!hayReservas) {
@@ -385,7 +390,7 @@ public class ReservaDAO {
      * @throws SQLException Si ocurre un error durante la consulta.
      */
     public static Reserva obtenerReservaPorCod(Connection con, int cod) throws SQLException {
-        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.dni, " +
+        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, " +
                     "ra.id_alojamiento, ract.id_actividad, rs.id_sala " +
                     "FROM reservas r " +
                     "JOIN clientes c ON r.id_cliente = c.cod " +
@@ -400,7 +405,7 @@ public class ReservaDAO {
             ps.setInt(1, cod);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Cliente2 cliente = new Cliente2(rs.getInt("id_cliente"), rs.getString("nombre_cliente"), rs.getString("dni"), null, null);
+                    Cliente cliente = new Cliente(rs.getInt("id_cliente"), rs.getString("nombre_cliente"), rs.getString("identificador"), null, null, "Activo");
                     
                     TipoReserva recurso = null;
                     
@@ -489,36 +494,31 @@ public class ReservaDAO {
     }
 
     /**
-     * Cancela una reserva existente cambiando su estado a 'Baja'.
-     * Realiza la actualización de forma simple mediante una sentencia SQL UPDATE tradicional.
-     * @param con  Conexión activa a la base de datos.
-     * @param leer Scanner para la entrada del código de reserva.
+     * Cambia el estado de una reserva de 'Alta' a 'Baja' en la base de datos.
+     * @param con  Conexión activa a la base de datos MySQL.
+     * @param leer Scanner para la lectura del código por consola.
      * @throws SQLException Si ocurre un error al actualizar.
      */
     public static void cancelarReserva(Connection con, Scanner leer) throws SQLException {
-        System.out.println("Introduzca el codigo de la reserva a cancelar");
+        System.out.println("Introduzca el código de la reserva a eliminar:");
         int cod = leer.nextInt();
         leer.nextLine();
-    
+
         if (!existeReserva(con, cod)) {
             System.out.println("Reserva no encontrada.");
         } else {
-            String sql = "UPDATE reservas SET estado = 'Baja' WHERE cod = ?";
             PreparedStatement ps = null;
             try {
-                ps = con.prepareStatement(sql);
+                ps = con.prepareStatement("UPDATE reservas SET estado = 'Baja' WHERE cod = ?");
                 ps.setInt(1, cod);
-                
                 int filas = ps.executeUpdate();
                 if (filas > 0) {
-                    System.out.println("Reserva cancelada correctamente.");
+                    System.out.println("Reserva dada de baja correctamente.");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
-                if (ps != null) {
-                    ps.close();
-                }
+                if (ps != null) ps.close();
             }
         }
     }
@@ -578,7 +578,7 @@ public class ReservaDAO {
             pw.println("--------------------------------------------");
             pw.println("CLIENTE");
             pw.println("Nombre:    " + reserva.getCliente().getNombre());
-            pw.println("DNI:       " + reserva.getCliente().getDni());
+            pw.println("Identificador:       " + reserva.getCliente().getIdentificador());
             pw.println("Email:     " + reserva.getCliente().getEmail());
             pw.println("Telefono:  " + reserva.getCliente().getTelefono());
             pw.println("--------------------------------------------");

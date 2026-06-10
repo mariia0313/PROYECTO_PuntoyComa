@@ -1,8 +1,13 @@
 package Proyecto_Punto_y_Coma.DAO;
 
-import Proyecto_Punto_y_Coma.ENTIDAD.Cliente2;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
+
+import Proyecto_Punto_y_Coma.ENTIDAD.Cliente;
 
 /**
  * Operaciones y gestión de datos para la entidad Cliente.
@@ -19,8 +24,8 @@ public class ClienteDAO {
     public static void crearCliente(Scanner leer, Connection con) throws SQLException {
         System.out.println("Introduzca el nombre del cliente");
         String nombre = leer.nextLine();
-        System.out.println("Introduzca el DNI del cliente");
-        String dni = leer.nextLine();
+        System.out.println("Introduzca el DNI/NIE del cliente");
+        String identificador = leer.nextLine();
         System.out.println("Introduzca el email del cliente");
         String email = leer.nextLine();
         System.out.println("Introduzca el teléfono del cliente");
@@ -29,10 +34,10 @@ public class ClienteDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            String insert = "INSERT INTO clientes (nombre, dni, email, telefono) VALUES (?, ?, ?, ?)";
+            String insert = "INSERT INTO clientes (nombre, identificador, email, telefono) VALUES (?, ?, ?, ?)";
             ps = con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, nombre);
-            ps.setString(2, dni);
+            ps.setString(2, identificador);
             ps.setString(3, email);
             ps.setString(4, telefono);
             ps.executeUpdate();
@@ -64,7 +69,7 @@ public class ClienteDAO {
                 System.out.println("**********************************");
                 System.out.println("Código: " + rs.getInt("cod_cliente"));
                 System.out.println("Nombre: " + rs.getString("nombre"));
-                System.out.println("DNI: " + rs.getString("dni"));
+                System.out.println("Identificador: " + rs.getString("identificador"));
                 System.out.println("Email: " + rs.getString("email"));
                 System.out.println("Teléfono: " + rs.getString("telefono"));
             }
@@ -106,8 +111,8 @@ public class ClienteDAO {
      * @return Objeto Cliente con sus datos o null si no se encuentra.
      * @throws SQLException Si hay un error en la consulta.
      */
-    public static Cliente2 obtenerClientePorId(Connection con, int codigo) throws SQLException {
-        Cliente2 cliente = null;
+    public static Cliente obtenerClientePorId(Connection con, int codigo) throws SQLException {
+        Cliente cliente = null;
         Statement stmt = null;
         ResultSet rs = null;
         try {
@@ -116,10 +121,11 @@ public class ClienteDAO {
             if (rs.next()) {
                 int cod = rs.getInt("cod_cliente");
                 String nombre = rs.getString("nombre");
-                String dni = rs.getString("dni");
+                String identificador = rs.getString("identificador");
                 String email = rs.getString("email");
                 String telefono = rs.getString("telefono");
-                cliente = new Cliente2(cod, nombre, dni, email, telefono);
+                String estado = rs.getString("estado");
+                cliente = new Cliente(cod, nombre, identificador, email, telefono, estado);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -131,33 +137,30 @@ public class ClienteDAO {
     }
 
     /**
-     * Elimina un cliente de la base de datos por su código.
-     * Realiza la eliminación de forma simple mediante un PreparedStatement.
+     * Cambia el estado de un cliente a 'Inactivo' en la base de datos.
      * @param con Conexión activa a la base de datos.
      * @param leer Scanner para la entrada del código.
-     * @throws SQLException Si ocurre un error al eliminar.
+     * @throws SQLException Si ocurre un error al actualizar.
      */
     public static void eliminarCliente(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código del cliente a eliminar:");
         int cod = leer.nextInt();
-
-        String sql = "DELETE FROM clientes WHERE cod = ?";
+        leer.nextLine();
+    
         PreparedStatement ps = null;
         try {
-            ps = con.prepareStatement(sql);
+            ps = con.prepareStatement("UPDATE clientes SET estado = 'Inactivo' WHERE cod_cliente = ?");
             ps.setInt(1, cod);
             int filas = ps.executeUpdate();
             if (filas > 0) {
-                System.out.println("Cliente eliminado correctamente.");
+                System.out.println("Cliente desactivado correctamente.");
             } else {
                 System.out.println("Cliente no encontrado.");
             }
         } catch (SQLException e) {
-            System.out.println("No se puede eliminar el cliente porque tiene reservas asociadas.");
+            e.printStackTrace();
         } finally {
-            if (ps != null) {
-                ps.close();
-            }
+            if (ps != null) ps.close();
         }
     }
 
@@ -173,6 +176,7 @@ public class ClienteDAO {
             System.out.println("3. Eliminar cliente");
             System.out.println("0. Salir");
             opcion = leer.nextInt();
+            leer.nextLine();
                         
             switch (opcion) {
                 case 1: 
