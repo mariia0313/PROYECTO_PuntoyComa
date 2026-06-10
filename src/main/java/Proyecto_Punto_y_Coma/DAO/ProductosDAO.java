@@ -65,35 +65,24 @@ public class ProductosDAO {
      * @throws SQLException Si hay errores en la consulta SELECT.
      */
     public static void mostrarProductos(Connection con) throws SQLException {
-        Statement stmt = null;
         String query = "SELECT * from productos";
-        try {
-            stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
+        System.out.println("--- LISTA DE PRODUCTOS ---");
+        try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                int id = rs.getInt("ID_producto");
-                System.out.println("ID del producto: " + id);
-                String nombre = rs.getString("Nombre");
-                System.out.println("Nombre: " + nombre);
-                int stock = rs.getInt("Stock");
-                System.out.println("Stock: " + stock);
-                int stockm = rs.getInt("Stock_minimo");
-                System.out.println("Stock minimo: " + stockm);
-                String desc = rs.getString("Descripcion");
-                System.out.println("Descripcion: " + desc);
-                int prov = rs.getInt("Proveedor");
-                System.out.println("Codigo proveedor: " + prov);
-                double precio = rs.getDouble("Precio_unidad");
-                System.out.println("Precio: " + precio);
-                String estado = rs.getString("Estado");
-                System.out.println("Estado del producto: " + estado);
-                System.out.println("**********************************");
+                Producto p = new Producto(
+                        rs.getInt("ID_producto"),
+                        rs.getString("Nombre"),
+                        rs.getString("Descripcion"),
+                        rs.getInt("Stock"),
+                        rs.getInt("Stock_minimo"),
+                        rs.getString("Estado"),
+                        rs.getInt("Proveedor"),
+                        rs.getDouble("Precio_unidad")
+                );
+                System.out.println(p);
             }
         } catch (SQLException e) {
             printSQLException(e);
-        } finally {
-            stmt.close();
-
         }
     }
 
@@ -253,23 +242,25 @@ public class ProductosDAO {
                     break;
                     
                 case 4:
-                    File csvDefault = new File("productos_importar.csv");
-                    String ruta;
-                    if (csvDefault.exists()) {
-                        System.out.println("Archivo encontrado: " + csvDefault.getAbsolutePath());
-                        System.out.print("Usar este archivo? (s/n): ");
-                        String resp = leer.nextLine();
-                        if (resp.equalsIgnoreCase("s")) {
-                            ruta = csvDefault.getPath();
-                        } else {
-                            System.out.println("Inserte la ruta del archivo a cargar");
-                            ruta = leer.nextLine();
-                        }
+                    File dirCSV = new File("Importar");
+                    if (!dirCSV.exists()) dirCSV.mkdirs();
+                    File[] csvFiles = dirCSV.listFiles((d, name) -> name.toLowerCase().endsWith(".csv"));
+                    if (csvFiles == null || csvFiles.length == 0) {
+                        System.out.println("No hay archivos CSV en la carpeta 'Importar'.");
                     } else {
-                        System.out.println("Inserte la ruta del archivo a cargar");
-                        ruta = leer.nextLine();
+                        System.out.println("Archivos disponibles en 'Importar':");
+                        for (int i = 0; i < csvFiles.length; i++) {
+                            System.out.println((i + 1) + ". " + csvFiles[i].getName());
+                        }
+                        System.out.print("Seleccione un archivo (0 para cancelar): ");
+                        int sel = leer.nextInt();
+                        leer.nextLine();
+                        if (sel > 0 && sel <= csvFiles.length) {
+                            cargarProductosDesdeCSV(con, csvFiles[sel - 1].getAbsolutePath());
+                        } else {
+                            System.out.println("Operación cancelada.");
+                        }
                     }
-                    cargarProductosDesdeCSV(con, ruta);
                     break;
 
                 case 5:

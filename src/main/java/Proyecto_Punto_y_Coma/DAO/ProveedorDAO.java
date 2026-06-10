@@ -64,30 +64,22 @@ public class ProveedorDAO {
      * @throws SQLException Si hay errores en la ejecución de la consulta SELECT.
      */
     public static void mostrarProveedores(Connection con) throws SQLException {
-        Statement stmt = null;
         String query = "SELECT * from proveedores";
-        try {
-            stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
+        System.out.println("--- LISTA DE PROVEEDORES ---");
+        try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                int codigo = rs.getInt("Cod_proveedor");
-                System.out.println("Código de proveedor: " + codigo);
-                String cif = rs.getString("Id_proveedor");
-                System.out.println("CIF: " + cif);
-                String telef = rs.getString("Telefono");
-                System.out.println("Telefono: " + telef);
-                String nombre = rs.getString("Nombre");
-                System.out.println("Nombre de proveedor: " + nombre);
-                String email = rs.getString("Email");
-                System.out.println("Email de proveedor: " + email);
-                String estado = rs.getString("Estado");
-                System.out.println("Estado del proveedor: " + estado);
-                System.out.println("**********************************");
+                Proveedor p = new Proveedor(
+                        rs.getInt("Cod_proveedor"),
+                        rs.getString("Id_proveedor"),
+                        rs.getString("Nombre"),
+                        rs.getString("Email"),
+                        rs.getString("Telefono"),
+                        rs.getString("Estado")
+                );
+                System.out.println(p);
             }
         } catch (SQLException e) {
             printSQLException(e);
-        } finally {
-            stmt.close();
         }
     }
 
@@ -324,7 +316,7 @@ public class ProveedorDAO {
     
     /**
      * Consulta los proveedores del ArrayList, los añade a la lista y genera el
-     * archivo "Informe_Proveedores.html".
+     * archivo "informe_proveedores.html".
      * @param con Conexión activa a la base de datos.
      * @throws SQLException Si falla la consulta o el cierre del Statement.
      */
@@ -332,58 +324,17 @@ public class ProveedorDAO {
         ArrayList<Proveedor> proveedores = rellenarProductosProveedores(con);
         File dir = new File("Informes");
         if (!dir.exists()) dir.mkdirs();
-        File f = new File(dir, "Informe_Proveedores.html");
+        File f = new File(dir, "informe_proveedores.html");
 
         try (FileWriter fw = new FileWriter(f)) {
-            fw.write("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Informe Proveedores</title>");
-            fw.write("<style>");
-            fw.write("body { font-family: Arial, sans-serif; margin: 20px; }");
-            fw.write("h1 { color: #2c3e50; text-align: center; }");
-            fw.write("h2 { color: #2980b9; }");
-            fw.write("table { border-collapse: collapse; width: 100%; margin-top: 20px; }");
-            fw.write("th { background-color: #2980b9; color: white; padding: 10px; }");
-            fw.write("td { padding: 8px; border: 1px solid #ddd; }");
-            fw.write("tr:nth-child(even) { background-color: #f9f9f9; }");
-            fw.write(".activo { color: green; font-weight: bold; }");
-            fw.write(".inactivo { color: red; font-weight: bold; }");
-            fw.write(".bajo-stock { color: orange; font-weight: bold; }");
-            fw.write("</style></head><body>");
-            fw.write("<h1>Informe de Proveedores y Productos</h1>");
+            fw.write("<html><body><h1>Informe de Proveedores</h1>\n");
+            fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n<hr>\n");
 
             for (Proveedor p : proveedores) {
-                fw.write("<h2>Proveedor: " + p.getNombre() + " (ID: " + p.getCodigo() + ")</h2>");
-                fw.write("<table>");
-                fw.write("<tr><th>CIF</th><th>Nombre</th><th>Email</th><th>Telefono</th><th>Estado</th></tr>");
-                String classEst = (p.getEstado() != null && p.getEstado().equalsIgnoreCase("Activo")) ? "activo" : "inactivo";
-                fw.write("<tr><td>" + p.getIdentificador() + "</td><td>" + p.getNombre() + "</td><td>" + p.getEmail() + "</td><td>" + p.getTelefono() + "</td><td class='" + classEst + "'>" + p.getEstado() + "</td></tr>");
-                fw.write("</table>");
-
-                fw.write("<h3>Catalogo de Productos</h3>");
-                ArrayList<Producto> productos = p.getProductos();
-                if (productos != null && !productos.isEmpty()) {
-                    fw.write("<table>");
-                    fw.write("<tr><th>Cod</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Stock Min</th><th>Estado</th></tr>");
-                    for (Producto prod : productos) {
-                        String classProd = (prod.getEstado() != null && prod.getEstado().equalsIgnoreCase("Activo")) ? "activo" : "inactivo";
-                        String stockClass = (prod.getStock() < prod.getStockMin()) ? "bajo-stock" : "";
-                        fw.write("<tr>");
-                        fw.write("<td>" + prod.getCOD() + "</td>");
-                        fw.write("<td>" + prod.getNombre() + "</td>");
-                        fw.write("<td>" + String.format("%.2f", prod.getPrecio()) + " €</td>");
-                        fw.write("<td class='" + stockClass + "'>" + prod.getStock() + "</td>");
-                        fw.write("<td>" + prod.getStockMin() + "</td>");
-                        fw.write("<td class='" + classProd + "'>" + prod.getEstado() + "</td>");
-                        fw.write("</tr>");
-                    }
-                    fw.write("</table>");
-                } else {
-                    fw.write("<p><i>No hay productos registrados para este proveedor.</i></p>");
-                }
-                fw.write("<hr>");
+                fw.write("<pre>" + p + "</pre>\n<hr>\n");
             }
 
-            fw.write("<p style='color:#7f8c8d; font-size:12px;'>Generado el " + java.time.LocalDate.now() + "</p>");
-            fw.write("</body></html>");
+            fw.write("</body></html>\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

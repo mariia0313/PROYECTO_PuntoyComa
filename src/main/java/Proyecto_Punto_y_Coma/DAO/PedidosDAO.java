@@ -10,6 +10,7 @@ import Proyecto_Punto_y_Coma.ENTIDAD.OrdenCompra;
 import Proyecto_Punto_y_Coma.ENTIDAD.Producto;
 import Proyecto_Punto_y_Coma.ENTIDAD.Proveedor;
 import java.io.*;
+import java.net.Socket;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -189,21 +190,14 @@ public class PedidosDAO {
      * @param idCompra Identificador de la orden actual.
      */
     public void mostrarCestaActual(Connection con, int idCompra) {
-        System.out.println("--- ARTÍCULOS EN TU PEDIDO ACTUAL ---");
-        String sql = "SELECT lc.No_linea, lc.Cantidad, lc.Producto, p.Nombre, p.Precio_unidad "
-                   + "FROM Lineas_compra lc JOIN Productos p ON lc.Producto = p.ID_producto "
-                   + "WHERE lc.No_compra = ?";
+        String sql = "SELECT lc.No_linea, lc.Cantidad, lc.Producto FROM Lineas_compra lc WHERE lc.No_compra = ?";
 
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setInt(1, idCompra);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    System.out.printf("Línea %d - %s (ID: %d) - Cant: %d - Precio: %.2f%n",
-                            rs.getInt("No_linea"),
-                            rs.getString("Nombre"),
-                            rs.getInt("Producto"),
-                            rs.getInt("Cantidad"),
-                            rs.getDouble("Precio_unidad"));
+                    LineaCompra lc = new LineaCompra(idCompra, rs.getInt("No_linea"), rs.getInt("Cantidad"), rs.getInt("Producto"));
+                    System.out.println(lc);
                 }
             }
         } catch (SQLException e) {
@@ -212,9 +206,13 @@ public class PedidosDAO {
     }
     
      /**
-      * Genera pedidos automáticos para productos por debajo del stock mínimo,
-      * agrupados por proveedor. Pide confirmación antes de crear cada orden.
-      */
+       * Genera pedidos automáticos para productos por debajo del stock mínimo,
+       * agrupados por proveedor. Pide confirmación antes de crear cada orden.
+       * @param con Conexión activa a la base de datos.
+       * @param leer Scanner para confirmar cada pedido.
+       * @param empleado Empleado que ejecuta la operación.
+       * @param proveedores Lista de proveedores activos.
+       */
         public void generarPedidoAutomatico(Connection con, Scanner leer, Empleado empleado, ArrayList<Proveedor> proveedores) {
         ProductosDAO prodDAO = new ProductosDAO();
         ArrayList<Producto> bajos = prodDAO.productosPorDebajoStockMinimo(con);
@@ -236,7 +234,7 @@ public class PedidosDAO {
             System.out.println("\nProveedor: " + prov.getNombre() + " (Código: " + prov.getCodigo() + ")");
             for (Producto p : productosProv) {
                 System.out.printf("  - %s (Stock: %d / Mín: %d) → Pedir: 10%n",
-                        p.getNombre(), p.getStock(), p.getStockMin());
+                        p.getNombre(), p.getStock(), p.getStockMinimo());
             }
 
             System.out.print("¿Generar pedido para este proveedor? (S/N): ");
@@ -305,19 +303,26 @@ public class PedidosDAO {
 
     /**
      * Muestra solo los pedidos con estado 'Pendiente' (pendientes de confirmar).
+     * @param con Conexión activa a la base de datos.
      */
     public void listarPedidosPendientes(Connection con) {
-        String sql = "SELECT No_orden, Precio_total, Estado, Fecha FROM Orden_Compra WHERE Estado = 'Pendiente'";
-
+        String sql = "SELECT No_orden, Direccion, Fecha, Telefono, Precio_total, Estado, Proveedor FROM Orden_Compra WHERE Estado = 'Pendiente'";
+        System.out.println("--- LISTA DE PEDIDOS PENDIENTES ---");
         try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            System.out.println("\n--- PEDIDOS PENDIENTES ---");
             boolean hay = false;
             while (rs.next()) {
                 hay = true;
-                int id = rs.getInt("No_orden");
-                double total = rs.getDouble("Precio_total");
-                Date fecha = rs.getDate("Fecha");
-                System.out.printf("ID: %d | Fecha: %s | Total: %.2f%n", id, fecha, total);
+                OrdenCompra oc = new OrdenCompra(
+                        rs.getInt("No_orden"),
+                        rs.getString("Direccion"),
+                        rs.getDate("Fecha").toLocalDate(),
+                        rs.getString("Telefono"),
+                        null,
+                        rs.getInt("Proveedor"),
+                        rs.getString("Estado")
+                );
+                oc.setPrecio_total(rs.getDouble("Precio_total"));
+                System.out.println(oc);
             }
             if (!hay) System.out.println("No hay pedidos pendientes.");
         } catch (SQLException e) {
@@ -326,8 +331,12 @@ public class PedidosDAO {
     }
 
      /**
-      * Menú principal de gestión de pedidos.
-      */
+       * Menú principal de gestión de pedidos con todas las operaciones disponibles.
+       * @param con Conexión activa a la base de datos.
+       * @param leer Scanner para la navegación y entrada de datos.
+       * @param empleado Empleado que maneja el menú.
+       * @param proveedores Lista de proveedores activos.
+       */
         public void menu(Connection con, Scanner leer, Empleado empleado, ArrayList<Proveedor> proveedores) {
         int opcion;
         do {
@@ -374,17 +383,21 @@ public class PedidosDAO {
      * @param con Conexión activa a la base de datos.
      */
         public void listarPedidos(Connection con) {
-        String sql = "SELECT No_orden, Precio_total, Estado, Fecha FROM Orden_Compra";
-
+        String sql = "SELECT No_orden, Direccion, Fecha, Telefono, Precio_total, Estado, Proveedor FROM Orden_Compra";
+        System.out.println("--- LISTA DE PEDIDOS ---");
         try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            System.out.println("\n--- LISTADO DE PEDIDOS ---");
             while (rs.next()) {
-                int id = rs.getInt("No_orden");
-                double total = rs.getDouble("Precio_total");
-                String estado = rs.getString("Estado");
-                Date fecha = rs.getDate("Fecha");
-                String fechaStr = (fecha == null) ? "---" : fecha.toString();
-                System.out.printf("ID: %d | Fecha: %s | Total: %.2f | Estado: %s%n", id, fechaStr, total, estado);
+                OrdenCompra oc = new OrdenCompra(
+                        rs.getInt("No_orden"),
+                        rs.getString("Direccion"),
+                        rs.getDate("Fecha").toLocalDate(),
+                        rs.getString("Telefono"),
+                        null,
+                        rs.getInt("Proveedor"),
+                        rs.getString("Estado")
+                );
+                oc.setPrecio_total(rs.getDouble("Precio_total"));
+                System.out.println(oc);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -393,12 +406,14 @@ public class PedidosDAO {
         
         
     /**
-     * Genera un archivo HTML con la factura de un pedido usando las clases
-     * OrdenCompra y LineaCompra.
+     * Genera un archivo HTML con la factura de un pedido usando datos
+     * de la base de datos. El archivo se guarda en el directorio "Facturas".
+     * @param con Conexión activa a la base de datos.
+     * @param idPedido Identificador del pedido a facturar.
      */
     public void generarFactura(Connection con, int idPedido) {
         String sqlCab = "SELECT oc.No_orden, oc.Direccion, oc.Fecha, oc.Telefono, oc.Empleado, "
-                      + "oc.Precio_total, oc.Proveedor, pv.Nombre AS nom_prov, pv.Id_proveedor "
+                      + "oc.Precio_total, oc.Proveedor, oc.Estado, pv.Nombre AS nom_prov, pv.Id_proveedor "
                       + "FROM Orden_compra oc JOIN Proveedores pv ON oc.Proveedor = pv.Cod_proveedor "
                       + "WHERE oc.No_orden = ?";
         String sqlLin = "SELECT lc.No_linea, lc.Cantidad, lc.Producto, p.Nombre, p.Precio_unidad "
@@ -427,69 +442,40 @@ public class PedidosDAO {
                 EmpleadosDAO empDAO = new EmpleadosDAO();
                 Empleado empleado = empDAO.obtenerEmpleadoPorId(con, codEmpleado);
 
-                OrdenCompra orden = new OrdenCompra(numOrden, direccion, fecha, telefono, empleado);
-
-                pstmtLin.setInt(1, idPedido);
-                try (ResultSet rsLin = pstmtLin.executeQuery()) {
-                    while (rsLin.next()) {
-                        String nomProd = rsLin.getString("Nombre");
-                        double precioUnidad = rsLin.getDouble("Precio_unidad");
-                        int cantidad = rsLin.getInt("Cantidad");
-                        orden.addLinea(new LineaCompra(0, nomProd, precioUnidad, cantidad));
-                    }
-                }
-
                 File dir = new File("Facturas");
                 if (!dir.exists()) dir.mkdirs();
 
-                File f = new File(dir, "Factura_" + numOrden + ".html");
+                File f = new File(dir, "factura_Pedido_" + numOrden + ".html");
                 try (FileWriter fw = new FileWriter(f)) {
-                    fw.write("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Factura #" + numOrden + "</title>");
-                    fw.write("<style>");
-                    fw.write("body { font-family: Arial, sans-serif; margin: 40px; }");
-                    fw.write(".header { text-align: center; border-bottom: 3px solid #2c3e50; padding-bottom: 20px; }");
-                    fw.write(".header h1 { color: #2c3e50; margin: 0; }");
-                    fw.write(".datos { margin: 20px 0; }");
-                    fw.write(".datos td { padding: 4px 10px; }");
-                    fw.write("table { border-collapse: collapse; width: 100%; margin: 20px 0; }");
-                    fw.write("th { background-color: #34495e; color: white; padding: 10px; text-align: left; }");
-                    fw.write("td { padding: 8px; border-bottom: 1px solid #ddd; }");
-                    fw.write("tr:nth-child(even) { background-color: #f9f9f9; }");
-                    fw.write(".total { text-align: right; font-size: 1.3em; font-weight: bold; color: #2c3e50; margin-top: 20px; }");
-                    fw.write(".footer { text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 10px; }");
-                    fw.write("</style></head><body>");
-                    fw.write("<div class='header'>");
-                    fw.write("<h1>FACTURA</h1>");
-                    fw.write("<p>Orden de Compra Nº " + numOrden + "</p>");
-                    fw.write("</div>");
+                    fw.write("<html><body><h1>Factura #" + numOrden + "</h1>\n");
+                    fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n<hr>\n");
 
-                    fw.write("<div class='datos'>");
-                    fw.write("<table>");
-                    fw.write("<tr><td><strong>Fecha:</strong></td><td>" + fecha + "</td></tr>");
-                    fw.write("<tr><td><strong>Proveedor:</strong></td><td>" + nomProv + " (" + idProv + ")</td></tr>");
-                    fw.write("<tr><td><strong>Direccion:</strong></td><td>" + direccion + "</td></tr>");
-                    fw.write("<tr><td><strong>Telefono:</strong></td><td>" + telefono + "</td></tr>");
-                    fw.write("<tr><td><strong>Empleado:</strong></td><td>" + (empleado != null ? empleado.getNombre() : "---") + "</td></tr>");
-                    fw.write("</table>");
-                    fw.write("</div>");
+                    fw.write("<pre>\n");
+                    fw.write("Fecha:       " + fecha + "\n");
+                    fw.write("Proveedor:   " + nomProv + " (" + idProv + ")\n");
+                    fw.write("Direccion:   " + direccion + "\n");
+                    fw.write("Telefono:    " + telefono + "\n");
+                    fw.write("Empleado:    " + (empleado != null ? empleado.getNombre() : "---") + "\n");
+                    fw.write("</pre>\n<hr>\n<pre>\n");
 
-                    fw.write("<table>");
-                    fw.write("<tr><th>Linea</th><th>Producto</th><th>Precio Unidad</th><th>Cantidad</th><th>Total</th></tr>");
-                    for (LineaCompra l : orden.getLineas()) {
-                        fw.write("<tr>");
-                        fw.write("<td>" + l.getNumLinea() + "</td>");
-                        fw.write("<td>" + l.getNombreProducto() + "</td>");
-                        fw.write("<td>" + String.format("%.2f", l.getPrecioUnidad()) + " €</td>");
-                        fw.write("<td>" + l.getCantidad() + "</td>");
-                        fw.write("<td>" + String.format("%.2f", l.getPrecioTotal()) + " €</td>");
-                        fw.write("</tr>");
+                    pstmtLin.setInt(1, idPedido);
+                    try (ResultSet rsLin = pstmtLin.executeQuery()) {
+                        while (rsLin.next()) {
+                            int noLinea = rsLin.getInt("No_linea");
+                            String nomProd = rsLin.getString("Nombre");
+                            int idProd = rsLin.getInt("Producto");
+                            double precioUnidad = rsLin.getDouble("Precio_unidad");
+                            int cantidad = rsLin.getInt("Cantidad");
+                            double totalLinea = precioUnidad * cantidad;
+                            fw.write(noLinea + "  " + nomProd + " (ID: " + idProd + ")"
+                                   + "  " + String.format("%.2f", precioUnidad) + " €"
+                                   + "  x" + cantidad
+                                   + "  = " + String.format("%.2f", totalLinea) + " €\n");
+                        }
                     }
-                    fw.write("</table>");
 
-                    fw.write("<div class='total'>TOTAL: " + String.format("%.2f", totalBD) + " €</div>");
-
-                    fw.write("<div class='footer'>Generado el " + java.time.LocalDate.now() + " | Hotel Punto y Coma</div>");
-                    fw.write("</body></html>");
+                    fw.write("\nTOTAL: " + String.format("%.2f", totalBD) + " €\n");
+                    fw.write("</pre>\n</body></html>\n");
                 }
 
                 System.out.println("Factura generada: " + f.getAbsolutePath());
@@ -500,8 +486,8 @@ public class PedidosDAO {
     }
 
        /**
-      * Permite actualizar el estado logístico de un pedido (ej: de 'Pendiente' a 'Recibido').
-      * Al confirmar un pedido, añade automáticamente las unidades al stock.
+       * Permite actualizar el estado logístico de un pedido (ej: de 'Pendiente' a 'Entregado').
+       * Al marcar como Entregado, añade automáticamente las unidades al stock y genera la factura.
       * @param con Conexión activa a la base de datos.
       * @param leer Scanner para capturar el ID del pedido y el nuevo estado.
       * @author María Herrero Rodríguez
@@ -546,7 +532,7 @@ public class PedidosDAO {
             pstmt.executeUpdate();
             pstmt.close();
 
-            if (estado.equals("Confirmado")) {
+            if (estado.equals("Entregado")) {
                 PreparedStatement pstmtLin = con.prepareStatement(
                     "SELECT lc.Producto, lc.Cantidad FROM Lineas_compra lc WHERE lc.No_compra = ?");
                 pstmtLin.setInt(1, id);
@@ -589,30 +575,35 @@ public class PedidosDAO {
         System.out.println("ID del pedido:");
         int id = leer.nextInt();
 
-        String sql = "SELECT No_orden, Estado, Precio_total, Fecha FROM Orden_Compra WHERE No_orden = ?";
-        String sql2 = "SELECT lc.No_linea, lc.Cantidad, lc.Producto, p.Nombre "
-                    + "FROM Lineas_Compra lc JOIN Productos p ON lc.Producto = p.ID_producto "
-                    + "WHERE lc.No_compra = ?";
+        String sql = "SELECT No_orden, Direccion, Fecha, Telefono, Precio_total, Estado, Proveedor FROM Orden_Compra WHERE No_orden = ?";
+        String sql2 = "SELECT lc.No_linea, lc.Cantidad, lc.Producto FROM Lineas_Compra lc WHERE lc.No_compra = ?";
 
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
-
+                OrdenCompra oc = null;
                 if (rs.next()) {
-                    System.out.println("\n=== PEDIDO #" + id + " ===");
-                    System.out.println("Fecha: " + rs.getDate("Fecha"));
-                    System.out.println("Estado: " + rs.getString("Estado"));
-                    System.out.printf("Total: %.2f%n", rs.getDouble("Precio_total"));
+                    oc = new OrdenCompra(
+                            rs.getInt("No_orden"),
+                            rs.getString("Direccion"),
+                            rs.getDate("Fecha").toLocalDate(),
+                            rs.getString("Telefono"),
+                            null,
+                            rs.getInt("Proveedor"),
+                            rs.getString("Estado")
+                    );
+                    oc.setPrecio_total(rs.getDouble("Precio_total"));
+                }
+
+                if (oc != null) {
+                    System.out.println(oc);
 
                     try (PreparedStatement pstmt2 = con.prepareStatement(sql2)) {
                         pstmt2.setInt(1, id);
                         try (ResultSet rs2 = pstmt2.executeQuery()) {
                             while (rs2.next()) {
-                                System.out.printf("- Línea %d: %s (ID: %d) - Cant: %d%n",
-                                        rs2.getInt("No_linea"),
-                                        rs2.getString("Nombre"),
-                                        rs2.getInt("Producto"),
-                                        rs2.getInt("Cantidad"));
+                                LineaCompra lc = new LineaCompra(id, rs2.getInt("No_linea"), rs2.getInt("Cantidad"), rs2.getInt("Producto"));
+                                System.out.println("  " + lc);
                             }
                         }
                     }

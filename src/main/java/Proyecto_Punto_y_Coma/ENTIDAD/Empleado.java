@@ -4,121 +4,91 @@ import Proyecto_Punto_y_Coma.ENTIDAD.Persona;
 import java.util.Date;
 
 /**
- * Representa a un empleado dentro de la organización, extendiendo la información básica de Persona
- * con datos contractuales, profesionales y fechas de relevancia laboral.
- * * @author María Herrero Rodríguez
- * @see Persona
+ * Representa a un empleado del hotel con información laboral y personal.
+ * Extiende de Persona añadiendo datos específicos como cargo, NSS,
+ * tipo de contrato y fechas relevantes.
+ * @author María Herrero Rodríguez
  */
-
 public class Empleado extends Persona {
     private String cargo;
-    private String nuss;
-    private Date fecha_nac;
-    private String contrato;
-    private Date fecha_antig;
-    private Date fecha_desp;
-    
+    private String nss;
+    private Date fecha_nacimiento;
+    private String tipo_contrato;
+    private Date fecha_antiguedad;
+    private Date fecha_despido;
+
     /**
-     * Constructor detallado para la creación de un objeto Empleado.
-     * @param cod Código del empleado.
-     * @param identificador DNI/NIE.
-     * @param nombre Nombre y apellidos.
-     * @param email Email corporativo.
-     * @param telefono Teléfono móvil.
-     * @param cargo Puesto que desempeña.
-     * @param contrato Tipo de contrato.
-     * @param fecha_nac Fecha de nacimiento.
-     * @param fecha_antig Fecha de alta en la empresa.
-     * @param fecha_desp Fecha de cese (si aplica).
-     * @param estado Estado administrativo (Activo/Baja).
+     * Constructor completo para Empleado.
+     * @param cod Código único del empleado en el sistema.
+     * @param identificador DNI/NIF del empleado.
+     * @param nombre Nombre completo.
+     * @param email Correo electrónico.
+     * @param telefono Teléfono de contacto.
+     * @param cargo Cargo que ocupa en el hotel.
+     * @param nss Número de la Seguridad Social.
+     * @param tipo_contrato Tipo de contrato (Indefinido, Temporal, etc.).
+     * @param fecha_nacimiento Fecha de nacimiento.
+     * @param fecha_antiguedad Fecha de antigüedad en la empresa.
+     * @param fecha_despido Fecha de despido o baja (puede ser null).
+     * @param estado Estado actual (Activo, Inactivo, etc.).
      */
-    public Empleado(int cod, String identificador, String nombre, String email, String telefono, String cargo, String contrato, Date fecha_nac, Date fecha_antig, Date fecha_desp, String estado ) {
+    public Empleado(int cod, String identificador, String nombre, String email, String telefono, String cargo, String nss, String tipo_contrato, Date fecha_nacimiento, Date fecha_antiguedad, Date fecha_despido, String estado) {
         super(cod, identificador, nombre, email, telefono, estado);
         this.cargo = cargo;
-        this.contrato = contrato;
-        this.fecha_nac = fecha_nac;
-        this.fecha_antig = fecha_antig;
-        this.fecha_desp = fecha_desp;
+        this.nss = nss;
+        this.tipo_contrato = tipo_contrato;
+        this.fecha_nacimiento = fecha_nacimiento;
+        this.fecha_antiguedad = fecha_antiguedad;
+        this.fecha_despido = fecha_despido;
     }
 
-    /** @return Cargo o puesto del empleado. */
-    public String getCargo() {
-        return cargo;
-    }
+    /** @return El cargo del empleado. */
+    public String getCargo() { return cargo; }
+    /** @param cargo Nuevo cargo a asignar. */
+    public void setCargo(String cargo) { this.cargo = cargo; }
 
-    /** @param cargo cargo a asignar. */
-    public void setCargo(String cargo) {
-        this.cargo = cargo;
-    }
+    /** @return El Número de la Seguridad Social. */
+    public String getNss() { return nss; }
+    /** @param nss Nuevo NSS a asignar. */
+    public void setNss(String nss) { this.nss = nss; }
 
-    /** @return Nuss del empleado. */
-    public String getNuss() {
-        return nuss;
-    }
+    /** @return La fecha de nacimiento. */
+    public Date getFecha_nacimiento() { return fecha_nacimiento; }
+    /** @param fecha_nacimiento Nueva fecha de nacimiento. */
+    public void setFecha_nacimiento(Date fecha_nacimiento) { this.fecha_nacimiento = fecha_nacimiento; }
 
-    /** @param nuss Número de la Seguridad Social a asignar. */
-    public void setNuss(String nuss) {
-        this.nuss = nuss;
-    }
+    /** @return El tipo de contrato. */
+    public String getTipo_contrato() { return tipo_contrato; }
+    /** @param tipo_contrato Nuevo tipo de contrato. */
+    public void setTipo_contrato(String tipo_contrato) { this.tipo_contrato = tipo_contrato; }
 
-    /** @return Fecha de nacimiento del empleado. */
-    public Date getFecha_nac() {
-        return fecha_nac;
-    }
+    /** @return La fecha de antigüedad en la empresa. */
+    public Date getFecha_antiguedad() { return fecha_antiguedad; }
+    /** @param fecha_antiguedad Nueva fecha de antigüedad. */
+    public void setFecha_antiguedad(Date fecha_antiguedad) { this.fecha_antiguedad = fecha_antiguedad; }
 
-    /** @param fecha_nac fecha de nacimiento a asignar. */
-    public void setFecha_nac(Date fecha_nac) {
-        this.fecha_nac = fecha_nac;
-    }
+    /** @return La fecha de despido (puede ser null). */
+    public Date getFecha_despido() { return fecha_despido; }
+    /** @param fecha_despido Nueva fecha de despido. */
+    public void setFecha_despido(Date fecha_despido) { this.fecha_despido = fecha_despido; }
 
-    /** @return Contrato del empleado. */
-    public String getContrato() {
-        return contrato;
-    }
-
-    /** @param contrato contrato a asignar. */
-    public void setContrato(String contrato) {
-        this.contrato = contrato;
-    }
-
-    /** @return Fecha de antiguedad del empleado. */
-    public Date getFecha_antig() {
-        return fecha_antig;
-    }
-
-    /** @param fecha_antig fecha de antiguedad a asignar. */
-    public void setFecha_antig(Date fecha_antig) {
-        this.fecha_antig = fecha_antig;
-    }
-
-    /** @return Fecha de despido del empleado. */
-    public Date getFecha_desp() {
-        return fecha_desp;
-    }
-
-    /** @param fecha_desp fecha_desp a asignar. */
-    public void setFecha_desp(Date fecha_desp) {
-        this.fecha_desp = fecha_desp;
-    }
-   
-/**
-     * Genera una representación en texto de los datos básicos del empleado.
-     * @return String con código, nombre, email, teléfono y cargo.
+    /**
+     * Devuelve una representación formateada del empleado con todos sus datos.
+     * @return String multilínea con la información del empleado.
      */
     public String toString() {
-
-        return "----------------------------------------------------\n"
-                + "  FICHA DE EMPLEADO [ ID: " + codigo + " ]\n"
-                + "----------------------------------------------------\n"
-                + "  Nombre:       " + nombre + "\n"
-                + "  Cargo:        " + cargo + "\n"
-                + "  DNI/NIE:      " + identificador + "\n"
-                + "  Contrato:     " + contrato + "\n"
-                + "  Alta:         " + (fecha_antig != null ? fecha_antig : "---") + "\n"
-                + "  Email:        " + email + "\n"
-                + "  Estado:       " + estado + "\n"
-                + "----------------------------------------------------";
+        String desp = (fecha_despido != null) ? String.format("%td/%<tm/%<tY", fecha_despido) : "---";
+        return String.format(
+                "Código: %d | Identificador: %s | Nombre: %s%n" +
+                "Cargo: %s | NSS: %s | Contrato: %s%n" +
+                "Email: %s | Teléfono: %s | Estado: %s%n" +
+                "F.Nacimiento: %s | F.Antigüedad: %s | F.Despido: %s%n",
+                codigo, identificador, nombre,
+                cargo, nss, tipo_contrato,
+                email, telefono, estado,
+                (fecha_nacimiento != null ? String.format("%td/%<tm/%<tY", fecha_nacimiento) : "---"),
+                (fecha_antiguedad != null ? String.format("%td/%<tm/%<tY", fecha_antiguedad) : "---"),
+                desp
+        );
     }
-
-   
 }
