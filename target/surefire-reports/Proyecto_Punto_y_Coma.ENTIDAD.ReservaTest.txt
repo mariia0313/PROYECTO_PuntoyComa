@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: Proyecto_Punto_y_Coma.ENTIDAD.ReservaTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s -- in Proyecto_Punto_y_Coma.ENTIDAD.ReservaTest

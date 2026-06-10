@@ -1,10 +1,15 @@
 package Proyecto_Punto_y_Coma.DAO;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Scanner;
+
 import Proyecto_Punto_y_Coma.ENTIDAD.Actividad;
 import Proyecto_Punto_y_Coma.ENTIDAD.Alojamiento;
 import Proyecto_Punto_y_Coma.ENTIDAD.SalaEvento;
-import java.sql.*;
-import java.util.Scanner;
 
 /**
  * Operaciones para los recursos reservables del hotel:
@@ -197,30 +202,28 @@ public class TipoReservaDAO {
     }
 
     /**
-     * Elimina un alojamiento de la base de datos a partir de su código identificador.
-     * Realiza una baja directa utilizando un PreparedStatement de tipo DELETE.
-     * Si el recurso está referenciado en otra tabla, captura la excepción para evitar que el programa se detenga.
+     * Cambia el estado de un alojamiento a 'No Disponible' en la base de datos.
      * @param con  Conexión activa a la base de datos MySQL.
      * @param leer Scanner para la lectura del código por consola.
-     * @throws SQLException Si ocurre un error inesperado en la base de datos.
+     * @throws SQLException Si ocurre un error al actualizar.
      */
     public static void eliminarAlojamiento(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código del alojamiento a eliminar:");
         int cod = leer.nextInt();
+        leer.nextLine();
 
-        String sql = "DELETE FROM alojamientos WHERE cod = ?";
         PreparedStatement ps = null;
         try {
-            ps = con.prepareStatement(sql);
+            ps = con.prepareStatement("UPDATE alojamientos SET estado = 'No Disponible' WHERE cod = ?");
             ps.setInt(1, cod);
             int filas = ps.executeUpdate();
-            if (filas > 0){
-                System.out.println("Alojamiento eliminado correctamente.");
-            }else{
+            if (filas > 0) {
+                System.out.println("Alojamiento desactivado correctamente.");
+            } else {
                 System.out.println("Alojamiento no encontrado.");
             }
         } catch (SQLException e) {
-            System.out.println("No se puede eliminar: el recurso está en uso en alguna reserva.");
+            e.printStackTrace();
         } finally {
             if (ps != null) ps.close();
         }
@@ -424,29 +427,28 @@ public class TipoReservaDAO {
     }
 
     /**
-     * Elimina una actividad de la base de datos a partir de su código identificador.
-     * Realiza una baja directa utilizando un PreparedStatement de tipo DELETE.
-     * Si el recurso está referenciado en otra tabla, captura la excepción para evitar que el programa se detenga.
+     * Cambia el estado de una actividad a 'No Disponible' en la base de datos.
      * @param con  Conexión activa a la base de datos MySQL.
      * @param leer Scanner para la lectura del código por consola.
-     * @throws SQLException Si ocurre un error inesperado en la base de datos.
+     * @throws SQLException Si ocurre un error al actualizar.
      */
     public static void eliminarActividad(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código de la actividad a eliminar:");
         int cod = leer.nextInt();
-        String sql = "DELETE FROM actividades WHERE cod = ?";
+        leer.nextLine();
+
         PreparedStatement ps = null;
         try {
-            ps = con.prepareStatement(sql);
+            ps = con.prepareStatement("UPDATE actividades SET estado = 'No Disponible' WHERE cod = ?");
             ps.setInt(1, cod);
             int filas = ps.executeUpdate();
-            if (filas > 0){
-                System.out.println("Actividad eliminada correctamente.");
-            } else{
+            if (filas > 0) {
+                System.out.println("Actividad desactivada correctamente.");
+            } else {
                 System.out.println("Actividad no encontrada.");
             }
         } catch (SQLException e) {
-            System.out.println("No se puede eliminar: el recurso está en uso en alguna reserva.");
+            e.printStackTrace();
         } finally {
             if (ps != null) ps.close();
         }
@@ -647,29 +649,28 @@ public class TipoReservaDAO {
     }
 
     /**
-     * Elimina una sala evento de la base de datos a partir de su código identificador.
-     * Realiza una baja directa utilizando un PreparedStatement de tipo DELETE.
-     * Si el recurso está referenciado en otra tabla, captura la excepción para evitar que el programa se detenga.
+     * Cambia el estado de una sala de evento a 'No Disponible' en la base de datos.
      * @param con  Conexión activa a la base de datos MySQL.
      * @param leer Scanner para la lectura del código por consola.
-     * @throws SQLException Si ocurre un error inesperado en la base de datos.
+     * @throws SQLException Si ocurre un error al actualizar.
      */
     public static void eliminarSalaEvento(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código de la sala a eliminar:");
         int cod = leer.nextInt();
-        String sql = "DELETE FROM salas_evento WHERE cod = ?";
+        leer.nextLine();
+
         PreparedStatement ps = null;
         try {
-            ps = con.prepareStatement(sql);
+            ps = con.prepareStatement("UPDATE salas_evento SET estado = 'No Disponible' WHERE cod = ?");
             ps.setInt(1, cod);
             int filas = ps.executeUpdate();
-            if (filas > 0){
-                System.out.println("Sala eliminada correctamente.");
-            }else{
+            if (filas > 0) {
+                System.out.println("Sala desactivada correctamente.");
+            } else {
                 System.out.println("Sala no encontrada.");
             }
         } catch (SQLException e) {
-            System.out.println("No se puede eliminar: el recurso está en uso en alguna reserva.");
+            e.printStackTrace();
         } finally {
             if (ps != null) ps.close();
         }

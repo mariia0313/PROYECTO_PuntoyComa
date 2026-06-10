@@ -214,7 +214,7 @@ Aquí tenemos, sacado de todo lo creado mediante código SQL gracias a una funci
      */
     public static void crearReserva(Scanner leer, Connection con) throws SQLException {
         boolean valido = true;
-        Cliente2 cliente = null;
+        Cliente cliente = null;
         TipoReserva recurso = null;
         int codRecurso;
         java.sql.Date fechaInicio = null;
