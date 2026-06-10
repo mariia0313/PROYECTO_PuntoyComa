@@ -67,7 +67,7 @@ public class ClienteDAO {
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 System.out.println("**********************************");
-                System.out.println("Código: " + rs.getInt("cod_cliente"));
+                System.out.println("Código: " + rs.getInt("cod"));
                 System.out.println("Nombre: " + rs.getString("nombre"));
                 System.out.println("Identificador: " + rs.getString("identificador"));
                 System.out.println("Email: " + rs.getString("email"));
@@ -119,7 +119,7 @@ public class ClienteDAO {
             stmt = con.createStatement();
             rs = stmt.executeQuery("SELECT * FROM clientes WHERE cod = " + codigo);
             if (rs.next()) {
-                int cod = rs.getInt("cod_cliente");
+                int cod = rs.getInt("cod");
                 String nombre = rs.getString("nombre");
                 String identificador = rs.getString("identificador");
                 String email = rs.getString("email");
@@ -149,7 +149,7 @@ public class ClienteDAO {
     
         PreparedStatement ps = null;
         try {
-            ps = con.prepareStatement("UPDATE clientes SET estado = 'Inactivo' WHERE cod_cliente = ?");
+            ps = con.prepareStatement("UPDATE clientes SET estado = 'Inactivo' WHERE cod = ?");
             ps.setInt(1, cod);
             int filas = ps.executeUpdate();
             if (filas > 0) {
