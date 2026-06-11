@@ -27,7 +27,12 @@ public abstract class TipoReserva implements java.io.Serializable {
         this.cod = cod;
         this.nombre = nombre;
         this.precioBase = precioBase;
-        this.iva = iva;
+        if(iva > 1 || iva < 0){
+            System.out.println("IVA no válido. Debe estar entre 0 y 1. Por ejemplo 0.21, se te ha asignado 0 por defecto pero puedes modificarlo.");
+            this.iva = 0; // Asignar un valor por defecto si el IVA no es válido
+        } else {
+            this.iva = iva;
+        }
         this.capacidad = capacidad;
         this.estado = estado;
     }

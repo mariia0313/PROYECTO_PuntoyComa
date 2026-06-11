@@ -555,14 +555,20 @@ public class ReservaDAO {
      * el recurso reservado, las fechas y los importes económicos.
     */
     public static void generarFactura(Reserva reserva) {
-        String nombreFichero = "factura_" + reserva.getCod() + ".txt";
+        String cod = String.valueOf(reserva.getCod());
+        String nombreCliente = reserva.getCliente().getNombre();
+        String idCliente = reserva.getCliente().getIdentificador();
+        String email = reserva.getCliente().getEmail();
+        String telf = reserva.getCliente().getTelefono();
+        
+        TipoReserva tr = reserva.getTipoReserva();
+        String tipo = tr.getClass().getSimpleName();
+        double total = reserva.calcularPrecioTotal();
+        String nombreFichero = "factura_reserva_" + reserva.getCod() + ".txt";
+        
         File dir = new File("Facturas");
-
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        File f = new File(dir, nombreFichero);
+        if (!dir.exists()) dir.mkdirs();
+        File f = new File(dir, "factura_reserva_" + cod + ".html");
 
         FileWriter fw = null;
         PrintWriter pw = null;
@@ -570,53 +576,31 @@ public class ReservaDAO {
             fw = new FileWriter(f, false); // false = sobreescribir
             pw = new PrintWriter(fw);
 
-            pw.println("============================================");
-            pw.println("            FACTURA DE RESERVA              ");
-            pw.println("============================================");
-            pw.println("Codigo Reserva: " + reserva.getCod());
-            pw.println("Fecha Emision:  " + new java.sql.Date(System.currentTimeMillis()));
-            pw.println("--------------------------------------------");
-            pw.println("CLIENTE");
-            pw.println("Nombre:    " + reserva.getCliente().getNombre());
-            pw.println("Identificador:       " + reserva.getCliente().getIdentificador());
-            pw.println("Email:     " + reserva.getCliente().getEmail());
-            pw.println("Telefono:  " + reserva.getCliente().getTelefono());
-            pw.println("--------------------------------------------");
-            pw.println("RECURSO RESERVADO");
+            pw.println("<html><head><meta charset='UTF-8'>");
+            pw.println("<style>");
+            pw.println("body { font-family: Arial; margin: 30px; color: #333; }");
+            pw.println("table { width: 100%; border-collapse: collapse; margin-top: 15px; }");
+            pw.println("th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }");
+            pw.println("th { background-color: #f8f8f8; }");
+            pw.println(".total { font-size: 1.2em; font-weight: bold; color: #d32f2f; }");
+            pw.println("</style></head><body>");
 
-            TipoReserva tr = reserva.getTipoReserva();
-            if (tr instanceof Alojamiento) {
-                Alojamiento a = (Alojamiento) tr;
-                pw.println("Tipo:          Alojamiento");
-                pw.println("Nombre:        " + a.getNombre());
-                pw.println("Tipo Alojamiento:    " + a.getTipoAlojamiento());
-                pw.println("Capacidad:     " + a.getCapacidad());
-            } else if (tr instanceof Actividad) {
-                Actividad act = (Actividad) tr;
-                pw.println("Tipo:          Actividad");
-                pw.println("Nombre:        " + act.getNombre());
-                pw.println("Horario:       " + act.getHoraInicio() + " - " + act.getHoraFin());
-                pw.println("Estado:        " + act.getEstado());
-            } else if (tr instanceof SalaEvento) {
-                SalaEvento s = (SalaEvento) tr;
-                pw.println("Tipo:          Sala de Evento");
-                pw.println("Nombre:        " + s.getNombre());
-                pw.println("Capacidad:     " + s.getCapacidad());
-                pw.println("Horario:       " + s.getHoraInicio() + " - " + s.getHoraFin());
-            }
+            pw.println("<h1>Factura #" + cod + "</h1>");
+            pw.println("<p>Fecha: " + new java.sql.Date(System.currentTimeMillis()) + "</p>");
+            
+            pw.println("<h3>Cliente</h3>");
+            pw.println("<p>" + nombreCliente + " (" + idCliente + ")<br>Email: " + email + "<br>Tel: " + telf + "</p>");
 
-            pw.println("--------------------------------------------");
-            pw.println("FECHAS");
-            pw.println("Fecha Inicio:  " + reserva.getFechaInicio());
-            pw.println("Fecha Fin:     " + reserva.getFechaFin());
-            pw.println("--------------------------------------------");
-            pw.println("PRECIOS");
-            pw.println("Precio Base:   " + tr.getPrecioBase() + " €");
-            pw.println("IVA (" + (tr.getIva() * 100) + "%): " + tr.precioIVA() + " €");
-            pw.println("TOTAL:         " + reserva.calcularPrecioTotal() + " €");
-            pw.println("============================================");
-            pw.println("        Gracias por su reserva");
-            pw.println("============================================");
+            pw.println("<h3>Detalle</h3>");
+            pw.println("<table>");
+            pw.println("<tr><th>Concepto</th><th>Información</th></tr>");
+            pw.println("<tr><td>Tipo</td><td>" + tipo + "</td></tr>");
+            pw.println("<tr><td>Fechas</td><td>" + reserva.getFechaInicio() + " al " + reserva.getFechaFin() + "</td></tr>");
+            pw.println("</table>");
+
+            pw.println("<p class='total'>TOTAL A PAGAR: " + String.format("%.2f", total) + " €</p>");
+            
+            pw.println("</body></html>");
 
             System.out.println("Factura generada correctamente: " + f.getAbsolutePath());
 
