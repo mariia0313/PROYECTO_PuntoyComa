@@ -4,14 +4,10 @@ import Proyecto_Punto_y_Coma.ENTIDAD.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
-/* María Herrero Rodríguez
-MAIN DE PRUEBA PARA COMPRAS A PROVEEDORES
-*/
 
 public class Main {
     public static void main (String[] args) throws SQLException, Exception {
-        
-        // CREAMOS VARIABLES A UTILIZAR
+
         int opcion;
         ConexionBD _con = new ConexionBD();
         Connection con = _con.abrirConexion();
@@ -21,15 +17,18 @@ public class Main {
         ProveedorDAO prov_dao = new ProveedorDAO();
         ProductosDAO prod_dao = new ProductosDAO();
         PedidosDAO ped_dao = new PedidosDAO();
+        ClienteDAO cli_dao = new ClienteDAO();
+        TipoReservaDAO recurso_dao = new TipoReservaDAO();
+        ReservaDAO res_dao = new ReservaDAO();
         int opcion2 = 0;
-        
+
         do {
             System.out.println("BIENVENIDO A LA GESTIÓN DEL HOTEL PUNTO Y COMA");
             System.out.println("1. Iniciar sesión");
             System.out.println("2. Crear usuario");
             System.out.println("0. Salir del programa");
             opcion = ConexionBD.leerEntero(leer);
-            
+
             switch (opcion) {
                 case 1:
                     Empleado empleado = usu_dao.inicioSesion(con, leer);
@@ -41,6 +40,12 @@ public class Main {
                                     System.out.println("      ADMINISTRACIÓN   ");
                                     System.out.println("1. Gestión de empleados");
                                     System.out.println("2. Gestión de usuarios");
+                                    System.out.println("3. Gestión de proveedores");
+                                    System.out.println("4. Gestión de productos");
+                                    System.out.println("5. Gestión de pedidos");
+                                    System.out.println("6. Gestión de clientes");
+                                    System.out.println("7. Gestión de recursos (Alojamientos/Actividades/Salas)");
+                                    System.out.println("8. Gestión de reservas");
                                     System.out.println("0. Salir");
                                     opcion2 = ConexionBD.leerEntero(leer);
                                     switch (opcion2){
@@ -49,6 +54,24 @@ public class Main {
                                             break;
                                         case 2:
                                             usu_dao.menu(con, leer);
+                                            break;
+                                        case 3:
+                                            prov_dao.menu(con, leer);
+                                            break;
+                                        case 4:
+                                            prod_dao.menu(con, leer);
+                                            break;
+                                        case 5:
+                                            ped_dao.menu(con, leer, empleado, prov_dao.rellenarProductosProveedores(con));
+                                            break;
+                                        case 6:
+                                            cli_dao.menu(con, leer);
+                                            break;
+                                        case 7:
+                                            recurso_dao.menu(con, leer);
+                                            break;
+                                        case 8:
+                                            res_dao.menu(con, leer);
                                             break;
                                     }
                                 } while (opcion2 != 0);
@@ -76,6 +99,33 @@ public class Main {
                                             break;
                                         case 3:
                                             ped_dao.menu(con, leer, empleado, prov_dao.rellenarProductosProveedores(con));
+                                            break;
+                                        case 0:
+                                            System.out.println("Saliendo...");
+                                            break;
+                                        default:
+                                            System.out.println("Opción no válida");
+                                    }
+                                } while (opcion2 != 0);
+                                break;
+
+                            case "Encargado Reservas":
+                                do {
+                                    System.out.println("      SISTEMA DE GESTIÓN DE RESERVAS   ");
+                                    System.out.println("1. Gestión de clientes");
+                                    System.out.println("2. Gestión de recursos (Alojamientos/Actividades/Salas)");
+                                    System.out.println("3. Gestión de reservas");
+                                    System.out.println("0. Salir");
+                                    opcion2 = ConexionBD.leerEntero(leer);
+                                    switch (opcion2) {
+                                        case 1:
+                                            cli_dao.menu(con, leer);
+                                            break;
+                                        case 2:
+                                            recurso_dao.menu(con, leer);
+                                            break;
+                                        case 3:
+                                            res_dao.menu(con, leer);
                                             break;
                                         case 0:
                                             System.out.println("Saliendo...");
