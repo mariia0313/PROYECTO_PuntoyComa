@@ -140,7 +140,7 @@ public class TipoReservaDAO {
                     System.out.println("Opcion no valida");
                     break;
                 }
-                if (opcion > 0 && opcion <= 6) {
+                if (opcion > 0 && opcion <= 5) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
                     String nuevo = leer.nextLine();
                     String sql = "UPDATE alojamientos SET " + campo + " = ? WHERE cod = ?";
@@ -171,6 +171,44 @@ public class TipoReservaDAO {
                             ps.close();
                         }
                     }
+                } else if (opcion == 6) {
+                    int opcion2;
+                    System.out.println("Elija el nuevo estado");
+                    System.out.println("1. Disponible");
+                    System.out.println("2. No Disponible");
+                    opcion2 = leer.nextInt();
+                    leer.nextLine();
+                    String nuevoEstado = "";
+                    switch (opcion2) {
+                        case 1:
+                            nuevoEstado = "Disponible";
+                            break;
+                        case 2:
+                            nuevoEstado = "No Disponible";
+                            break;
+                        default:
+                            System.out.println("Opcion no valida");
+                            break;
+                    }
+                    if (!nuevoEstado.isEmpty()) {
+                        String sql = "UPDATE alojamientos SET estado = ? WHERE cod = ?";
+                        try {
+                            ps = con.prepareStatement(sql);
+                            ps.setString(1, nuevoEstado);
+                            ps.setInt(2, cod);
+                            
+                            int filas = ps.executeUpdate();
+                            if (filas > 0) {
+                                System.out.println("Estado actualizado correctamente");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (ps != null) {
+                                ps.close();
+                            }
+                        }
+                    }
                 }
             } while (opcion != 0);
         }
@@ -199,34 +237,6 @@ public class TipoReservaDAO {
             if (stmt != null) stmt.close();
         }
         return alojamiento;
-    }
-
-    /**
-     * Cambia el estado de un alojamiento a 'No Disponible' en la base de datos.
-     * @param con  Conexión activa a la base de datos MySQL.
-     * @param leer Scanner para la lectura del código por consola.
-     * @throws SQLException Si ocurre un error al actualizar.
-     */
-    public static void eliminarAlojamiento(Connection con, Scanner leer) throws SQLException {
-        System.out.println("Introduzca el código del alojamiento a eliminar:");
-        int cod = leer.nextInt();
-        leer.nextLine();
-
-        PreparedStatement ps = null;
-        try {
-            ps = con.prepareStatement("UPDATE alojamientos SET estado = 'No Disponible' WHERE cod = ?");
-            ps.setInt(1, cod);
-            int filas = ps.executeUpdate();
-            if (filas > 0) {
-                System.out.println("Alojamiento desactivado correctamente.");
-            } else {
-                System.out.println("Alojamiento no encontrado.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (ps != null) ps.close();
-        }
     }
 
     /**
@@ -364,7 +374,7 @@ public class TipoReservaDAO {
                         break;
                 }
                 
-                if (opcion > 0 && opcion <= 7) {
+                if (opcion > 0 && opcion <= 6) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
                     String nuevo = leer.nextLine();
                     
@@ -396,6 +406,44 @@ public class TipoReservaDAO {
                             ps.close();
                         }
                     }
+                } else if (opcion == 7) {
+                    int opcion2;
+                    System.out.println("Elija el nuevo estado");
+                    System.out.println("1. Disponible");
+                    System.out.println("2. No Disponible");
+                    opcion2 = leer.nextInt();
+                    leer.nextLine();
+                    String nuevoEstado = "";
+                    switch (opcion2) {
+                        case 1:
+                            nuevoEstado = "Disponible";
+                            break;
+                        case 2:
+                            nuevoEstado = "No Disponible";
+                            break;
+                        default:
+                            System.out.println("Opcion no valida");
+                            break;
+                    }
+                    if (!nuevoEstado.isEmpty()) {
+                        String sql = "UPDATE actividades SET estado = ? WHERE cod = ?";
+                        try {
+                            ps = con.prepareStatement(sql);
+                            ps.setString(1, nuevoEstado);
+                            ps.setInt(2, cod);
+                            
+                            int filas = ps.executeUpdate();
+                            if (filas > 0) {
+                                System.out.println("Estado actualizado correctamente");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (ps != null) {
+                                ps.close();
+                            }
+                        }
+                    }
                 }
             } while (opcion != 0);
         }
@@ -424,34 +472,6 @@ public class TipoReservaDAO {
             if (stmt != null) stmt.close();
         }
         return actividad;
-    }
-
-    /**
-     * Cambia el estado de una actividad a 'No Disponible' en la base de datos.
-     * @param con  Conexión activa a la base de datos MySQL.
-     * @param leer Scanner para la lectura del código por consola.
-     * @throws SQLException Si ocurre un error al actualizar.
-     */
-    public static void eliminarActividad(Connection con, Scanner leer) throws SQLException {
-        System.out.println("Introduzca el código de la actividad a eliminar:");
-        int cod = leer.nextInt();
-        leer.nextLine();
-
-        PreparedStatement ps = null;
-        try {
-            ps = con.prepareStatement("UPDATE actividades SET estado = 'No Disponible' WHERE cod = ?");
-            ps.setInt(1, cod);
-            int filas = ps.executeUpdate();
-            if (filas > 0) {
-                System.out.println("Actividad desactivada correctamente.");
-            } else {
-                System.out.println("Actividad no encontrada.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (ps != null) ps.close();
-        }
     }
 
     /**
@@ -586,7 +606,7 @@ public class TipoReservaDAO {
                         break;
                 }
                 
-                if (opcion > 0 && opcion <= 7) {
+                if (opcion > 0 && opcion <= 6) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
                     String nuevo = leer.nextLine();
                     
@@ -618,6 +638,44 @@ public class TipoReservaDAO {
                             ps.close();
                         }
                     }
+                }  else if (opcion == 7) {
+                    int opcion2;
+                    System.out.println("Elija el nuevo estado");
+                    System.out.println("1. Disponible");
+                    System.out.println("2. No Disponible");
+                    opcion2 = leer.nextInt();
+                    leer.nextLine();
+                    String nuevoEstado = "";
+                    switch (opcion2) {
+                        case 1:
+                            nuevoEstado = "Disponible";
+                            break;
+                        case 2:
+                            nuevoEstado = "No Disponible";
+                            break;
+                        default:
+                            System.out.println("Opcion no valida");
+                            break;
+                    }
+                    if (!nuevoEstado.isEmpty()) {
+                        String sql = "UPDATE alojamientos SET estado = ? WHERE cod = ?";
+                        try {
+                            ps = con.prepareStatement(sql);
+                            ps.setString(1, nuevoEstado);
+                            ps.setInt(2, cod);
+                            
+                            int filas = ps.executeUpdate();
+                            if (filas > 0) {
+                                System.out.println("Estado actualizado correctamente");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (ps != null) {
+                                ps.close();
+                            }
+                        }
+                    }
                 }
             } while (opcion != 0);
         }
@@ -646,34 +704,6 @@ public class TipoReservaDAO {
             if (stmt != null) stmt.close();
         }
         return sala;
-    }
-
-    /**
-     * Cambia el estado de una sala de evento a 'No Disponible' en la base de datos.
-     * @param con  Conexión activa a la base de datos MySQL.
-     * @param leer Scanner para la lectura del código por consola.
-     * @throws SQLException Si ocurre un error al actualizar.
-     */
-    public static void eliminarSalaEvento(Connection con, Scanner leer) throws SQLException {
-        System.out.println("Introduzca el código de la sala a eliminar:");
-        int cod = leer.nextInt();
-        leer.nextLine();
-
-        PreparedStatement ps = null;
-        try {
-            ps = con.prepareStatement("UPDATE salas_evento SET estado = 'No Disponible' WHERE cod = ?");
-            ps.setInt(1, cod);
-            int filas = ps.executeUpdate();
-            if (filas > 0) {
-                System.out.println("Sala desactivada correctamente.");
-            } else {
-                System.out.println("Sala no encontrada.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (ps != null) ps.close();
-        }
     }
 
     /**
@@ -741,7 +771,6 @@ public class TipoReservaDAO {
             System.out.println("1. Anadir alojamiento");
             System.out.println("2. Modificar alojamiento");
             System.out.println("3. Ver alojamientos");
-            System.out.println("4. Eliminar alojamiento");
             System.out.println("0. Volver");
             opcion = leer.nextInt();
             leer.nextLine();
@@ -750,7 +779,6 @@ public class TipoReservaDAO {
                 case 1: crearAlojamiento(leer, con); break;
                 case 2: modificarAlojamiento(con, leer); break;
                 case 3: mostrarAlojamientos(con); break;
-                case 4: eliminarAlojamiento(con, leer); break;
                 case 0: break;
                 default: System.out.println("Opcion no valida"); break;
             }
@@ -771,7 +799,6 @@ public class TipoReservaDAO {
             System.out.println("1. Anadir actividad");
             System.out.println("2. Modificar actividad");
             System.out.println("3. Ver actividades");
-            System.out.println("4. Eliminar actividad");
             System.out.println("0. Volver");
             opcion = leer.nextInt();
             leer.nextLine();
@@ -780,7 +807,6 @@ public class TipoReservaDAO {
                 case 1: crearActividad(leer, con); break;
                 case 2: modificarActividad(con, leer); break;
                 case 3: mostrarActividades(con); break;
-                case 4: eliminarActividad(con, leer); break;
                 case 0: break;
                 default: System.out.println("Opcion no valida"); break;
             }
@@ -801,7 +827,6 @@ public class TipoReservaDAO {
             System.out.println("1. Anadir sala de evento");
             System.out.println("2. Modificar sala de evento");
             System.out.println("3. Ver salas de evento");
-            System.out.println("4. Eliminar sala de evento");
             System.out.println("0. Volver");
             opcion = leer.nextInt();
             leer.nextLine();
@@ -810,7 +835,6 @@ public class TipoReservaDAO {
                 case 1: crearSalaEvento(leer, con); break;
                 case 2: modificarSalaEvento(con, leer); break;
                 case 3: mostrarSalasEvento(con); break;
-                case 4: eliminarSalaEvento(con, leer); break;
                 case 0: break;
                 default: System.out.println("Opcion no valida"); break;
             }
