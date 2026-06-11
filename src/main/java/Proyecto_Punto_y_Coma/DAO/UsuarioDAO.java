@@ -299,19 +299,15 @@ public class UsuarioDAO {
      */
     public void mostrarUsuarios(Connection con) throws SQLException {
         String query = "SELECT id_user, nom_user, empleado FROM usuarios";
-
-        System.out.println("\n--- LISTADO DE USUARIOS ---");
+        System.out.println("--- LISTA USUARIOS ---");
 
         try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                int id = rs.getInt("id_user");
-                String login = rs.getString("nom_user");
-                int codEmp = rs.getInt("empleado");
-
-                System.out.println("ID: " + id + " | Login: " + login + " | Cód. Empleado: " + codEmp);
+                Usuario u = new Usuario(rs.getString("nom_user"), "", rs.getInt("empleado"));
+                u.setId(rs.getInt("id_user"));
+                System.out.println(u);
             }
-            System.out.println("---------------------------\n");
 
         } catch (SQLException e) {
             System.out.println("Error al mostrar los usuarios: " + e.getMessage());

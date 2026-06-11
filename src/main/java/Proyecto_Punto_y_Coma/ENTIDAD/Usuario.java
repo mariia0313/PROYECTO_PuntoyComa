@@ -1,42 +1,42 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Proyecto_Punto_y_Coma.ENTIDAD;
 
 /**
- * Clase que gestiona las credenciales de acceso al sistema para los empleados.
+ * Representa las credenciales de acceso de un empleado al sistema.
+ * Cada usuario se vincula a un único empleado mediante su código.
  * @author María Herrero Rodríguez
  */
 public class Usuario {
     private int id;
-    private String nombre;
-    private String contra;
-    /** Vínculo con el código del empleado asociado a este usuario. */
+    private String nom_user;
+    private String contrasenya;
     private int empleado;
-    
+
     /**
-     * Constructor para crear un nuevo usuario de acceso.
-     * * @param nombre Nombre de usuario (login).
-     * @param contra Contraseña de acceso.
+     * Constructor para un usuario del sistema.
+     * @param nom_user Nombre de inicio de sesión.
+     * @param contrasenya Contraseña asociada.
      * @param empleado Código del empleado vinculado.
      */
-    public Usuario (String nombre, String contra, int empleado) {
-        this.nombre = nombre;
-        this.contra = contra;
+    public Usuario(String nom_user, String contrasenya, int empleado) {
+        this.nom_user = nom_user;
+        this.contrasenya = contrasenya;
         this.empleado = empleado;
     }
 
+    /** @param id Identificador único de usuario. */
+    public void setId(int id) { this.id = id; }
+    /** @return Nombre de usuario. */
+    public String getNom_user() { return nom_user; }
+    /** @return Identificador único del usuario. */
+    public int getId() { return id; }
+    /** @return Código del empleado asociado. */
+    public int getEmpleado() { return empleado; }
+
     /**
-     * Asigna un ID único de base de datos al usuario tras su inserción.
-     * @param id Identificador generado.
+     * Representación textual del usuario.
+     * @return String con ID, nombre de usuario y empleado vinculado.
      */
-    public void setId(int id) {
-        this.id = id;
-    }
-    
     public String toString() {
-        return "    > CREDENCIALES ACCESO | Usuario: " + nombre + " | ID Sistema: " + id;
+        return String.format("ID: %d | Usuario: %s | Empleado: %d", id, nom_user, empleado);
     }
-    
 }

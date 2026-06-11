@@ -1,115 +1,87 @@
 package Proyecto_Punto_y_Coma.ENTIDAD;
 
 /**
- * Representa un producto dentro del catálogo del sistema. Contiene información
- * sobre stock, precios y el proveedor asociado.
- *
- * * @author María Herrero Rodríguez
+ * Representa un producto del catálogo, con datos de stock,
+ * precio y proveedor asociado.
+ * @author María Herrero Rodríguez
  */
-
 public class Producto{
     private int cod;
     private String nombre;
-    private String descrip;
+    private String descripcion;
     private int stock;
-    private int stock_min;
+    private int stock_minimo;
     private String estado;
     private int proveedor;
-    private double precio;
-    
+    private double precio_unidad;
+
     /**
-     * Constructor completo para la creación de un Producto.
-     * * @param cod Código identificador único del producto.
-     * @param n Nombre comercial del producto.
-     * @param d Descripción detallada.
-     * @param s Cantidad actual en stock.
-     * @param sm Umbral de stock mínimo para alertas.
-     * @param estado Estado de disponibilidad (ej: "Activo").
-     * @param proveedor Código del proveedor que suministra el producto.
-     * @param precio Coste unitario del producto.
+     * Constructor completo para un producto.
+     * @param cod Código único del producto.
+     * @param n Nombre del producto.
+     * @param d Descripción breve.
+     * @param s Stock actual.
+     * @param sm Stock mínimo permitido.
+     * @param estado Estado (Activo/Inactivo).
+     * @param proveedor Código del proveedor que lo suministra.
+     * @param precio Precio unitario.
      */
     public Producto(int cod, String n, String d, int s, int sm, String estado, int proveedor, double precio) {
         this.cod = cod;
         this.nombre = n;
-        this.descrip = d;
+        this.descripcion = d;
         this.stock = s;
-        this.stock_min = sm;
+        this.stock_minimo = sm;
         this.estado = estado;
         this.proveedor = proveedor;
-        this.precio = precio;
+        this.precio_unidad = precio;
     }
 
-    public void setCod(int c){
-        cod = c;
-    }
-    public void setNombre(String n){
-        nombre = n;
-    }
-    
-    public String getEstado(){
-        return estado;
-    }
+    /** @param c Nuevo código de producto. */
+    public void setCod(int c) { cod = c; }
+    /** @param n Nuevo nombre. */
+    public void setNombre(String n) { nombre = n; }
+    /** @return Estado del producto. */
+    public String getEstado() { return estado; }
+    /** @return Nombre del producto. */
+    public String getNombre() { return nombre; }
+    /** @return Código único del producto. */
+    public int getCOD() { return cod; }
+    /** @return Stock actual. */
+    public int getStock() { return stock; }
+    /** @return Stock mínimo permitido. */
+    public int getStockMinimo() { return stock_minimo; }
+    /** @return Código del proveedor asociado. */
+    public int getProveedor() { return proveedor; }
+    /** @return Precio unitario del producto. */
+    public double getPrecioUnidad() { return precio_unidad; }
+    /** @param d Nueva descripción. */
+    public void setDescripcion(String d) { descripcion = d; }
+    /** @param s Nuevo stock. */
+    public void setStock(int s) { stock = s; }
 
-    public String getNombre(){
-        return nombre;
-    }
-
-    public int getCOD(){
-        return cod;
-    }
-
-    public int getStock(){
-        return stock;
-    }
-
-    public int getStockMin(){
-        return stock_min;
-    }
-
-    public int getProveedor(){
-        return proveedor;
-    }
-
-    public double getPrecio(){
-        return precio;
-    }
-
-    public void setDesc(String d){
-        descrip = d;
-    }
-    public void setStock(int s){
-        stock = s;
-    }
-    
     /**
-     * Establece el stock mínimo asegurando que sea un valor positivo.
-     *
-     * * @param sm El valor del stock mínimo a validar.
-     * @return {@code true} si el valor es válido (>0), {@code false} en caso
-     * contrario.
+     * Establece el stock mínimo si el valor es positivo.
+     * @param sm Nuevo stock mínimo.
+     * @return true si se actualizó correctamente, false si el valor no es válido.
      */
-    public boolean setStockMin(int sm){
-        boolean pasa = true;
-        if (sm <= 0) {
-            pasa = false;
-        }
-        stock_min = sm;
-        return pasa;
+    public boolean setStockMinimo(int sm) {
+        boolean valido = sm > 0;
+        if (valido) stock_minimo = sm;
+        return valido;
     }
 
     /**
-     * Genera una ficha técnica del producto para mostrar por consola.
-     * @return String multilínea con todos los detalles del producto.
+     * Representación textual del producto con todos sus datos.
+     * @return String multilínea con la información del producto.
      */
     public String toString() {
         return String.format(
-                "    > [%3d] %-15s | Precio: %7.2f eur | Stock: %d | Min: %d | Est: %s",
-                cod,
-                nombre,
-                precio,
-                stock,
-                stock_min,
-                estado
+                "Código: %d | Nombre: %s%n" +
+                "Descripción: %s%n" +
+                "Stock: %d | Mínimo: %d | Precio: %.2f%n" +
+                "Proveedor: %d | Estado: %s%n",
+                cod, nombre, descripcion, stock, stock_minimo, precio_unidad, proveedor, estado
         );
     }
 }
