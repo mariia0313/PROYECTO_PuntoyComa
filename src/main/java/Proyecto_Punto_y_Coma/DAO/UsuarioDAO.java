@@ -294,7 +294,7 @@ public class UsuarioDAO {
      * Recupera y muestra por pantalla una lista simplificada de todos los
      * usuarios registrados en la base de datos. Muestra el ID de usuario, el
      * nombre de acceso (login) y el código del empleado vinculado.
-     * * @param con Conexión activa a la base de datos.
+     * @param con Conexión activa a la base de datos.
      * @throws SQLException Si ocurre un error al ejecutar la consulta SQL.
      */
     public void mostrarUsuarios(Connection con) throws SQLException {

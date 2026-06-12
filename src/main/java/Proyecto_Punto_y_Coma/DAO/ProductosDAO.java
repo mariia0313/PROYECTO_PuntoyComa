@@ -279,9 +279,6 @@ public class ProductosDAO {
     }
 
     /**
-     * Ajusta el stock de un producto: permite añadir o quitar cantidad de forma rápida.
-     */
-    /**
      * Permite añadir o quitar stock de un producto de forma rápida,
      * sin pasar por el menú completo de modificación.
      * @param con Conexión activa a la base de datos.
@@ -380,7 +377,7 @@ public class ProductosDAO {
      * Lee un archivo CSV de productos y los inserta en la base de datos.
      * Formato esperado del CSV: nombre, precio, stock, id_proveedor
      *
-     * * @param con Conexión activa a la base de datos.
+     * @param con Conexión activa a la base de datos.
      * @param rutaArchivo Ruta del archivo .csv (ej: "productos.csv").
      */
     public void cargarProductosDesdeCSV(Connection con, String rutaArchivo) {

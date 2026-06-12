@@ -3,7 +3,7 @@ package Proyecto_Punto_y_Coma.ENTIDAD;
 /**
  * Clase Persona que sirve como base para unificar los atributos y métodos comunes 
  * de los diferentes tipos de personas o entidades en el sistema de Compras y Proveedores.
- * * @author María Herrero Rodríguez
+ * @author María Herrero Rodríguez
  */
 
 public abstract class Persona{
@@ -16,7 +16,7 @@ public abstract class Persona{
 
     /**
      * Constructor principal para la clase Persona.
-     * * @param cod Código de la persona (Identificador único en el sistema).
+     * @param cod Código de la persona (Identificador único en el sistema).
      * @param identificador Identificador legal (DNI/CIF/NIF).
      * @param nombre Nombre completo.
      * @param email Correo electrónico.
