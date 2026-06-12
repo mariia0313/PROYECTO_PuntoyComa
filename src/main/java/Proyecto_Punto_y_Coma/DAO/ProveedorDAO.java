@@ -327,16 +327,35 @@ public class ProveedorDAO {
         File f = new File(dir, "informe_proveedores.html");
 
         try (FileWriter fw = new FileWriter(f)) {
-            fw.write("<html><body><h1>Informe de Proveedores</h1>\n");
-            fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n<hr>\n");
+            fw.write("<html><body>\n");
+            fw.write("<h1>Informe de Proveedores y Productos</h1>\n");
+            fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n");
 
             for (Proveedor p : proveedores) {
-                fw.write("<pre>" + p + "</pre>\n<hr>\n");
+                fw.write("<h2>" + p.getNombre() + " (CIF: " + p.getIdentificador() + ")</h2>\n");
+                fw.write("<p>Email: " + p.getEmail() + " | Telefono: " + p.getTelefono() + " | Estado: " + p.getEstado() + "</p>\n");
+
+                ArrayList<Producto> productos = p.getProductos();
+                if (productos != null && !productos.isEmpty()) {
+                    fw.write("<table border='1'><tr><th>Cod</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Stock Min</th><th>Estado</th></tr>\n");
+                    for (Producto prod : productos) {
+                        fw.write("<tr>");
+                        fw.write("<td>" + prod.getCOD() + "</td>");
+                        fw.write("<td>" + prod.getNombre() + "</td>");
+                        fw.write("<td>" + String.format("%.2f", prod.getPrecioUnidad()) + " €</td>");
+                        fw.write("<td>" + prod.getStock() + "</td>");
+                        fw.write("<td>" + prod.getStockMinimo() + "</td>");
+                        fw.write("<td>" + prod.getEstado() + "</td>");
+                        fw.write("</tr>\n");
+                    }
+                    fw.write("</table>\n");
+                } else {
+                    fw.write("<p>No hay productos registrados para este proveedor.</p>\n");
+                }
+                fw.write("<hr>\n");
             }
 
             fw.write("</body></html>\n");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

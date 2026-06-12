@@ -412,13 +412,36 @@ public class EmpleadosDAO {
         File f = new File(dir, "informe_empleados.html");
 
         try (FileWriter fw = new FileWriter(f)) {
-            fw.write("<html><body><h1>Informe de Empleados</h1>\n");
-            fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n<hr>\n");
+            fw.write("<html><body>\n");
+            fw.write("<h1>Informe de Empleados</h1>\n");
+            fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n");
+            fw.write("<table border='1'><tr><th>Cod</th><th>Nombre</th><th>DNI</th><th>Cargo</th><th>Contrato</th><th>Email</th><th>Telefono</th><th>Estado</th><th>Usuario</th></tr>\n");
 
             for (Empleado e : listaTemporal) {
-                fw.write("<pre>" + e + "</pre>\n<hr>\n");
-            }
+                fw.write("<tr>");
+                fw.write("<td>" + e.getCodigo() + "</td>");
+                fw.write("<td>" + e.getNombre() + "</td>");
+                fw.write("<td>" + e.getIdentificador() + "</td>");
+                fw.write("<td>" + e.getCargo() + "</td>");
+                fw.write("<td>" + e.getTipo_contrato() + "</td>");
+                fw.write("<td>" + e.getEmail() + "</td>");
+                fw.write("<td>" + e.getTelefono() + "</td>");
+                fw.write("<td>" + e.getEstado() + "</td>");
 
+                String queryUser = "SELECT nom_user FROM usuarios WHERE empleado = ?";
+                try (PreparedStatement pstmtU = con.prepareStatement(queryUser)) {
+                    pstmtU.setInt(1, e.getCodigo());
+                    try (ResultSet rsU = pstmtU.executeQuery()) {
+                        if (rsU.next()) {
+                            fw.write("<td>" + rsU.getString("nom_user") + "</td>");
+                        } else {
+                            fw.write("<td>Sin usuario</td>");
+                        }
+                    }
+                }
+                fw.write("</tr>\n");
+            }
+            fw.write("</table>\n");
             fw.write("</body></html>\n");
         } catch (IOException e){
             e.printStackTrace();

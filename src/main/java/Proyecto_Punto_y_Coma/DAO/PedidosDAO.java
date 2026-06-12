@@ -23,6 +23,7 @@ public class PedidosDAO {
 
      /**
      * Registra un pedido completo (cabecera y líneas) usando transacciones SQL.
+     * Al confirmar, genera automáticamente la factura en HTML.
      *
      * @param con Conexión activa.
      * @param leer Scanner para datos de entrada.
@@ -135,6 +136,7 @@ public class PedidosDAO {
                     }
                 } while (opcion != 0);
 
+                generarFactura(con, idCompra);
             } catch (SQLException e) {
                 try {
                     if (con != null) {
@@ -383,7 +385,8 @@ public class PedidosDAO {
      * @param con Conexión activa a la base de datos.
      */
         public void listarPedidos(Connection con) {
-        String sql = "SELECT No_orden, Direccion, Fecha, Telefono, Precio_total, Estado, Proveedor FROM Orden_Compra";
+        String sql = "SELECT oc.No_orden, oc.Direccion, oc.Fecha, oc.Telefono, oc.Precio_total, oc.Estado, oc.Proveedor, oc.Empleado, e.Nombre AS nom_emp "
+                   + "FROM Orden_Compra oc LEFT JOIN Empleados e ON oc.Empleado = e.Cod_empleado";
         System.out.println("--- LISTA DE PEDIDOS ---");
         try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -397,7 +400,10 @@ public class PedidosDAO {
                         rs.getString("Estado")
                 );
                 oc.setPrecio_total(rs.getDouble("Precio_total"));
-                System.out.println(oc);
+                System.out.printf("Orden: %d | Fecha: %s | Empleado: %s | Total: %.2f | Estado: %s%n",
+                        oc.getNumOrden(), oc.getFecha(),
+                        rs.getString("nom_emp") != null ? rs.getString("nom_emp") : "---",
+                        oc.getPrecioTotal(), oc.getEstado());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -487,7 +493,7 @@ public class PedidosDAO {
 
        /**
        * Permite actualizar el estado logístico de un pedido (ej: de 'Pendiente' a 'Entregado').
-       * Al marcar como Entregado, añade automáticamente las unidades al stock y genera la factura.
+        * Al marcar como Entregado, añade automáticamente las unidades al stock.
       * @param con Conexión activa a la base de datos.
       * @param leer Scanner para capturar el ID del pedido y el nuevo estado.
       * @author María Herrero Rodríguez
@@ -552,7 +558,6 @@ public class PedidosDAO {
                 pstmtLin.close();
                 rs.close();
 
-                generarFactura(con, id);
             }
 
             con.commit();
@@ -575,14 +580,17 @@ public class PedidosDAO {
         System.out.println("ID del pedido:");
         int id = leer.nextInt();
 
-        String sql = "SELECT No_orden, Direccion, Fecha, Telefono, Precio_total, Estado, Proveedor FROM Orden_Compra WHERE No_orden = ?";
+        String sql = "SELECT oc.No_orden, oc.Direccion, oc.Fecha, oc.Telefono, oc.Precio_total, oc.Estado, oc.Proveedor, oc.Empleado, e.Nombre AS nom_emp "
+                   + "FROM Orden_Compra oc LEFT JOIN Empleados e ON oc.Empleado = e.Cod_empleado WHERE oc.No_orden = ?";
         String sql2 = "SELECT lc.No_linea, lc.Cantidad, lc.Producto FROM Lineas_Compra lc WHERE lc.No_compra = ?";
 
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 OrdenCompra oc = null;
+                String nomEmp = null;
                 if (rs.next()) {
+                    nomEmp = rs.getString("nom_emp");
                     oc = new OrdenCompra(
                             rs.getInt("No_orden"),
                             rs.getString("Direccion"),
@@ -596,7 +604,8 @@ public class PedidosDAO {
                 }
 
                 if (oc != null) {
-                    System.out.println(oc);
+                    String empStr = nomEmp != null ? nomEmp : "---";
+                    System.out.println(oc.toString().replaceFirst("Empleado: ---", "Empleado: " + empStr));
 
                     try (PreparedStatement pstmt2 = con.prepareStatement(sql2)) {
                         pstmt2.setInt(1, id);
