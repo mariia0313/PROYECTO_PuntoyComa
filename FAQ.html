@@ -192,32 +192,38 @@
 <script>
     window.addEventListener('DOMContentLoaded', () => {
 
-        fetch('https://pokeapi.co/api/v2/pokemon?limit=4')
-            .then(response => {
-                return response.json();
-            })
+        fetch('https://dev.freetestapi.com/api/v1/destinations?limit=4')
+            .then(response => response.json())
             .then(data => {
                 const tabla = document.getElementById('tablaBase');
                 tabla.innerHTML = '';
 
-                data.results.forEach((profe, indice) => {
+                const destinos = Array.isArray(data) ? data : [];
+
+                destinos.forEach(destino => {
                     tabla.innerHTML += `
                         <tr>
-                            <td class="text-gold fw-bold">#${indice + 1}</td>
-                            <td class="text-uppercase">${profe.name}</td>
+                            <td class="text-gold fw-bold">#${destino.id}</td>
+                            <td class="text-uppercase">${destino.name}</td>
                         </tr>
                     `;
                 });
             })
             .catch(error => {
                 console.error('Hubo un error:', error);
+                document.getElementById('tablaBase').innerHTML = `
+                    <tr>
+                        <td colspan="2" class="text-center text-danger">Error al cargar el listado</td>
+                    </tr>
+                `;
             });
 
         document.getElementById('btnBuscar').addEventListener('click', () => {
-            const nombre = document.getElementById('inputBusqueda').value.trim().toLowerCase();
+            const idDestino = document.getElementById('inputBusqueda').value.trim();
             
-            if (!nombre) return;
-            fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`)
+            if (!idDestino) return;
+
+            fetch(`https://dev.freetestapi.com/api/v1/destinations/${idDestino}`)
                 .then(response => {
                     if (!response.ok) throw new Error();
                     return response.json();
@@ -226,17 +232,16 @@
                     document.getElementById('resultado').classList.remove('d-none');
                     document.getElementById('error').classList.add('d-none');
 
-                    document.getElementById('pokeImg').src = data.sprites.front_default;
-                    document.getElementById('pokeNombre').textContent = data.name;
-                    document.getElementById('pokeId').textContent = data.id;
-                    document.getElementById('pokeTipo').textContent = data.types[0].type.name;
+                    document.getElementById('destinoImg').src = data.image || 'https://via.placeholder.com/150';
+                    document.getElementById('destinoNombre').textContent = data.name;
+                    document.getElementById('destinoPais').textContent = data.country;
+                    document.getElementById('destinoContinente').textContent = data.continent || 'N/A';
                 })
                 .catch(error => {
                     document.getElementById('resultado').classList.add('d-none');
                     document.getElementById('error').classList.remove('d-none');
                 });
         });
-
     });
 </script>
 </body>
