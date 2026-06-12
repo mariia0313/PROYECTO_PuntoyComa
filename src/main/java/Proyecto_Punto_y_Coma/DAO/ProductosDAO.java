@@ -289,8 +289,7 @@ public class ProductosDAO {
      */
     public void ajustarStock(Connection con, Scanner leer) {
         System.out.println("Introduzca el ID del producto:");
-        int id = leer.nextInt();
-        leer.nextLine();
+        int id = ConexionBD.leerEntero(leer);
 
         if (existeProducto(con, id)) {
             String sqlStock = "SELECT Nombre, Stock FROM productos WHERE ID_producto = ?";
@@ -304,10 +303,9 @@ public class ProductosDAO {
 
                         System.out.println("¿Añadir (1) o quitar (2) stock?");
                         System.out.print("Elija una opción: ");
-                        int op = leer.nextInt();
+                        int op = ConexionBD.leerEntero(leer);
                         System.out.println("Cantidad:");
-                        int cantidad = leer.nextInt();
-                        leer.nextLine();
+                        int cantidad = ConexionBD.leerEntero(leer);
 
                         if (cantidad > 0) {
                             int nuevoStock;

@@ -48,13 +48,17 @@ public class ConexionBD {
     }
     
     public static int leerEntero(Scanner leer) {
-        while (true) {
+        int numero = 0;
+        boolean valido = false;
+        while (!valido) {
             try {
-                return Integer.parseInt(leer.nextLine());
+                numero = Integer.parseInt(leer.nextLine());
+                valido = true;
             } catch (NumberFormatException e) {
                 System.out.print("Entrada invalida. Introduzca un numero: ");
             }
         }
+        return numero;
     }
     
 }
