@@ -1,5 +1,6 @@
 package Proyecto_Punto_y_Coma.ENTIDAD;
 
+import java.sql.Time;
 import java.time.LocalTime;
 /**
  * Representa una reserva de tipo sala de evento.
@@ -9,8 +10,8 @@ import java.time.LocalTime;
  */
 public class SalaEvento extends TipoReserva {
 
-    private LocalTime horaInicio;
-    private LocalTime horaFin;
+    private Time horaInicio;
+    private Time horaFin;
 
     /**
      * Constructor de SalaEvento.
@@ -22,29 +23,29 @@ public class SalaEvento extends TipoReserva {
      * @param horaInicio Hora de inicio disponible (ej: "09:00").
      * @param horaFin    Hora de fin disponible (ej: "22:00").
      */
-    public SalaEvento(int cod, String nombre, double precioBase, double iva, int capacidad, LocalTime horaInicio, LocalTime horaFin, String estado) {
+    public SalaEvento(int cod, String nombre, double precioBase, double iva, int capacidad, Time horaInicio, Time horaFin, String estado) {
         super(cod, nombre, precioBase, iva, capacidad, estado);
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
     }
 
     /** @return Hora de inicio de disponibilidad de la sala. */
-    public LocalTime getHoraInicio(){
+    public Time getHoraInicio(){
         return horaInicio;
     }
 
     /** @param horaInicio Hora de inicio a asignar. */
-    public void setHoraInicio(LocalTime horaInicio){
+    public void setHoraInicio(Time horaInicio){
         this.horaInicio = horaInicio;
     }
 
     /** @return Hora de fin de disponibilidad de la sala. */
-    public LocalTime getHoraFin(){
+    public Time getHoraFin(){
         return horaFin;
     }
 
     /** @param horaFin Hora de fin a asignar. */
-    public void setHoraFin(LocalTime horaFin){
+    public void setHoraFin(Time horaFin){
         this.horaFin = horaFin;
     }
 

@@ -44,8 +44,7 @@ public class ReservaDAO {
 
         ClienteDAO.mostrarClientes(con);
         System.out.println("Introduzca el codigo del cliente:");
-        int codCliente = leer.nextInt();
-        leer.nextLine();
+        int codCliente = ConexionBD.leerEntero(leer);
 
         if (!ClienteDAO.existeCliente(con, codCliente)) {
             System.out.println("Cliente no encontrado. Cree primero el cliente.");
@@ -54,32 +53,30 @@ public class ReservaDAO {
             cliente = ClienteDAO.obtenerClientePorId(con, codCliente);
         }
 
-        // Seleccionar tipo de recurso
         if (valido) {
             System.out.println("Tipo de reserva:");
             System.out.println("1. Alojamiento");
             System.out.println("2. Actividad");
             System.out.println("3. Sala de Evento");
-            int opcion = leer.nextInt();
-            leer.nextLine();
+            int opcion = ConexionBD.leerEntero(leer);
 
             switch (opcion) {
                 case 1:
                     TipoReservaDAO.mostrarAlojamientos(con);
                     System.out.println("Introduzca el codigo del alojamiento:");
-                    codRecurso = leer.nextInt();
+                    codRecurso = ConexionBD.leerEntero(leer);
                     recurso = TipoReservaDAO.obtenerAlojamientoPorId(con, codRecurso);
                     break;
                 case 2:
                     TipoReservaDAO.mostrarActividades(con);
                     System.out.println("Introduzca el codigo de la actividad:");
-                    codRecurso = leer.nextInt();
+                    codRecurso = ConexionBD.leerEntero(leer);
                     recurso = TipoReservaDAO.obtenerActividadPorId(con, codRecurso);
                     break;
                 case 3:
                     TipoReservaDAO.mostrarSalasEvento(con);
                     System.out.println("Introduzca el codigo de la sala de evento:");
-                    codRecurso = leer.nextInt();
+                    codRecurso = ConexionBD.leerEntero(leer);
                     recurso = TipoReservaDAO.obtenerSalaEventoPorId(con, codRecurso);
                     break;
                 default:
@@ -94,27 +91,31 @@ public class ReservaDAO {
         }
 
         if (valido) {
-            System.out.println("Introduzca el año de inicio:");
-            int anioInicio = leer.nextInt();
-            System.out.println("Introduzca el mes de inicio (1-12):");
-            int mesInicio = leer.nextInt();
-            System.out.println("Introduzca el dia de inicio");
-            int diaInicio = leer.nextInt();
-            fechaInicio = new java.sql.Date(anioInicio - 1900, mesInicio - 1, diaInicio);
+            do{
+                System.out.println("Introduzca la fecha de inicio (YYYY-MM-DD)");
+                String fechaI = leer.nextLine();
+                try {
+                    fechaInicio = java.sql.Date.valueOf(fechaI);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Formato incorrecto. Use YYYY-MM-DD");
+                }
+            }while(fechaInicio == null);
 
             if (recurso instanceof Alojamiento) {
-                System.out.println("Introduzca el año de fin:");
-                int anioFin = leer.nextInt();
-                System.out.println("Introduzca el mes de fin (1-12):");
-                int mesFin = leer.nextInt();
-                System.out.println("Introduzca el dia de fin:");
-                int diaFin = leer.nextInt();
-                fechaFin = new java.sql.Date(anioFin - 1900, mesFin - 1, diaFin);
+                do{
+                    System.out.println("Introduzca la fecha de fin (YYYY-MM-DD)");
+                    String fechaF = leer.nextLine();
 
-                if (!fechaFin.after(fechaInicio)) {
-                    System.out.println("La fecha de fin debe ser posterior a la fecha de inicio.");
-                    valido = false;
-                }
+                    try {
+                        fechaFin = java.sql.Date.valueOf(fechaF);
+                        if (!fechaFin.after(fechaInicio)) {
+                            System.out.println("La fecha de fin debe ser posterior a la fecha de inicio.");
+                            fechaFin = null;
+                        }
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Formato incorrecto. Use YYYY-MM-DD");
+                    }
+                }while(fechaFin == null);
             } else {
                 fechaFin = fechaInicio;
             }
@@ -131,8 +132,6 @@ public class ReservaDAO {
         }
 
         if (valido) {
-            Reserva reserva = new Reserva(0, cliente, recurso, fechaInicio, fechaFin, tipo);
-            double precioTotal = reserva.calcularPrecioTotal();
             Statement stmt = null;
             ResultSet rs = null;
             con.setAutoCommit(false);
@@ -215,18 +214,59 @@ public class ReservaDAO {
     }
 
     /**
+     * Comprueba si existe solapamiento de fechas para un recurso concreto, permitiendo excluir una reserva existente (Usado en modificaciones).
+     * Dos reservas se solapan si: fechaInicio menor que otraFechaFin
+     * Y fechaFin mayor que otraFechaInicio.
+     * @param con             Conexión activa.
+     * @param tipoRecurso     Tipo del recurso ('ALOJAMIENTO','ACTIVIDAD','SALA_EVENTO').
+     * @param idRecurso       Código del recurso.
+     * @param fechaInicio     Fecha de inicio propuesta.
+     * @param fechaFin        Fecha de fin propuesta.
+     * @param cod      código de la reserva a ignorar en la comprobación (pasar -1 si no aplica).
+     * @return true si hay solapamiento, false si el recurso está libre.
+     */
+    private static boolean haySolapamiento(Connection con, String tipoRecurso, int idRecurso, java.sql.Date inicio, java.sql.Date fin, int cod) throws SQLException {
+        String tablaPuente = tipoRecurso.equals("ALOJAMIENTO") ? "reserva_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "reserva_actividad" : "reserva_sala";
+        String colPuente = tipoRecurso.equals("ALOJAMIENTO") ? "id_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "id_actividad" : "id_sala";
+
+        String query = "SELECT COUNT(*) FROM reservas r " + "JOIN " + tablaPuente + 
+        " p ON r.cod = p.cod_reserva " + "WHERE p." + colPuente + " = ? AND r.cod != ? AND " + 
+        "((r.fecha_inicio <= ? AND r.fecha_fin >= ?) OR (r.fecha_inicio >= ? AND r.fecha_inicio < ?)) " + "AND r.estado = 'Alta'";
+        
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.prepareStatement(query);
+            stmt.setInt(1, idRecurso);
+            stmt.setInt(2, cod);
+            stmt.setDate(3, fin);
+            stmt.setDate(4, inicio);
+            stmt.setDate(5, inicio);
+            stmt.setDate(6, fin);
+            
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+        }
+        return false;
+    }
+
+    /**
      * Recupera y muestra por consola todas las reservas almacenadas en la BD haciendo un JOIN con la tabla clientes para mostrar el nombre del cliente.
      * @param con Conexión activa a la base de datos.
      * @throws SQLException Si hay errores en la consulta SELECT.
      */
     public static void mostrarReservas(Connection con) throws SQLException {
-        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, " +
-                   "ra.id_alojamiento, ract.id_actividad, rs.id_sala " +
-                   "FROM reservas r " +
-                   "JOIN clientes c ON r.id_cliente = c.cod " +
-                   "LEFT JOIN reserva_alojamiento ra ON r.cod = ra.cod_reserva " +
-                   "LEFT JOIN reserva_actividad ract ON r.cod = ract.cod_reserva " +
-                   "LEFT JOIN reserva_sala rs ON r.cod = rs.cod_reserva";
+        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, ra.id_alojamiento, ract.id_actividad, rs.id_sala" + 
+        " FROM reservas r JOIN clientes c ON r.id_cliente = c.cod LEFT JOIN reserva_alojamiento ra ON r.cod = ra.cod_reserva" + 
+        "LEFT JOIN reserva_actividad ract ON r.cod = ract.cod_reserva " +
+        "LEFT JOIN reserva_sala rs ON r.cod = rs.cod_reserva ORDER BY r.cod ASC";
 
         Statement stmt = null;
         ResultSet rs = null;
@@ -276,8 +316,8 @@ public class ReservaDAO {
                 System.out.println("Tipo Recurso:   " + tipoNombre + " (Cod: " + idRecurso + ")");
                 System.out.println("Fecha Inicio:   " + fInicio);
                 System.out.println("Fecha Fin:      " + fFin);
-                System.out.println("Estado:         " + rs.getString("estado"));
                 System.out.println("Precio Total:   " + precioTotal + " EUR");
+                System.out.println("Estado:         " + rs.getString("estado"));
             }
             System.out.println("**********************************");
         } catch (SQLException e) {
@@ -297,8 +337,7 @@ public class ReservaDAO {
      */
     public static void mostrarReservasPorCliente(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el codigo del cliente");
-        int codCliente = leer.nextInt();
-        leer.nextLine();
+        int codCliente = ConexionBD.leerEntero(leer);
 
         if (!ClienteDAO.existeCliente(con, codCliente)) {
             System.out.println("Cliente no encontrado.");
@@ -390,9 +429,7 @@ public class ReservaDAO {
      * @throws SQLException Si ocurre un error durante la consulta.
      */
     public static Reserva obtenerReservaPorCod(Connection con, int cod) throws SQLException {
-        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, " +
-                    "ra.id_alojamiento, ract.id_actividad, rs.id_sala " +
-                    "FROM reservas r " +
+        String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, ra.id_alojamiento, ract.id_actividad, rs.id_sala FROM reservas r " +
                     "JOIN clientes c ON r.id_cliente = c.cod " +
                     "LEFT JOIN reserva_alojamiento ra ON r.cod = ra.cod_reserva " +
                     "LEFT JOIN reserva_actividad ract ON r.cod = ract.cod_reserva " +
@@ -437,59 +474,121 @@ public class ReservaDAO {
      */
     public static void modificarReserva(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el codigo de la reserva a modificar");
-        int cod = leer.nextInt();
-        leer.nextLine();
+        int cod = ConexionBD.leerEntero(leer);
     
         if (!existeReserva(con, cod)) {
             System.out.println("Reserva no encontrada.");
         } else {
             Reserva res = ReservaDAO.obtenerReservaPorCod(con, cod);
 
-            int opcion = 0;
-            PreparedStatement ps = null;
-            do {
-                System.out.println("Elija que modificar");
-                System.out.println("1. Fecha Inicio");
-                System.out.println("2. Fecha Fin");
-                System.out.println("0. Salir");
-                opcion = leer.nextInt();
-                leer.nextLine();
-                
-                if (opcion == 1 || opcion == 2) {
-                    System.out.println("Introduzca el año:");
-                    int anio = leer.nextInt();
-                    System.out.println("Introduzca el mes (1-12):");
-                    int mes = leer.nextInt();
-                    System.out.println("Introduzca el dia:");
-                    int dia = leer.nextInt();
-                    leer.nextLine();
+            if (res.getTipoRecurso().equals("ALOJAMIENTO")) {
+                int opcion = 0;
+                PreparedStatement ps = null;
+                do {
+                    System.out.println("Elija que modificar");
+                    System.out.println("1. Fecha Inicio");
+                    System.out.println("2. Fecha Fin");
+                    System.out.println("0. Salir");
+                    opcion = ConexionBD.leerEntero(leer);
 
-                    java.sql.Date nuevaFecha = new java.sql.Date(anio - 1900, mes - 1, dia);
-                    java.sql.Date inicioValidar = (opcion == 1) ? nuevaFecha : res.getFechaInicio();
-                    java.sql.Date finValidar = (opcion == 2) ? nuevaFecha : res.getFechaFin();
+                    java.sql.Date nuevaFecha = null;
+                    boolean valido = true;
                     
-                    if (haySolapamiento(con, res.getTipoRecurso(), res.getTipoReserva().getCod(), inicioValidar, finValidar)){
-                        System.out.println("Error: El recurso ya está reservado en esas fechas.");
-                    } else {
-                        String campo = (opcion == 1) ? "fecha_inicio" : "fecha_fin";
-                        String sql = "UPDATE reservas SET " + campo + " = ? WHERE cod = ?";
-                        try {
-                            ps = con.prepareStatement(sql);
-                            ps.setDate(1, nuevaFecha);
-                            ps.setInt(2, cod);
-
-                            int filas = ps.executeUpdate();
-                            if (filas > 0) {
-                                System.out.println("Campo actualizado correctamente");
+                    if (opcion == 1 || opcion == 2) {
+                        do {
+                            System.out.println("Introduzca la nueva fecha (YYYY-MM-DD)");
+                            String nFecha = leer.nextLine();
+                            try {
+                                nuevaFecha = java.sql.Date.valueOf(nFecha);
+                            } catch (IllegalArgumentException e) {
+                                System.out.println("Formato incorrecto. Use YYYY-MM-DD (ej: 1990-05-15)");
                             }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        } finally {
-                            if (ps != null) ps.close();
+                        } while (nuevaFecha == null);
+
+                        java.sql.Date inicioValidar = (opcion == 1) ? nuevaFecha : res.getFechaInicio();
+                        java.sql.Date finValidar = (opcion == 2) ? nuevaFecha : res.getFechaFin();
+
+                        if (finValidar.before(inicioValidar)) {
+                            System.out.println("Error: La fecha de fin no puede ser anterior a la de inicio.");
+                            valido = false;
+                        }
+                        
+                        if (haySolapamiento(con, res.getTipoRecurso(), res.getTipoReserva().getCod(), inicioValidar, finValidar, cod)) {
+                            System.out.println("Error: El recurso ya está reservado en esas fechas.");
+                            valido = false;
+                        }
+
+                        if (valido) {
+                            String campo = (opcion == 1) ? "fecha_inicio" : "fecha_fin";
+                            String sql = "UPDATE reservas SET " + campo + " = ? WHERE cod = ?";
+                            try {
+                                ps = con.prepareStatement(sql);
+                                ps.setDate(1, nuevaFecha);
+                                ps.setInt(2, cod);
+
+                                int filas = ps.executeUpdate();
+                                if (filas > 0) {
+                                    System.out.println("Campo actualizado correctamente");
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            } finally {
+                                if (ps != null) ps.close();
+                            }
                         }
                     }
-                }
-            } while (opcion != 0);
+                } while (opcion != 0);
+            } else if (res.getTipoRecurso().equals("ACTIVIDAD") || res.getTipoRecurso().equals("SALA")) {
+                int opcion = 0;
+                PreparedStatement ps = null;
+                do {
+                    System.out.println("Quieres modificar la fecha?");
+                    System.out.println("1. Fecha");
+                    System.out.println("0. Salir");
+                    opcion = ConexionBD.leerEntero(leer);
+
+                    java.sql.Date nuevaFecha = null;
+                    boolean valido = true;
+                    
+                    if (opcion == 1) {
+                        do {
+                            System.out.println("Introduzca la nueva fecha (YYYY-MM-DD)");
+                            String nFecha = leer.nextLine();
+                            try {
+                                nuevaFecha = java.sql.Date.valueOf(nFecha);
+                            } catch (IllegalArgumentException e) {
+                                System.out.println("Formato incorrecto. Use YYYY-MM-DD (ej: 1990-05-15)");
+                            }
+                        } while (nuevaFecha == null);
+                        
+                        if (haySolapamiento(con, res.getTipoRecurso(), res.getTipoReserva().getCod(), nuevaFecha, nuevaFecha, cod)) {
+                            System.out.println("Error: El recurso ya está reservado en esas fechas.");
+                            valido = false;
+                        }
+
+                        if (valido) {
+                            String sql = "UPDATE reservas SET fecha_inicio = ?, fecha_fin = ?  WHERE cod = ?";
+                            try {
+                                ps = con.prepareStatement(sql);
+                                ps.setDate(1, nuevaFecha);
+                                ps.setDate(2, nuevaFecha);
+                                ps.setInt(3, cod);
+
+                                int filas = ps.executeUpdate();
+                                if (filas > 0) {
+                                    System.out.println("Campo actualizado correctamente");
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            } finally {
+                                if (ps != null) ps.close();
+                            }
+                        }
+                    }
+                } while (opcion != 0); 
+            } else {
+                System.out.println("Tipo de recurso no reconocido, no se pueden modificar las fechas.");
+            }
         }
     }
 
@@ -500,9 +599,8 @@ public class ReservaDAO {
      * @throws SQLException Si ocurre un error al actualizar.
      */
     public static void cancelarReserva(Connection con, Scanner leer) throws SQLException {
-        System.out.println("Introduzca el código de la reserva a eliminar:");
-        int cod = leer.nextInt();
-        leer.nextLine();
+        System.out.println("Introduzca el código de la reserva a cancelar:");
+        int cod = ConexionBD.leerEntero(leer);
 
         if (!existeReserva(con, cod)) {
             System.out.println("Reserva no encontrada.");
@@ -564,7 +662,6 @@ public class ReservaDAO {
         TipoReserva tr = reserva.getTipoReserva();
         String tipo = tr.getClass().getSimpleName();
         double total = reserva.calcularPrecioTotal();
-        String nombreFichero = "factura_reserva_" + reserva.getCod() + ".txt";
         
         File dir = new File("Facturas");
         if (!dir.exists()) dir.mkdirs();
@@ -634,8 +731,7 @@ public class ReservaDAO {
             System.out.println("4. Cancelar reserva");
             System.out.println("5. Ver reservas por cliente");
             System.out.println("0. Salir");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
 
             switch (opcion) {
                 case 1:
