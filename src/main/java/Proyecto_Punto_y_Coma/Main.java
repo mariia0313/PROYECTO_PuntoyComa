@@ -5,7 +5,20 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Punto de entrada del sistema de gestión del hotel Punto y Coma.
+ * Proporciona un menú principal con inicio de sesión y creación de usuarios,
+ * delegando en los DAOs correspondientes según el cargo del empleado.
+ * @author María Herrero Rodríguez
+ */
 public class Main {
+    /**
+     * Método principal que inicia la aplicación, conecta a la base de datos
+     * y gestiona el menú interactivo según el rol del usuario.
+     * @param args Argumentos de línea de comandos (no utilizados).
+     * @throws SQLException Si falla la conexión o las consultas SQL.
+     * @throws Exception Si ocurre algún error inesperado.
+     */
     public static void main (String[] args) throws SQLException, Exception {
 
         int opcion;
