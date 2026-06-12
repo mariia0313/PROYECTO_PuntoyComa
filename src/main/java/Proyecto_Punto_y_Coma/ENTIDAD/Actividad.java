@@ -1,6 +1,6 @@
 package Proyecto_Punto_y_Coma.ENTIDAD;
 
-import java.time.LocalTime;
+import java.sql.Time;
 /**
  * Representa una reserva de tipo actividad.
  * Extiende TipoReserva añadiendo horaInicio, horaFin y estado.
@@ -9,8 +9,8 @@ import java.time.LocalTime;
  */
 public class Actividad extends TipoReserva {
 
-    private LocalTime horaInicio;
-    private LocalTime horaFin;
+    private Time horaInicio;
+    private Time horaFin;
 
     /**
      * Constructor de Actividad.
@@ -23,29 +23,29 @@ public class Actividad extends TipoReserva {
      * @param horaFin    Hora de fin (ej: "12:00").
      * @param estado     Estado (ej: "Disponible", "Completa", "Cancelada").
      */
-    public Actividad(int cod, String nombre, double precioBase, double iva, int capacidad, LocalTime horaInicio, LocalTime horaFin, String estado) {
+    public Actividad(int cod, String nombre, double precioBase, double iva, int capacidad, Time horaInicio, Time horaFin, String estado) {
         super(cod, nombre, precioBase, iva, capacidad, estado);
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
     }
 
     /** @return Hora de inicio de la actividad. */
-    public LocalTime getHoraInicio(){
+    public Time getHoraInicio(){
         return horaInicio;
     }
 
     /** @param horaInicio Hora de inicio a asignar. */
-    public void setHoraInicio(LocalTime horaInicio){
+    public void setHoraInicio(Time horaInicio){
         this.horaInicio = horaInicio;
     }
 
     /** @return Hora de fin de la actividad. */
-    public LocalTime getHoraFin(){
+    public Time getHoraFin(){
         return horaFin;
     }
 
     /** @param horaFin Hora de fin a asignar. */
-    public void setHoraFin(LocalTime horaFin) {
+    public void setHoraFin(Time horaFin) {
         this.horaFin = horaFin;
     }
 

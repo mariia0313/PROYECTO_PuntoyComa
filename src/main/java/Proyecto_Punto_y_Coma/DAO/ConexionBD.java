@@ -60,5 +60,19 @@ public class ConexionBD {
         }
         return numero;
     }
+
+        public static double leerDouble(Scanner leer) {
+        double numero = 0;
+        boolean valido = false;
+        while (!valido) {
+            try {
+                numero = Double.parseDouble(leer.nextLine());
+                valido = true;
+            } catch (NumberFormatException e) {
+                System.out.print("Entrada invalida. Introduzca un numero: ");
+            }
+        }
+        return numero;
+    }
     
 }

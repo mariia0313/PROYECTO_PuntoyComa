@@ -72,6 +72,7 @@ public class ClienteDAO {
                 System.out.println("Identificador: " + rs.getString("identificador"));
                 System.out.println("Email: " + rs.getString("email"));
                 System.out.println("Teléfono: " + rs.getString("telefono"));
+                System.out.println("Estado: " + rs.getString("estado"));
             }
             System.out.println("**********************************");
         } catch (SQLException e) {
@@ -137,30 +138,113 @@ public class ClienteDAO {
     }
 
     /**
-     * Cambia el estado de un cliente a 'Inactivo' en la base de datos.
-     * @param con Conexión activa a la base de datos.
-     * @param leer Scanner para la entrada del código.
-     * @throws SQLException Si ocurre un error al actualizar.
+     * Modifica un campo de un cliente existente mediante un menú por consola.
+     * @param con  Conexión activa a la base de datos.
+     * @param leer Scanner para la navegación y entrada de nuevos datos.
+     * @throws SQLException Si ocurre un error al actualizar el registro.
      */
-    public static void eliminarCliente(Connection con, Scanner leer) throws SQLException {
-        System.out.println("Introduzca el código del cliente a eliminar:");
-        int cod = leer.nextInt();
-        leer.nextLine();
-    
-        PreparedStatement ps = null;
-        try {
-            ps = con.prepareStatement("UPDATE clientes SET estado = 'Inactivo' WHERE cod = ?");
-            ps.setInt(1, cod);
-            int filas = ps.executeUpdate();
-            if (filas > 0) {
-                System.out.println("Cliente desactivado correctamente.");
-            } else {
-                System.out.println("Cliente no encontrado.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (ps != null) ps.close();
+    public static void modificarCliente(Connection con, Scanner leer) throws SQLException {
+        System.out.println("Introduzca el código del cliente a modificar:");
+        int cod = ConexionBD.leerEntero(leer);
+
+        if (!existeCliente(con, cod)) {
+            System.out.println("Cliente no encontrado en la base de datos.");
+        } else {
+            int opcion = 0;
+            PreparedStatement ps = null;
+            do {
+                System.out.println("\nElija qué campo desea modificar:");
+                System.out.println("1. Nombre");
+                System.out.println("2. DNI/NIE");
+                System.out.println("3. Email");
+                System.out.println("4. Teléfono");
+                System.out.println("5. Estado");
+                System.out.println("0. Salir");
+                opcion = ConexionBD.leerEntero(leer);
+
+                String campo = "";
+                switch (opcion) {
+                    case 1:
+                        campo = "nombre";
+                        break;
+                    case 2:
+                        campo = "dni";
+                        break;
+                    case 3: 
+                        campo = "email";
+                        break;
+                    case 4: 
+                        campo = "telefono";
+                        break;
+                    case 5: 
+                        campo = "estado";
+                        break;
+                    case 0: 
+                        System.out.println("Saliendo...");
+                        break;
+                    default: 
+                        System.out.println("Opción no válida.");
+                        break;
+                }
+
+                if (opcion >= 1 && opcion <= 4) {
+                    System.out.println("Introduzca el nuevo valor para " + campo + ":");
+                    String nuevo = leer.nextLine();
+                    
+                    String sql = "UPDATE clientes SET " + campo + " = ? WHERE cod = ?";
+                    try {
+                        ps = con.prepareStatement(sql);
+                        ps.setString(1, nuevo);
+                        ps.setInt(2, cod);
+                        
+                        int filas = ps.executeUpdate();
+                        if (filas > 0) {
+                            System.out.println("Campo '" + campo + "' actualizado correctamente.");
+                        }
+                    } catch (SQLException e) {
+                        System.err.println("Error al actualizar: " + e.getMessage());
+                    } finally {
+                        if (ps != null) ps.close();
+                    }
+                } else if (opcion == 5) {
+                    int opcion2;
+                    System.out.println("Elija el nuevo estado");
+                    System.out.println("1. Activo");
+                    System.out.println("2. Inactivo");
+                    opcion2 = ConexionBD.leerEntero(leer);
+                    String nuevoEstado = "";
+                    switch (opcion2) {
+                        case 1:
+                            nuevoEstado = "Activo";
+                            break;
+                        case 2:
+                            nuevoEstado = "Inactivo";
+                            break;
+                        default:
+                            System.out.println("Opcion no valida");
+                            break;
+                    }
+                    if (!nuevoEstado.isEmpty()) {
+                        String sql = "UPDATE clientes SET estado = ? WHERE cod = ?";
+                        try {
+                            ps = con.prepareStatement(sql);
+                            ps.setString(1, nuevoEstado);
+                            ps.setInt(2, cod);
+                            
+                            int filas = ps.executeUpdate();
+                            if (filas > 0) {
+                                System.out.println("Estado actualizado correctamente");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (ps != null) {
+                                ps.close();
+                            }
+                        }
+                    }
+                }
+            } while (opcion != 0);
         }
     }
 
@@ -173,10 +257,9 @@ public class ClienteDAO {
             System.out.println("===== GESTIÓN DE CLIENTES =====");
             System.out.println("1. Añadir cliente");
             System.out.println("2. Ver clientes");
-            System.out.println("3. Eliminar cliente");
+            System.out.println("3. Modificar cliente");
             System.out.println("0. Salir");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
                         
             switch (opcion) {
                 case 1: 
@@ -186,7 +269,7 @@ public class ClienteDAO {
                     mostrarClientes(con);    
                     break;
                 case 3:
-                    eliminarCliente(con, leer);
+                    modificarCliente(con, leer);
                     break;
                 case 0: 
                     System.out.println("Saliendo..."); 

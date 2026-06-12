@@ -20,19 +20,14 @@ public abstract class TipoReserva implements java.io.Serializable {
      * @param cod        Código identificador del recurso.
      * @param nombre     Nombre descriptivo del recurso.
      * @param precioBase Precio base del recurso.
-     * @param iva        IVA aplicado (entre 0 y 1, ej: 0.21).
+     * @param iva        IVA aplicado (ej: 0.21).
      * @param capacidad  Capacidad máxima de personas.
      */
     public TipoReserva(int cod, String nombre, double precioBase, double iva, int capacidad, String estado) {
         this.cod = cod;
         this.nombre = nombre;
         this.precioBase = precioBase;
-        if(iva > 1 || iva < 0){
-            System.out.println("IVA no válido. Debe estar entre 0 y 1. Por ejemplo 0.21, se te ha asignado 0 por defecto pero puedes modificarlo.");
-            this.iva = 0; // Asignar un valor por defecto si el IVA no es válido
-        } else {
-            this.iva = iva;
-        }
+        this.iva = iva;
         this.capacidad = capacidad;
         this.estado = estado;
     }

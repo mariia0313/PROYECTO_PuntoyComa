@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.util.Scanner;
 
 import Proyecto_Punto_y_Coma.ENTIDAD.Actividad;
@@ -19,6 +20,22 @@ import Proyecto_Punto_y_Coma.ENTIDAD.SalaEvento;
 public class TipoReservaDAO {
 
 
+    public static double leerIVA(Scanner leer){
+        double iva=0;
+        boolean valido = false;
+        while (!valido) {
+            System.out.println("Introduzca el IVA entre 0 y 1(ej: 0.21 para 21%)");
+            double entrada = ConexionBD.leerDouble(leer);
+            if (entrada >= 0 && entrada <= 1) {
+                iva = entrada;
+                valido = true;
+            } else {
+                System.out.println("IVA no válido. Debe estar entre 0 y 1. Por ejemplo 0.21 para 21%");
+            }
+        }
+        return iva;
+    }
+
     /**
      * Registra un nuevo alojamiento en la base de datos solicitando los datos por consola.
      * @param leer Scanner para la entrada de datos.
@@ -30,14 +47,12 @@ public class TipoReservaDAO {
         String nombre = leer.nextLine();
 
         System.out.println("Introduzca el precio base por noche");
-        double precioBase = leer.nextDouble();
+        double precioBase = ConexionBD.leerDouble(leer);
 
-        System.out.println("Introduzca el IVA (ej: 0.21 para 21%)");
-        double iva = leer.nextDouble();
+        double iva = leerIVA(leer);
 
         System.out.println("Introduzca la capacidad de personas");
-        int capacidad = leer.nextInt();
-        leer.nextLine();
+        int capacidad = ConexionBD.leerEntero(leer);
 
         System.out.println("Introduzca el tipo de alojamiento (ej: Habitacion Doble, Suite)");
         String tipoAlojamiento = leer.nextLine();
@@ -95,7 +110,7 @@ public class TipoReservaDAO {
      */
     public static void modificarAlojamiento(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el codigo del alojamiento a modificar");
-        int cod = leer.nextInt();
+        int cod = ConexionBD.leerEntero(leer);
         if (!existeRecurso(con, "alojamientos", "cod", cod)) {
             System.out.println("Alojamiento no encontrado en la base de datos");
         } else{
@@ -110,9 +125,9 @@ public class TipoReservaDAO {
                 System.out.println("5. Tipo alojamiento");
                 System.out.println("6. Estado");
                 System.out.println("0. Salir");
-                opcion = leer.nextInt();
-                leer.nextLine();
-
+                opcion = ConexionBD.leerEntero(leer);
+                
+                String nuevo = "";
                 String campo = "";
                 switch (opcion) {
                     case 1:
@@ -140,9 +155,40 @@ public class TipoReservaDAO {
                     System.out.println("Opcion no valida");
                     break;
                 }
-                if (opcion > 0 && opcion <= 5) {
+                if (opcion == 1 || opcion == 5) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
-                    String nuevo = leer.nextLine();
+                    nuevo = leer.nextLine();
+                }else if(opcion == 2){
+                    System.out.println("Introduzca el nuevo valor para " + campo);
+                    nuevo = String.valueOf(ConexionBD.leerEntero(leer));
+
+                }else if(opcion == 3) {
+                    nuevo = String.valueOf(leerIVA(leer));
+                    
+                } else if (opcion == 4) {
+                    System.out.println("Introduzca el nuevo valor para " + campo);
+                    nuevo = String.valueOf(ConexionBD.leerEntero(leer));
+                } else if (opcion == 6) {
+                    int opcion2;
+                    do{
+                        System.out.println("Elija el nuevo estado");
+                        System.out.println("1. Disponible");
+                        System.out.println("2. No Disponible");
+                        opcion2 = ConexionBD.leerEntero(leer);
+                        switch (opcion2) {
+                            case 1:
+                                nuevo = "Disponible";
+                                break;
+                            case 2:
+                                nuevo = "No Disponible";
+                                break;
+                            default:
+                                System.out.println("Opcion no valida");
+                                break;
+                        }
+                    } while (nuevo.isEmpty());
+                }
+                if (opcion > 0 && opcion < 7) {
                     String sql = "UPDATE alojamientos SET " + campo + " = ? WHERE cod = ?";
                     try {
                         ps = con.prepareStatement(sql);
@@ -169,44 +215,6 @@ public class TipoReservaDAO {
                     } finally {
                         if (ps != null) {
                             ps.close();
-                        }
-                    }
-                } else if (opcion == 6) {
-                    int opcion2;
-                    System.out.println("Elija el nuevo estado");
-                    System.out.println("1. Disponible");
-                    System.out.println("2. No Disponible");
-                    opcion2 = leer.nextInt();
-                    leer.nextLine();
-                    String nuevoEstado = "";
-                    switch (opcion2) {
-                        case 1:
-                            nuevoEstado = "Disponible";
-                            break;
-                        case 2:
-                            nuevoEstado = "No Disponible";
-                            break;
-                        default:
-                            System.out.println("Opcion no valida");
-                            break;
-                    }
-                    if (!nuevoEstado.isEmpty()) {
-                        String sql = "UPDATE alojamientos SET estado = ? WHERE cod = ?";
-                        try {
-                            ps = con.prepareStatement(sql);
-                            ps.setString(1, nuevoEstado);
-                            ps.setInt(2, cod);
-                            
-                            int filas = ps.executeUpdate();
-                            if (filas > 0) {
-                                System.out.println("Estado actualizado correctamente");
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        } finally {
-                            if (ps != null) {
-                                ps.close();
-                            }
                         }
                     }
                 }
@@ -246,33 +254,54 @@ public class TipoReservaDAO {
      * @throws SQLException Si ocurre un error durante el INSERT.
      */
     public static void crearActividad(Scanner leer, Connection con) throws SQLException {
+        Time horaInicio = null;
+        Time horaFin = null;
+
         System.out.println("Introduzca el nombre de la actividad");
         String nombre = leer.nextLine();
 
         System.out.println("Introduzca el precio base");
-        double precioBase = leer.nextDouble();
+        double precioBase = ConexionBD.leerDouble(leer);
 
         System.out.println("Introduzca el IVA (ej: 0.21 para 21%)");
-        double iva = leer.nextDouble();
+        double iva = leerIVA(leer);
 
         System.out.println("Introduzca la capacidad maxima de participantes");
-        int capacidad = leer.nextInt();
-        leer.nextLine();
+        int capacidad = ConexionBD.leerEntero(leer);
 
-        System.out.println("Introduzca la hora de inicio (ej: 10:00)");
-        String horaInicio = leer.nextLine();
+        do {
+            System.out.println("Introduzca la hora de inicio (ej: 09:00):");
+            String entrada = leer.nextLine();
+            try {
+                if (entrada.length() == 5) entrada += ":00";
+                horaInicio = Time.valueOf(entrada);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Formato inválido. Use el formato HH:mm");
+            }
+        } while (horaInicio == null);
 
-        System.out.println("Introduzca la hora de fin (ej: 12:00)");
-        String horaFin = leer.nextLine();
-
-        System.out.println("Introduzca el estado (Disponible / Completa / Cancelada)");
-        String estado = leer.nextLine();
+        do {
+            System.out.println("Introduzca la hora de fin (ej: 22:00):");
+            String entrada = leer.nextLine();
+            try {
+                if (entrada.length() == 5) entrada += ":00";
+                Time hFin = Time.valueOf(entrada);
+                
+                if (hFin.after(horaInicio)) {
+                    horaFin = hFin;
+                } else {
+                    System.out.println("Error: La hora de fin debe ser posterior a la de inicio.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Formato inválido. Use el formato HH:mm");
+            }
+        } while (horaFin == null);
 
         Statement stmt = null;
         ResultSet rs = null;
         try {
             stmt = con.createStatement();
-            stmt.executeUpdate("INSERT INTO actividades (nombre, precio_base, iva, capacidad, hora_inicio, hora_fin, estado) VALUES ('" + nombre + "', " + precioBase + ", " + iva + ", " + capacidad + ", '" + horaInicio + "', '" + horaFin + "', '" + estado + "')");
+            stmt.executeUpdate("INSERT INTO actividades (nombre, precio_base, iva, capacidad, hora_inicio, hora_fin) VALUES ('" + nombre + "', " + precioBase + ", " + iva + ", " + capacidad + ", '" + horaInicio + "', '" + horaFin + "')");
             rs = stmt.executeQuery("SELECT cod FROM actividades WHERE nombre = '" + nombre + "' ORDER BY cod DESC LIMIT 1");
             if (rs.next()) System.out.println("Actividad creada con codigo: " + rs.getInt("cod"));
         } catch (SQLException e) {
@@ -323,7 +352,7 @@ public class TipoReservaDAO {
      */
     public static void modificarActividad(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el codigo de la actividad a modificar");
-        int cod = leer.nextInt();
+        int cod = ConexionBD.leerEntero(leer);
         
         if (!existeRecurso(con, "actividades", "cod", cod)) {
             System.out.println("Actividad no encontrada en la base de datos");
@@ -340,9 +369,9 @@ public class TipoReservaDAO {
                 System.out.println("6. Hora fin");
                 System.out.println("7. Estado");
                 System.out.println("0. Salir");
-                opcion = leer.nextInt();
-                leer.nextLine();
+                opcion = ConexionBD.leerEntero(leer);
                 
+                String nuevo = "";
                 String campo = "";
                 switch (opcion) {
                     case 1:
@@ -374,10 +403,91 @@ public class TipoReservaDAO {
                         break;
                 }
                 
-                if (opcion > 0 && opcion <= 6) {
+                if (opcion == 1) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
-                    String nuevo = leer.nextLine();
+                    nuevo = leer.nextLine();
                     
+                } else if(opcion == 2) {
+                    System.out.println("Introduzca el nuevo valor para " + campo);
+                    nuevo = String.valueOf(ConexionBD.leerEntero(leer));
+                } else if(opcion == 3) {
+                    nuevo = String.valueOf(leerIVA(leer));
+                    
+                } else if (opcion == 4) {
+                    System.out.println("Introduzca el nuevo valor para " + campo);
+                    nuevo = String.valueOf(ConexionBD.leerEntero(leer));
+                } else if (opcion == 5){
+                    Time hora=null;
+                    do {
+                        System.out.println("Introduzca la hora de inicio nueva (ej: 09:00):");
+                        String entrada = leer.nextLine();
+                        try {
+                            if (entrada.length() == 5) entrada += ":00";
+                            hora = Time.valueOf(entrada);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Error: Formato inválido. Use el formato HH:mm");
+                        }
+                    } while (hora == null);
+                    nuevo = hora.toString();
+                } else if (opcion == 6) {
+                    Time horaFin = null;
+                    Time horaInicio = null;
+
+                    String sqlBusqueda = "SELECT hora_inicio FROM actividades WHERE cod = ?";
+                    try (PreparedStatement psBusqueda = con.prepareStatement(sqlBusqueda)) {
+                        psBusqueda.setInt(1, cod);
+                        try (ResultSet rs = psBusqueda.executeQuery()) {
+                            if (rs.next()) {
+                                horaInicio = rs.getTime("hora_inicio");
+                            }
+                        }
+                    } catch (SQLException e) {
+                        System.out.println("Error al recuperar la hora de inicio: " + e.getMessage());
+                    }
+
+                    if (horaInicio != null) {
+                        do {
+                            System.out.println("La actividad comienza a las: " + horaInicio);
+                            System.out.println("Introduzca la nueva hora de fin (ej: 22:00):");
+                            String entrada = leer.nextLine();
+                            try {
+                                if (entrada.length() == 5) entrada += ":00";
+                                Time hora = Time.valueOf(entrada);
+
+                                if (hora.after(horaInicio)) {
+                                    horaFin = hora;
+                                } else {
+                                    System.out.println("Error: La hora de fin debe ser posterior a la de inicio (" + horaInicio + ").");
+                                }
+                            } catch (IllegalArgumentException e) {
+                                System.out.println("Error: Formato inválido. Use el formato HH:mm");
+                            }
+                        } while (horaFin == null);
+                        nuevo = horaFin.toString();
+                    } else {
+                        System.out.println("Error: No se pudo encontrar la hora de inicio para esta actividad.");
+                    }
+                }else if (opcion == 7) {
+                    int opcion2;
+                    do{
+                        System.out.println("Elija el nuevo estado");
+                        System.out.println("1. Disponible");
+                        System.out.println("2. No Disponible");
+                        opcion2 = ConexionBD.leerEntero(leer);
+                        switch (opcion2) {
+                            case 1:
+                                nuevo = "Disponible";
+                                break;
+                            case 2:
+                                nuevo = "No Disponible";
+                                break;
+                            default:
+                                System.out.println("Opcion no valida");
+                                break;
+                        }
+                    } while (nuevo.isEmpty());
+                }
+                if(opcion > 0 && opcion < 8){
                     String sql = "UPDATE actividades SET " + campo + " = ? WHERE cod = ?";
                     try {
                         ps = con.prepareStatement(sql);
@@ -388,6 +498,10 @@ public class TipoReservaDAO {
                                 break;
                             case 4:
                                 ps.setInt(1, Integer.parseInt(nuevo));
+                                break;
+                            case 5:
+                            case 6:
+                                ps.setTime(1, Time.valueOf(nuevo));
                                 break;
                             default:
                                 ps.setString(1, nuevo);
@@ -404,44 +518,6 @@ public class TipoReservaDAO {
                     } finally {
                         if (ps != null) {
                             ps.close();
-                        }
-                    }
-                } else if (opcion == 7) {
-                    int opcion2;
-                    System.out.println("Elija el nuevo estado");
-                    System.out.println("1. Disponible");
-                    System.out.println("2. No Disponible");
-                    opcion2 = leer.nextInt();
-                    leer.nextLine();
-                    String nuevoEstado = "";
-                    switch (opcion2) {
-                        case 1:
-                            nuevoEstado = "Disponible";
-                            break;
-                        case 2:
-                            nuevoEstado = "No Disponible";
-                            break;
-                        default:
-                            System.out.println("Opcion no valida");
-                            break;
-                    }
-                    if (!nuevoEstado.isEmpty()) {
-                        String sql = "UPDATE actividades SET estado = ? WHERE cod = ?";
-                        try {
-                            ps = con.prepareStatement(sql);
-                            ps.setString(1, nuevoEstado);
-                            ps.setInt(2, cod);
-                            
-                            int filas = ps.executeUpdate();
-                            if (filas > 0) {
-                                System.out.println("Estado actualizado correctamente");
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        } finally {
-                            if (ps != null) {
-                                ps.close();
-                            }
                         }
                     }
                 }
@@ -463,7 +539,7 @@ public class TipoReservaDAO {
         try {
             stmt = con.createStatement();
             rs = stmt.executeQuery("SELECT * FROM actividades WHERE cod = " + codigo);
-            if (rs.next()) actividad = new Actividad(rs.getInt("cod"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getObject("hora_inicio", java.time.LocalTime.class), rs.getObject("hora_fin", java.time.LocalTime.class), rs.getString("estado"));
+            if (rs.next()) actividad = new Actividad(rs.getInt("cod"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getTime("hora_inicio"), rs.getTime("hora_fin"), rs.getString("estado"));
             else System.out.println("Aviso: No se encontró alojamiento con código " + codigo);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -481,24 +557,48 @@ public class TipoReservaDAO {
      * @throws SQLException Si ocurre un error durante el INSERT.
      */
     public static void crearSalaEvento(Scanner leer, Connection con) throws SQLException {
+        Time horaInicio = null;
+        Time horaFin = null;
+
         System.out.println("Introduzca el nombre de la sala");
         String nombre = leer.nextLine();
 
         System.out.println("Introduzca el precio base por hora");
-        double precioBase = leer.nextDouble();
+        double precioBase = ConexionBD.leerDouble(leer);
 
         System.out.println("Introduzca el IVA (ej: 0.21 para 21%)");
-        double iva = leer.nextDouble();
+        double iva = leerIVA(leer);
 
         System.out.println("Introduzca la capacidad maxima de personas");
-        int capacidad = leer.nextInt();
-        leer.nextLine();
+        int capacidad = ConexionBD.leerEntero(leer);
 
-        System.out.println("Introduzca la hora de inicio disponible (ej: 09:00)");
-        String horaInicio = leer.nextLine();
+        do {
+            System.out.println("Introduzca la hora de inicio (ej: 09:00):");
+            String entrada = leer.nextLine();
+            try {
+                if (entrada.length() == 5) entrada += ":00";
+                horaInicio = Time.valueOf(entrada);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Formato inválido. Use el formato HH:mm");
+            }
+        } while (horaInicio == null);
 
-        System.out.println("Introduzca la hora de fin disponible (ej: 22:00)");
-        String horaFin = leer.nextLine();
+        do {
+            System.out.println("Introduzca la hora de fin (ej: 22:00):");
+            String entrada = leer.nextLine();
+            try {
+                if (entrada.length() == 5) entrada += ":00";
+                Time hFin = Time.valueOf(entrada);
+                
+                if (hFin.after(horaInicio)) {
+                    horaFin = hFin;
+                } else {
+                    System.out.println("Error: La hora de fin debe ser posterior a la de inicio.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Formato inválido. Use el formato HH:mm");
+            }
+        } while (horaFin == null);
 
         Statement stmt = null;
         ResultSet rs = null;
@@ -548,14 +648,13 @@ public class TipoReservaDAO {
 
     /**
      * Modifica las características de una sala de eventos existente mediante un menú por consola.
-     * Realiza la actualización de forma simple mediante una sentencia SQL UPDATE tradicional.
      * @param con  Conexión activa a la base de datos.
      * @param leer Scanner para la entrada de datos.
      * @throws SQLException Si ocurre un error al actualizar.
      */
     public static void modificarSalaEvento(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el codigo de la sala a modificar");
-        int cod = leer.nextInt();
+        int cod = ConexionBD.leerEntero(leer);
         
         if (!existeRecurso(con, "salas_evento", "cod", cod)) {
             System.out.println("Sala de evento no encontrada en la base de datos");
@@ -572,9 +671,9 @@ public class TipoReservaDAO {
                 System.out.println("6. Hora fin");
                 System.out.println("7. Estado");
                 System.out.println("0. Salir");
-                opcion = leer.nextInt();
-                leer.nextLine();
+                opcion = ConexionBD.leerEntero(leer);
                 
+                String nuevo = "";
                 String campo = "";
                 switch (opcion) {
                     case 1:
@@ -606,10 +705,93 @@ public class TipoReservaDAO {
                         break;
                 }
                 
-                if (opcion > 0 && opcion <= 6) {
+               if (opcion == 1) {
                     System.out.println("Introduzca el nuevo valor para " + campo);
-                    String nuevo = leer.nextLine();
+                    nuevo = leer.nextLine();
                     
+                } else if(opcion == 2) {
+                    System.out.println("Introduzca el nuevo valor para " + campo);
+                    nuevo = String.valueOf(ConexionBD.leerEntero(leer));
+
+                } else if(opcion == 3) {
+                    nuevo = String.valueOf(leerIVA(leer));
+                    
+                } else if (opcion == 4) {
+                    System.out.println("Introduzca el nuevo valor para " + campo);
+                    nuevo = String.valueOf(ConexionBD.leerEntero(leer));
+
+                } else if (opcion == 5) {
+                    Time hora=null;
+                    do {
+                        System.out.println("Introduzca la hora de inicio nueva (ej: 09:00):");
+                        String entrada = leer.nextLine();
+                        try {
+                            if (entrada.length() == 5) entrada += ":00";
+                            hora = Time.valueOf(entrada);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Error: Formato inválido. Use el formato HH:mm");
+                        }
+                    } while (hora == null);
+                    nuevo = hora.toString();
+                } else if (opcion == 6) {
+                    Time horaFin = null;
+                    Time horaInicio = null;
+
+                    String sqlBusqueda = "SELECT hora_inicio FROM salas_evento WHERE cod = ?";
+                    try (PreparedStatement psBusqueda = con.prepareStatement(sqlBusqueda)) {
+                        psBusqueda.setInt(1, cod);
+                        try (ResultSet rs = psBusqueda.executeQuery()) {
+                            if (rs.next()) {
+                                horaInicio = rs.getTime("hora_inicio");
+                            }
+                        }
+                    } catch (SQLException e) {
+                        System.out.println("Error al recuperar la hora de inicio: " + e.getMessage());
+                    }
+
+                    if (horaInicio != null) {
+                        do {
+                            System.out.println("La actividad comienza a las: " + horaInicio);
+                            System.out.println("Introduzca la nueva hora de fin (ej: 22:00):");
+                            String entrada = leer.nextLine();
+                            try {
+                                if (entrada.length() == 5) entrada += ":00";
+                                Time hora = Time.valueOf(entrada);
+
+                                if (hora.after(horaInicio)) {
+                                    horaFin = hora;
+                                } else {
+                                    System.out.println("Error: La hora de fin debe ser posterior a la de inicio (" + horaInicio + ").");
+                                }
+                            } catch (IllegalArgumentException e) {
+                                System.out.println("Error: Formato inválido. Use el formato HH:mm");
+                            }
+                        } while (horaFin == null);
+                        nuevo = horaFin.toString();
+                    } else {
+                        System.out.println("Error: No se pudo encontrar la hora de inicio para esta actividad.");
+                    }
+                } else if (opcion == 7) {
+                    int opcion2;
+                    do{
+                        System.out.println("Elija el nuevo estado");
+                        System.out.println("1. Disponible");
+                        System.out.println("2. No Disponible");
+                        opcion2 = ConexionBD.leerEntero(leer);
+                        switch (opcion2) {
+                            case 1:
+                                nuevo = "Disponible";
+                                break;
+                            case 2:
+                                nuevo = "No Disponible";
+                                break;
+                            default:
+                                System.out.println("Opcion no valida");
+                                break;
+                        }
+                    } while (nuevo.isEmpty());
+                }
+                if(opcion > 0 && opcion < 8){
                     String sql = "UPDATE salas_evento SET " + campo + " = ? WHERE cod = ?";
                     try {
                         ps = con.prepareStatement(sql);
@@ -620,6 +802,10 @@ public class TipoReservaDAO {
                                 break;
                             case 4:
                                 ps.setInt(1, Integer.parseInt(nuevo));
+                                break;
+                            case 5:
+                            case 6:
+                                ps.setTime(1, Time.valueOf(nuevo));
                                 break;
                             default:
                                 ps.setString(1, nuevo);
@@ -636,44 +822,6 @@ public class TipoReservaDAO {
                     } finally {
                         if (ps != null) {
                             ps.close();
-                        }
-                    }
-                }  else if (opcion == 7) {
-                    int opcion2;
-                    System.out.println("Elija el nuevo estado");
-                    System.out.println("1. Disponible");
-                    System.out.println("2. No Disponible");
-                    opcion2 = leer.nextInt();
-                    leer.nextLine();
-                    String nuevoEstado = "";
-                    switch (opcion2) {
-                        case 1:
-                            nuevoEstado = "Disponible";
-                            break;
-                        case 2:
-                            nuevoEstado = "No Disponible";
-                            break;
-                        default:
-                            System.out.println("Opcion no valida");
-                            break;
-                    }
-                    if (!nuevoEstado.isEmpty()) {
-                        String sql = "UPDATE alojamientos SET estado = ? WHERE cod = ?";
-                        try {
-                            ps = con.prepareStatement(sql);
-                            ps.setString(1, nuevoEstado);
-                            ps.setInt(2, cod);
-                            
-                            int filas = ps.executeUpdate();
-                            if (filas > 0) {
-                                System.out.println("Estado actualizado correctamente");
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        } finally {
-                            if (ps != null) {
-                                ps.close();
-                            }
                         }
                     }
                 }
@@ -695,7 +843,7 @@ public class TipoReservaDAO {
         try {
             stmt = con.createStatement();
             rs = stmt.executeQuery("SELECT * FROM salas_evento WHERE cod = " + codigo);
-            if (rs.next()) sala = new SalaEvento(rs.getInt("cod"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getObject("hora_inicio", java.time.LocalTime.class), rs.getObject("hora_fin", java.time.LocalTime.class), rs.getString("estado"));
+            if (rs.next()) sala = new SalaEvento(rs.getInt("cod"), rs.getString("nombre"), rs.getDouble("precio_base"), rs.getDouble("iva"), rs.getInt("capacidad"), rs.getTime("hora_inicio"), rs.getTime("hora_fin"), rs.getString("estado"));
             else System.out.println("Aviso: No se encontró alojamiento con código " + codigo);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -744,8 +892,7 @@ public class TipoReservaDAO {
             System.out.println("2. Actividades");
             System.out.println("3. Salas de Evento");
             System.out.println("0. Volver al menú principal");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
 
             switch (opcion) {
                 case 1: menuAlojamiento(con, leer); break;
@@ -768,12 +915,11 @@ public class TipoReservaDAO {
         int opcion;
         do {
             System.out.println("--- ALOJAMIENTOS ---");
-            System.out.println("1. Anadir alojamiento");
+            System.out.println("1. Añadir alojamiento");
             System.out.println("2. Modificar alojamiento");
             System.out.println("3. Ver alojamientos");
             System.out.println("0. Volver");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
 
             switch (opcion) {
                 case 1: crearAlojamiento(leer, con); break;
@@ -796,12 +942,11 @@ public class TipoReservaDAO {
         int opcion;
         do {
             System.out.println("--- ACTIVIDADES ---");
-            System.out.println("1. Anadir actividad");
+            System.out.println("1. Añadir actividad");
             System.out.println("2. Modificar actividad");
             System.out.println("3. Ver actividades");
             System.out.println("0. Volver");
-            opcion = leer.nextInt();
-            leer.nextLine();
+            opcion = ConexionBD.leerEntero(leer);
 
             switch (opcion) {
                 case 1: crearActividad(leer, con); break;
@@ -824,13 +969,12 @@ public class TipoReservaDAO {
         int opcion;
         do {
             System.out.println("--- SALAS DE EVENTO ---");
-            System.out.println("1. Anadir sala de evento");
+            System.out.println("1. Añadir sala de evento");
             System.out.println("2. Modificar sala de evento");
             System.out.println("3. Ver salas de evento");
             System.out.println("0. Volver");
-            opcion = leer.nextInt();
-            leer.nextLine();
-            
+            opcion = ConexionBD.leerEntero(leer);
+
             switch (opcion) {
                 case 1: crearSalaEvento(leer, con); break;
                 case 2: modificarSalaEvento(con, leer); break;
