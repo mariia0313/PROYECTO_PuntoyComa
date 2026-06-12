@@ -125,12 +125,12 @@
         <div class="col-lg-6">
             <div class="mb-4">
                 <h2 class="fw-bold m-0 text-uppercase">Consulta <span class="text-gold">API Externa</span></h2>
-                <p class="text-muted">Módulo asincrónico para buscar información de hoteles ficticios.</p>
+                <p class="text-muted">Módulo asincrónico para buscar información de hoteles reales en el mundo.</p>
             </div>
 
             <div class="card p-3 mb-4 border-dark shadow-sm">
                 <div class="input-group">
-                    <input type="text" id="inputBusqueda" class="form-control" placeholder="Escribe un ID de hotel (ej: 1, 2, 3)...">
+                    <input type="text" id="inputBusqueda" class="form-control" placeholder="Escribe un ID de hotel (ej: 1, 2, 3, 6)...">
                     <button class="btn btn-dark text-gold border-gold fw-bold" type="button" id="btnBuscar">Buscar</button>
                 </div>
 
@@ -138,27 +138,27 @@
                     <div class="row align-items-center">
                         <div class="col-12">
                             <h4 id="hotelNombre" class="text-gold text-uppercase fw-bold m-0">Nombre</h4>
-                            <p class="m-0 mt-2"><strong>Ciudad:</strong> <span id="hotelCiudad"></span></p>
-                            <p class="m-0"><strong>Estrellas:</strong> <span id="hotelEstrellas"></span> ⭐</p>
-                            <p class="m-0"><strong>Precio por noche:</strong> <span id="hotelPrecio"></span></p>
+                            <p class="m-0 mt-2"><strong>Dirección:</strong> <span id="hotelDireccion"></span></p>
+                            <p class="m-0"><strong>Teléfono:</strong> <span id="hotelTelefono"></span></p>
+                            <p class="m-0"><strong>Sitio Web:</strong> <a id="hotelWeb" href="#" target="_blank" class="text-gold">Visitar enlace</a></p>
                         </div>
                     </div>
                 </div>
-                <div id="error" class="alert alert-danger mt-3 d-none">No se encontró el hotel. Intenta con un número del 1 al 100.</div>
+                <div id="error" class="alert alert-danger mt-3 d-none">No se encontró ningún establecimiento con ese ID. Prueba un número del 1 al 10.</div>
             </div>
 
             <div class="card p-3 border-dark shadow-sm">
-                <h5 class="fw-bold mb-2">Hoteles Colaboradores (Mock API)</h5>
+                <h5 class="fw-bold mb-2">Alojamientos Externos (API Real)</h5>
                 <table class="table table-dark table-striped m-0">
                     <thead>
                         <tr class="text-gold">
                             <th>ID</th>
-                            <th>Nombre del Hotel</th>
+                            <th>Nombre de la Empresa</th>
                         </tr>
                     </thead>
                     <tbody id="tablaBase">
                         <tr>
-                            <td colspan="2" class="text-center text-muted">Cargando datos...</td>
+                            <td colspan="2" class="text-center text-muted">Conectando con el servidor...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -189,45 +189,59 @@
 
 <script>
     window.addEventListener('DOMContentLoaded', () => {
-        // Mock de datos rápidos 100% estable relacionado con gestión de hoteles
-        const mockHoteles = [
-            { id: 1, name: "Grand Plaza Luxury", city: "Madrid", stars: 5, price: "180€" },
-            { id: 2, name: "Sea Breeze Resort", city: "Barcelona", stars: 4, price: "120€" },
-            { id: 3, name: "Mountain View Lodge", city: "Granada", stars: 3, price: "85€" },
-            { id: 4, name: "Urban Style Suites", city: "Valencia", stars: 4, price: "105€" },
-            { id: 5, name: "Palace Majestic", city: "Sevilla", stars: 5, price: "210€" }
-        ];
+        const apiUrl = 'https://jsonplaceholder.typicode.com/users';
 
-        // Listado General inicial
-        const tabla = document.getElementById('tablaBase');
-        tabla.innerHTML = '';
-        
-        mockHoteles.slice(0, 4).forEach(hotel => {
-            tabla.innerHTML += `
-                <tr>
-                    <td class="text-gold fw-bold">#${hotel.id}</td>
-                    <td class="text-uppercase">${hotel.name}</td>
-                </tr>
-            `;
-        });
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const tabla = document.getElementById('tablaBase');
+                tabla.innerHTML = '';
 
-        // Buscador
+                const hoteles = data.slice(0, 4);
+
+                hoteles.forEach(hotel => {
+                    tabla.innerHTML += `
+                        <tr>
+                            <td class="text-gold fw-bold">#${hotel.id}</td>
+                            <td class="text-uppercase">${hotel.name}</td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(error => {
+                console.error('Error al conectar con la API externa:', error);
+                document.getElementById('tablaBase').innerHTML = `
+                    <tr>
+                        <td colspan="2" class="text-center text-danger">Error de conexión con el servidor exterior</td>
+                    </tr>
+                `;
+            });
+
         document.getElementById('btnBuscar').addEventListener('click', () => {
-            const idBuscar = parseInt(document.getElementById('inputBusqueda').value.trim());
-            const hotelEncontrado = mockHoteles.find(h => h.id === idBuscar);
+            const idBuscar = document.getElementById('inputBusqueda').value.trim();
             
-            if (hotelEncontrado) {
-                document.getElementById('resultado').classList.remove('d-none');
-                document.getElementById('error').classList.add('d-none');
+            if (!idBuscar) return;
 
-                document.getElementById('hotelNombre').textContent = hotelEncontrado.name;
-                document.getElementById('hotelCiudad').textContent = hotelEncontrado.city;
-                document.getElementById('hotelEstrellas').textContent = hotelEncontrado.stars;
-                document.getElementById('hotelPrecio').textContent = hotelEncontrado.price;
-            } else {
-                document.getElementById('resultado').classList.add('d-none');
-                document.getElementById('error').classList.remove('d-none');
-            }
+            fetch(`${apiUrl}/${idBuscar}`)
+                .then(response => {
+                    if (!response.ok) throw new Error();
+                    return response.json();
+                })
+                .then(hotel => {
+                    document.getElementById('resultado').classList.remove('d-none');
+                    document.getElementById('error').classList.add('d-none');
+
+                    document.getElementById('hotelNombre').textContent = hotel.name;
+                    document.getElementById('hotelDireccion').textContent = `${hotel.address.street}, ${hotel.address.city}`;
+                    document.getElementById('hotelTelefono').textContent = hotel.phone;
+                    document.getElementById('hotelWeb').textContent = hotel.website;
+                    document.getElementById('hotelWeb').href = `https://${hotel.website}`;
+                })
+                .catch(error => {
+                    console.error('Error al buscar en el servidor externo:', error);
+                    document.getElementById('resultado').classList.add('d-none');
+                    document.getElementById('error').classList.remove('d-none');
+                });
         });
     });
 </script>
