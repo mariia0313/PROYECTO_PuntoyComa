@@ -264,7 +264,7 @@ public class ReservaDAO {
      */
     public static void mostrarReservas(Connection con) throws SQLException {
         String query = "SELECT r.*, c.nombre AS nombre_cliente, c.identificador, ra.id_alojamiento, ract.id_actividad, rs.id_sala" + 
-        " FROM reservas r JOIN clientes c ON r.id_cliente = c.cod LEFT JOIN reserva_alojamiento ra ON r.cod = ra.cod_reserva" + 
+        " FROM reservas r JOIN clientes c ON r.id_cliente = c.cod LEFT JOIN reserva_alojamiento ra ON r.cod = ra.cod_reserva " + 
         "LEFT JOIN reserva_actividad ract ON r.cod = ract.cod_reserva " +
         "LEFT JOIN reserva_sala rs ON r.cod = rs.cod_reserva ORDER BY r.cod ASC";
 
