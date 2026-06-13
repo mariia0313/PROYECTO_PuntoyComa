@@ -22,6 +22,7 @@ public abstract class TipoReserva implements java.io.Serializable {
      * @param precioBase Precio base del recurso.
      * @param iva        IVA aplicado (ej: 0.21).
      * @param capacidad  Capacidad máxima de personas.
+     * @param estado     Estado del recurso (ej: "Disponible", "Ocupado"...).
      */
     public TipoReserva(int cod, String nombre, double precioBase, double iva, int capacidad, String estado) {
         this.cod = cod;
@@ -105,9 +106,12 @@ public abstract class TipoReserva implements java.io.Serializable {
         this.capacidad = capacidad;
     }
 
+    /** @return Estado del recurso. */
     public String getEstado(){
         return estado;
     }
+
+    /** @param estado Estado a asignar. */
     public void setEstado(String estado){
         this.estado = estado;
     }
