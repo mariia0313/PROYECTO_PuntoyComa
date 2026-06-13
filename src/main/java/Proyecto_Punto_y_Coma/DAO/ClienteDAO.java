@@ -250,6 +250,9 @@ public class ClienteDAO {
 
     /**
      * Menú de gestión de clientes.
+     * @param con  Conexión activa a la base de datos.
+     * @param leer Scanner para la entrada de datos.
+     * @throws SQLException Si ocurre un error en las operaciones de base de datos.
      */
     public void menu(Connection con, Scanner leer) throws SQLException {
         int opcion;

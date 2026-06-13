@@ -22,6 +22,7 @@ public class SalaEvento extends TipoReserva {
      * @param capacidad  Capacidad máxima de personas.
      * @param horaInicio Hora de inicio disponible (ej: "09:00").
      * @param horaFin    Hora de fin disponible (ej: "22:00").
+     * @param estado     Estado de la sala (ej: "Disponible", "Ocupado"...).
      */
     public SalaEvento(int cod, String nombre, double precioBase, double iva, int capacidad, Time horaInicio, Time horaFin, String estado) {
         super(cod, nombre, precioBase, iva, capacidad, estado);

@@ -23,7 +23,7 @@ public class Reserva implements java.io.Serializable {
      * @param tipoReserva Recurso reservado (Alojamiento, Actividad o SalaEvento).
      * @param fechaInicio Fecha de inicio de la reserva.
      * @param fechaFin    Fecha de fin de la reserva.
-     * * @param tipoRecurso    Nombre del tipo de recurso (Alojamiento, Actividad o SalaEvento).
+     * @param tipoRecurso    Nombre del tipo de recurso (Alojamiento, Actividad o SalaEvento).
      */
     public Reserva(int cod, Cliente cliente, TipoReserva tipoReserva, java.sql.Date fechaInicio, java.sql.Date fechaFin, String tipoRecurso) {
         this.cod = cod;

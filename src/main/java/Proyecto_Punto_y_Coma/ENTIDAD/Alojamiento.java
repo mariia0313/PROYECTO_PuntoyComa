@@ -19,6 +19,7 @@ public class Alojamiento extends TipoReserva {
      * @param iva             IVA aplicado (entre 0 y 1).
      * @param capacidad       Capacidad de personas.
      * @param tipoAlojamiento Tipo (ej: "Habitación Doble", "Suite"...).
+     * @param estado          Estado del alojamiento (ej: "Disponible", "Ocupado"...).
      */
     public Alojamiento(int cod, String nombre, double precioBase, double iva, int capacidad, String tipoAlojamiento, String estado) {
         super(cod, nombre, precioBase, iva, capacidad, estado);
