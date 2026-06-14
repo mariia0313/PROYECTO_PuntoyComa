@@ -560,6 +560,10 @@ public class PedidosDAO {
 
             }
 
+            if (estado.equals("Confirmado")){
+                generarFactura(con, id);
+            }
+
             con.commit();
             System.out.println("¡Estado actualizado!");
 
