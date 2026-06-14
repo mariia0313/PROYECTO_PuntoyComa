@@ -26,7 +26,7 @@ public class ProductosDAO {
 
         ProveedorDAO provDAO = new ProveedorDAO();
         System.out.println("Introduzca el código del proveedor que vende el nuevo producto");
-        int proveedor = leer.nextInt();
+        int proveedor = ConexionBD.leerEntero(leer);
         leer.nextLine();
         if (provDAO.existeProveedor(con, proveedor) == false) {
             System.out.println("No existe el proveedor. Añadelo primero");
@@ -36,11 +36,11 @@ public class ProductosDAO {
             System.out.println("Introduzca la descripcion del nuevo producto");
             String desc = leer.nextLine();
             System.out.println("Introduzca el stock del producto");
-            int stock = leer.nextInt();
+            int stock = ConexionBD.leerEntero(leer);
             System.out.println("Introduzca el stock minimo del producto");
-            int stockm = leer.nextInt();
+            int stockm = ConexionBD.leerEntero(leer);
             System.out.println("Introduzca el precio del producto");
-            double precio = leer.nextDouble();
+            double precio = ConexionBD.leerDouble(leer);
 
             String insert = "INSERT INTO productos (nombre, stock, stock_minimo, descripcion, proveedor, precio_unidad) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement pstmt = con.prepareStatement(insert)) {
@@ -122,7 +122,7 @@ public class ProductosDAO {
         String nuevo = "";
         String campo = "";
         System.out.println("Inserte el id del producto a modificar");
-        cod = leer.nextInt();
+        cod = ConexionBD.leerEntero(leer);
         if (existeProducto(con, cod) == true) {
             // MENÚ PATA ELEGIR QUÉ MODIFICAR
             do {
@@ -253,7 +253,7 @@ public class ProductosDAO {
                             System.out.println((i + 1) + ". " + csvFiles[i].getName());
                         }
                         System.out.print("Seleccione un archivo (0 para cancelar): ");
-                        int sel = leer.nextInt();
+                        int sel = ConexionBD.leerEntero(leer);
                         leer.nextLine();
                         if (sel > 0 && sel <= csvFiles.length) {
                             cargarProductosDesdeCSV(con, csvFiles[sel - 1].getAbsolutePath());

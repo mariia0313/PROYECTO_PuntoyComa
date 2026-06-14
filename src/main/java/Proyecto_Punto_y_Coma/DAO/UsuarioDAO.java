@@ -35,7 +35,7 @@ public class UsuarioDAO {
         EmpleadosDAO empDAO = new EmpleadosDAO();
         
         System.out.println("Introduzca su codigo de empleado");
-        int cod = leer.nextInt();
+        int cod = ConexionBD.leerEntero(leer);
         if (empDAO.existeEmpleado(con, cod) == false){
                 System.out.println("No existe empleado con ese código");
             } else {
@@ -163,7 +163,7 @@ public class UsuarioDAO {
      */
     public void modificarUsuario(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código del empleado cuyo usuario desea modificar:");
-        int cod = leer.nextInt();
+        int cod = ConexionBD.leerEntero(leer);
         leer.nextLine();
 
         if (!existeUsuario(con, cod)) {
@@ -219,7 +219,7 @@ public class UsuarioDAO {
      */
     public void eliminarUsuario(Connection con, Scanner leer) throws SQLException {
         System.out.println("Introduzca el código del empleado cuyo usuario desea eliminar:");
-        int cod = leer.nextInt();
+        int cod = ConexionBD.leerEntero(leer);
         leer.nextLine();
 
         if (!existeUsuario(con, cod)) {

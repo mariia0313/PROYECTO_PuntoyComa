@@ -220,8 +220,7 @@ public class EmpleadosDAO {
         String nuevo = "";
         String campo = "";
         System.out.println("Inserte el código del empleado a modificar");
-        cod = leer.nextInt();
-        leer.nextLine();
+        cod = ConexionBD.leerEntero(leer);
         if (existeEmpleado(con, cod)) {
             do {
                 System.out.println("Elija qué modificar");
@@ -238,8 +237,7 @@ public class EmpleadosDAO {
                 System.out.println("11. Fecha despido (YYYY-MM-DD)");
                 System.out.println("0. Salir");
                 System.out.print("Elija una opción: ");
-                opcion = leer.nextInt();
-                leer.nextLine();
+                opcion = ConexionBD.leerEntero(leer);
 
                 switch (opcion) {
                     case 1: campo = "Id_empleado"; break;
@@ -268,8 +266,7 @@ public class EmpleadosDAO {
                     System.out.println("3. Baja Enfermedad");
                     System.out.println("4. Excedencia");
                     System.out.print("Elija una opción: ");
-                    int opEst = leer.nextInt();
-                    leer.nextLine();
+                    int opEst = ConexionBD.leerEntero(leer);
                     switch (opEst) {
                         case 1: nuevo = "Activo"; break;
                         case 2: nuevo = "Inactivo"; break;
