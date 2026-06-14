@@ -133,15 +133,12 @@ public class PedidosDAO {
 
                             con.commit();
                             System.out.println("La compra ha sido realizada con éxito. Total: " + acumuladoTotal);
-                            generarFactura(con, idCompra);
                             break;
                         case 0:
                             System.out.println("Compra cancelada, saliendo...");
                             break;
                     }
                 } while (opcion != 0 && opcion != 3 );
-
-                generarFactura(con, idCompra);
             } catch (SQLException e) {
                 try {
                     if (con != null) {
