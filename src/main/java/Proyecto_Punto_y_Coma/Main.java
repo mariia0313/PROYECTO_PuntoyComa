@@ -86,6 +86,12 @@ public class Main {
                                         case 8:
                                             res_dao.menu(con, leer);
                                             break;
+                                        case 0:
+                                            System.out.println("Saliendo...");
+                                            break;
+                                        default:
+                                            System.out.println("Opción no válida");
+                                            break;
                                     }
                                 } while (opcion2 != 0);
                                 break;
@@ -93,7 +99,7 @@ public class Main {
                             case "Encargado Compras":
                                 ArrayList<Producto> bajos = prod_dao.productosPorDebajoStockMinimo(con);
                                 if (bajos != null && !bajos.isEmpty()) {
-                                    System.out.println("\n⚠  AVISO: Hay " + bajos.size() + " producto(s) por debajo del stock mínimo.");
+                                    System.out.println("\nAVISO: Hay " + bajos.size() + " producto(s) por debajo del stock mínimo.");
                                     System.out.println("  Use la opción 'Generar pedido automático' en Gestión de Pedidos.\n");
                                 }
                                 do {
