@@ -78,7 +78,8 @@ public class PedidosDAO {
                 do {
                     System.out.println("1. Añadir producto a compra");
                     System.out.println("2. Ver compra");
-                    System.out.println("0. Proceder con la compra");
+                    System.out.println("3. Proceder con la compra");
+                    System.out.println("0. Cancelar compra");
                     System.out.print("Elija una opción: ");
                     opcion = ConexionBD.leerEntero(leer);
 
@@ -122,7 +123,7 @@ public class PedidosDAO {
                             mostrarCestaActual(con, idCompra);
                             break;
 
-                        case 0:
+                        case 3:
                             String updatePrecio = "UPDATE Orden_compra SET Precio_total = ? WHERE No_orden = ?";
                             stmtUpd = con.prepareStatement(updatePrecio);
                             stmtUpd.setDouble(1, acumuladoTotal);
@@ -132,9 +133,13 @@ public class PedidosDAO {
 
                             con.commit();
                             System.out.println("La compra ha sido realizada con éxito. Total: " + acumuladoTotal);
+                            generarFactura(con, idCompra);
+                            break;
+                        case 0:
+                            System.out.println("Compra cancelada, saliendo...");
                             break;
                     }
-                } while (opcion != 0);
+                } while (opcion != 0 && opcion != 3 );
 
                 generarFactura(con, idCompra);
             } catch (SQLException e) {
