@@ -158,22 +158,30 @@ public class ProductosDAO {
                     campo = "Proveedor";
                     break;
                 case 7:
-                    try {
-                        String qEst = "SELECT Estado FROM productos WHERE ID_producto = ?";
-                        PreparedStatement pstEst = con.prepareStatement(qEst, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                        pstEst.setInt(1, cod);
-                        ResultSet rsEst = pstEst.executeQuery();
+                     try {
+                        String qSelect = "SELECT Estado FROM productos WHERE ID_producto = ?";
+                        PreparedStatement pstSelect = con.prepareStatement(qSelect);
+                        pstSelect.setInt(1, cod);
+                        ResultSet rsEst = pstSelect.executeQuery();
+
                         if (rsEst.next()) {
                             String estadoActual = rsEst.getString("Estado");
                             String nuevoEstado = (estadoActual != null && estadoActual.equalsIgnoreCase("Activo")) ? "Inactivo" : "Activo";
-                            rsEst.updateString("Estado", nuevoEstado);
-                            rsEst.updateRow();
+
+                            String qUpdate = "UPDATE productos SET Estado = ? WHERE ID_producto = ?";
+                            PreparedStatement pstUpdate = con.prepareStatement(qUpdate);
+                            pstUpdate.setString(1, nuevoEstado);
+                            pstUpdate.setInt(2, cod);
+                            
+                            pstUpdate.executeUpdate();
                             System.out.println("Estado cambiado de " + estadoActual + " a " + nuevoEstado);
+                        } else {
+                            System.out.println("No se encontró el producto con el código: " + cod);
                         }
                     } catch (SQLException e) {
                         System.out.println("Error al cambiar estado: " + e.getMessage());
                     }
-                    continue;
+                    break;
 
                 case 0:
                     System.out.println("Saliendo...");
