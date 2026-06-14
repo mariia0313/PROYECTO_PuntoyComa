@@ -20,7 +20,7 @@ public class ConexionBD {
         Connection con = null;
         
     try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/proyecto_puntoycoma?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC", "root", "yA20mnVB");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/proyecto_puntoycoma?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC", "root", "1234");
             System.out.println("Conexión exitosa");
             
         } catch (SQLException e) {
@@ -53,7 +53,11 @@ public class ConexionBD {
         while (!valido) {
             try {
                 numero = Integer.parseInt(leer.nextLine());
-                valido = true;
+                if (numero < 0) {
+                    System.out.print("Entrada invalida. Introduzca un numero positivo: ");
+                } else {
+                    valido = true;
+                }
             } catch (NumberFormatException e) {
                 System.out.print("Entrada invalida. Introduzca un numero: ");
             }
@@ -67,7 +71,11 @@ public class ConexionBD {
         while (!valido) {
             try {
                 numero = Double.parseDouble(leer.nextLine());
-                valido = true;
+                if (numero < 0) {
+                    System.out.print("Entrada invalida. Introduzca un numero positivo: ");
+                } else {
+                    valido = true;
+                }
             } catch (NumberFormatException e) {
                 System.out.print("Entrada invalida. Introduzca un numero: ");
             }

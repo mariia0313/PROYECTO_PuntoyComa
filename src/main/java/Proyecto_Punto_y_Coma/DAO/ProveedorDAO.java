@@ -119,7 +119,7 @@ public class ProveedorDAO {
         String nuevo = "";
         String campo = "";
         System.out.println("Inserte el código del proveedor a modificar");
-        cod = leer.nextInt();
+        cod = ConexionBD.leerEntero(leer);
         if (existeProveedor(con, cod) == true) {
             do {
                 System.out.println("Elija qué modificar");

@@ -32,7 +32,7 @@ public class PedidosDAO {
      */
         public void crearPedido(Connection con, Scanner leer, Empleado empleado, ArrayList<Proveedor> proveedores) {
         System.out.println("Indique codigo del proveedor al que quiera realizar el pedido");
-        int cod = leer.nextInt();
+        int cod = ConexionBD.leerEntero(leer);
         Proveedor proveedor = null;
         int opcion;
 
@@ -80,12 +80,12 @@ public class PedidosDAO {
                     System.out.println("2. Ver compra");
                     System.out.println("0. Proceder con la compra");
                     System.out.print("Elija una opción: ");
-                    opcion = leer.nextInt();
+                    opcion = ConexionBD.leerEntero(leer);
 
                     switch (opcion) {
                         case 1:
                             System.out.println("Introduzca el id del producto a comprar");
-                            int idProd = leer.nextInt();
+                            int idProd = ConexionBD.leerEntero(leer);
 
                             boolean pertenece = false;
                             ArrayList<Producto> productosProv = proveedor.getProductos();
@@ -101,7 +101,7 @@ public class PedidosDAO {
                             }
 
                             System.out.println("Introduzca la cantidad a comprar");
-                            int cantidad = leer.nextInt();
+                            int cantidad = ConexionBD.leerEntero(leer);
 
                             double precioUnitario = obtenerPrecio(con, idProd);
 
@@ -500,11 +500,11 @@ public class PedidosDAO {
       */
         public void modificarEstadoPedido(Connection con, Scanner leer) {
         System.out.println("Indique el ID del pedido a modificar:");
-        int id = leer.nextInt();
+        int id = ConexionBD.leerEntero(leer);
         System.out.println("Seleccione el nuevo estado:");
         System.out.println("1. Confirmado, 2. En preparación, 3. Enviado, 4. Entregado, 5. Cancelado");
         System.out.print("Elija una opción: ");
-        int op = leer.nextInt();
+        int op = ConexionBD.leerEntero(leer);;
         String estado = "";
         leer.nextLine();
 
@@ -582,7 +582,7 @@ public class PedidosDAO {
      */
        public void verDetallePedido(Connection con, Scanner leer) {
         System.out.println("ID del pedido:");
-        int id = leer.nextInt();
+        int id = ConexionBD.leerEntero(leer);
 
         String sql = "SELECT oc.No_orden, oc.Direccion, oc.Fecha, oc.Telefono, oc.Precio_total, oc.Estado, oc.Proveedor, oc.Empleado, e.Nombre AS nom_emp "
                    + "FROM Orden_Compra oc LEFT JOIN Empleados e ON oc.Empleado = e.Cod_empleado WHERE oc.No_orden = ?";
