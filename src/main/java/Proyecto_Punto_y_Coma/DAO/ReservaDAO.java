@@ -187,6 +187,9 @@ public class ReservaDAO {
         String tablaPuente = tipoRecurso.equals("ALOJAMIENTO") ? "reserva_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "reserva_actividad" : "reserva_sala";
         String colPuente = tipoRecurso.equals("ALOJAMIENTO") ? "id_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "id_actividad" : "id_sala";
 
+
+        boolean haySolapamiento = false;
+
         String query = "SELECT COUNT(*) FROM reservas r " + "JOIN " + tablaPuente + " p ON r.cod = p.cod_reserva " + "WHERE p." + colPuente + " = ? AND " + "((r.fecha_inicio <= ? AND r.fecha_fin >= ?) OR (r.fecha_inicio >= ? AND r.fecha_inicio < ?)) AND r.estado = 'Alta'";
         
         PreparedStatement stmt = null;
@@ -201,7 +204,7 @@ public class ReservaDAO {
             
             rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) > 0;
+                haySolapamiento = rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             System.err.println("Error al verificar solapamiento: ");
@@ -210,7 +213,7 @@ public class ReservaDAO {
             if (rs != null) rs.close();
             if (stmt != null) stmt.close();
         }
-        return false;
+        return haySolapamiento;
     }
 
     /**
@@ -229,6 +232,8 @@ public class ReservaDAO {
         String tablaPuente = tipoRecurso.equals("ALOJAMIENTO") ? "reserva_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "reserva_actividad" : "reserva_sala";
         String colPuente = tipoRecurso.equals("ALOJAMIENTO") ? "id_alojamiento" : tipoRecurso.equals("ACTIVIDAD") ? "id_actividad" : "id_sala";
 
+        boolean haySolapamiento = false;
+
         String query = "SELECT COUNT(*) FROM reservas r " + "JOIN " + tablaPuente + 
         " p ON r.cod = p.cod_reserva " + "WHERE p." + colPuente + " = ? AND r.cod != ? AND " + 
         "((r.fecha_inicio <= ? AND r.fecha_fin >= ?) OR (r.fecha_inicio >= ? AND r.fecha_inicio < ?)) " + "AND r.estado = 'Alta'";
@@ -246,7 +251,7 @@ public class ReservaDAO {
             
             rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) > 0;
+                haySolapamiento = rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -254,7 +259,7 @@ public class ReservaDAO {
             if (rs != null) rs.close();
             if (stmt != null) stmt.close();
         }
-        return false;
+        return haySolapamiento;
     }
 
     /**
@@ -716,6 +721,77 @@ public class ReservaDAO {
     }
 
     /**
+     * Consulta y muestra por consola las fechas de ocupación futura de un recurso específico.
+     * Solicita al usuario el tipo de recurso y su código a través de un menú interactivo,
+     * para luego listar todos los periodos reservados que aún están vigentes.
+     * @param con Conexión activa a la base de datos.
+     * @param leer Scanner para la entrada de datos por teclado.
+     * @throws SQLException Si ocurre un error durante la ejecución de la consulta SELECT.
+     */
+    public static void disponibilidad(Connection con, Scanner leer) throws SQLException {
+        int codRecurso;
+        String tablaPuente = "";
+        String colPuente = "";
+        boolean valido = true;
+
+        System.out.println("--- Consulta de Disponibilidad ---");
+        System.out.println("Tipo de recurso:");
+        System.out.println("1. Alojamiento");
+        System.out.println("2. Actividad");
+        System.out.println("3. Sala de Evento");
+        int opcion = ConexionBD.leerEntero(leer);
+
+        switch (opcion) {
+            case 1:
+                TipoReservaDAO.mostrarAlojamientos(con);
+                System.out.println("Introduzca el codigo del alojamiento:");
+                codRecurso = ConexionBD.leerEntero(leer);
+                tablaPuente = "reserva_alojamiento";
+                colPuente = "id_alojamiento";
+                break;
+            case 2:
+                TipoReservaDAO.mostrarActividades(con);
+                System.out.println("Introduzca el codigo de la actividad:");
+                codRecurso = ConexionBD.leerEntero(leer);
+                tablaPuente = "reserva_actividad";
+                colPuente = "id_actividad";
+                break;
+            case 3:
+                TipoReservaDAO.mostrarSalasEvento(con);
+                System.out.println("Introduzca el codigo de la sala de evento:");
+                codRecurso = ConexionBD.leerEntero(leer);
+                tablaPuente = "reserva_sala";
+                colPuente = "id_sala";
+                break;
+            default:
+                System.out.println("Opcion no valida.");
+                valido = false;
+                return;
+        }
+        if (valido) {
+            String query = "SELECT r.fecha_inicio, r.fecha_fin FROM reservas r JOIN " + tablaPuente + " p ON r.cod = p.cod_reserva " +
+                   "WHERE p." + colPuente + " = ? AND r.estado = 'Alta' AND r.fecha_fin >= CURDATE() ORDER BY r.fecha_inicio ASC";
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ps.setInt(1, codRecurso);
+                try (ResultSet rs = ps.executeQuery()) {
+                    boolean tieneReservas = false;
+                    System.out.println("Periodos ocupados:");
+                    while (rs.next()) {
+                        tieneReservas = true;
+                        System.out.println("-> Desde " + rs.getDate("fecha_inicio") + " hasta " + rs.getDate("fecha_fin"));
+                    }
+                    
+                    if (!tieneReservas) {
+                        System.out.println("No hay reservas futuras. El recurso parece estar libre.");
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Error al consultar ocupación: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
      * Menú principal de gestión de reservas con las opciones requeridas.
      * @param con  Conexión activa a la base de datos.
      * @param leer Scanner para la entrada de opciones.
@@ -730,6 +806,7 @@ public class ReservaDAO {
             System.out.println("3. Modificar reserva");
             System.out.println("4. Cancelar reserva");
             System.out.println("5. Ver reservas por cliente");
+            System.out.println("6. Ver disponibilidad de un recurso");
             System.out.println("0. Salir");
             opcion = ConexionBD.leerEntero(leer);
 
@@ -748,6 +825,9 @@ public class ReservaDAO {
                     break;
                 case 5: 
                     mostrarReservasPorCliente(con, leer);
+                    break;
+                case 6:
+                    disponibilidad(con, leer);
                     break;
                 case 0: 
                     System.out.println("Saliendo...");

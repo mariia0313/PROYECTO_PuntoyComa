@@ -6,7 +6,7 @@ package Proyecto_Punto_y_Coma.ENTIDAD;
  * Contiene los atributos comunes a todos los tipos de recurso.
  * @author David Catalán Aragó
  */
-public abstract class TipoReserva implements java.io.Serializable {
+public abstract class TipoReserva{
 
     protected int cod;
     protected String nombre;

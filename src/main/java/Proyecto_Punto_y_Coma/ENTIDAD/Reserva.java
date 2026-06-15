@@ -6,7 +6,7 @@ package Proyecto_Punto_y_Coma.ENTIDAD;
  * Implementa Serializable para poder almacenar objetos Reserva en ficheros.
  * @author David Catalán Aragó
  */
-public class Reserva implements java.io.Serializable {
+public class Reserva{
 
     private int cod;
     private Cliente cliente;
