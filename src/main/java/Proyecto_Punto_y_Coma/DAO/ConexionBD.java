@@ -65,7 +65,7 @@ public class ConexionBD {
         return numero;
     }
 
-        public static double leerDouble(Scanner leer) {
+    public static double leerDouble(Scanner leer) {
         double numero = 0;
         boolean valido = false;
         while (!valido) {
