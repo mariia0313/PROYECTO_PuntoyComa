@@ -20,7 +20,7 @@ public class ConexionBD {
         Connection con = null;
         
     try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/proyecto_puntoycoma?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC", "root", "1234");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/proyecto_puntoycoma?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC", "root", "yA20mnVB");
             System.out.println("Conexión exitosa");
             
         } catch (SQLException e) {
