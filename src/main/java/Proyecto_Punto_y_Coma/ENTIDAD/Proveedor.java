@@ -77,10 +77,16 @@ public class Proveedor extends Persona{
 
     /** Muestra solo los productos con estado "Activo". */
     public void mostrarProductosActivos(){
+        int contador = 0;
         for (Producto x : productos){
             if(x.getEstado().equalsIgnoreCase("Activo")) {
                 System.out.println(x);
+                contador++;
             }
+        }
+
+        if (contador == 0){
+            System.out.println("No hay productos activos de este proveedor");
         }
     }
 
