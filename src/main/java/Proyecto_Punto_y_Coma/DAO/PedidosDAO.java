@@ -59,7 +59,7 @@ public class PedidosDAO {
                 int idCompra = -1;
 
                 stmt = con.prepareStatement(insertOrden, Statement.RETURN_GENERATED_KEYS);
-                stmt.setString(1, "Calle wawawa");
+                stmt.setString(1, "Calle Principal de la Gestión, 123");
                 stmt.setString(2, empleado.getTelefono());
                 stmt.setInt(3, empleado.getCodigo());
                 stmt.setInt(4, cod);
@@ -124,15 +124,16 @@ public class PedidosDAO {
                             break;
 
                         case 3:
+                            double totalIva = acumuladoTotal + (acumuladoTotal * 0.21);
                             String updatePrecio = "UPDATE Orden_compra SET Precio_total = ? WHERE No_orden = ?";
                             stmtUpd = con.prepareStatement(updatePrecio);
-                            stmtUpd.setDouble(1, acumuladoTotal);
+                            stmtUpd.setDouble(1, totalIva);
                             stmtUpd.setInt(2, idCompra);
                             stmtUpd.executeUpdate();
                             stmtUpd.close();
 
                             con.commit();
-                            System.out.println("La compra ha sido realizada con éxito. Total: " + acumuladoTotal);
+                            System.out.println("La compra ha sido realizada con éxito. Total: " + totalIva);
                             break;
                         case 0:
                             System.out.println("Compra cancelada, saliendo...");
@@ -210,6 +211,7 @@ public class PedidosDAO {
     }
     
      /**
+
        * Genera pedidos automáticos para productos por debajo del stock mínimo,
        * agrupados por proveedor. Pide confirmación antes de crear cada orden.
        * @param con Conexión activa a la base de datos.
@@ -217,93 +219,100 @@ public class PedidosDAO {
        * @param empleado Empleado que ejecuta la operación.
        * @param proveedores Lista de proveedores activos.
        */
+
         public void generarPedidoAutomatico(Connection con, Scanner leer, Empleado empleado, ArrayList<Proveedor> proveedores) {
         ProductosDAO prodDAO = new ProductosDAO();
         ArrayList<Producto> bajos = prodDAO.productosPorDebajoStockMinimo(con);
 
         if (bajos.isEmpty()) {
             System.out.println("No hay productos por debajo del stock mínimo.");
-            return;
-        }
+        } else {
 
-        for (Proveedor prov : proveedores) {
-            ArrayList<Producto> productosProv = new ArrayList<>();
-            for (Producto p : bajos) {
-                if (p.getProveedor() == prov.getCodigo()) {
-                    productosProv.add(p);
-                }
-            }
-            if (productosProv.isEmpty()) continue;
-
-            System.out.println("\nProveedor: " + prov.getNombre() + " (Código: " + prov.getCodigo() + ")");
-            for (Producto p : productosProv) {
-                System.out.printf("  - %s (Stock: %d / Mín: %d) → Pedir: 10%n",
-                        p.getNombre(), p.getStock(), p.getStockMinimo());
-            }
-
-            System.out.print("¿Generar pedido para este proveedor? (S/N): ");
-            String resp = leer.nextLine();
-            if (!resp.equalsIgnoreCase("S")) continue;
-
-            PreparedStatement stmtOrd = null;
-            PreparedStatement stmtLin = null;
-            PreparedStatement stmtUpd = null;
-            ResultSet rs = null;
-            double total = 0.0;
-            int numLinea = 1;
-
-            try {
-                con.setAutoCommit(false);
-
-                String insertOrd = "INSERT INTO Orden_compra (Direccion, Telefono, Empleado, Proveedor, Precio_total) VALUES (?, ?, ?, ?, ?)";
-                stmtOrd = con.prepareStatement(insertOrd, Statement.RETURN_GENERATED_KEYS);
-                stmtOrd.setString(1, "Pedido automático");
-                stmtOrd.setString(2, empleado.getTelefono());
-                stmtOrd.setInt(3, empleado.getCodigo());
-                stmtOrd.setInt(4, prov.getCodigo());
-                stmtOrd.setDouble(5, 0.0);
-                stmtOrd.executeUpdate();
-
-                rs = stmtOrd.getGeneratedKeys();
-                int idCompra = 0;
-                if (rs.next()) idCompra = rs.getInt(1);
-
-                String insertLin = "INSERT INTO Lineas_compra (No_compra, No_linea, Cantidad, Producto) VALUES (?, ?, ?, ?)";
-                for (Producto p : productosProv) {
-                    double precio = obtenerPrecio(con, p.getCOD());
-                    total += precio * 10;
-
-                    stmtLin = con.prepareStatement(insertLin);
-                    stmtLin.setInt(1, idCompra);
-                    stmtLin.setInt(2, numLinea++);
-                    stmtLin.setInt(3, 10);
-                    stmtLin.setInt(4, p.getCOD());
-                    stmtLin.executeUpdate();
-                    stmtLin.close();
+            for (Proveedor prov : proveedores) {
+                ArrayList<Producto> productosProv = new ArrayList<>();
+                for (Producto p : bajos) {
+                    if (p.getProveedor() == prov.getCodigo()) {
+                        productosProv.add(p);
+                    }
                 }
 
-                String updatePrecio = "UPDATE Orden_compra SET Precio_total = ? WHERE No_orden = ?";
-                stmtUpd = con.prepareStatement(updatePrecio);
-                stmtUpd.setDouble(1, total);
-                stmtUpd.setInt(2, idCompra);
-                stmtUpd.executeUpdate();
-                stmtUpd.close();
+                if (!productosProv.isEmpty()) {
 
-                con.commit();
-                System.out.printf("Pedido #%d creado con éxito. Total: %.2f%n", idCompra, total);
+                    System.out.println("\nProveedor: " + prov.getNombre() + " (Código: " + prov.getCodigo() + ")");
+                    for (Producto p : productosProv) {
+                        System.out.printf("  - %s (Stock: %d / Mín: %d) → Pedir: 10%n",
+                                p.getNombre(), p.getStock(), p.getStockMinimo());
+                    }
 
-            } catch (SQLException e) {
-                try { if (con != null) con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (rs != null) rs.close();
-                    if (stmtOrd != null) stmtOrd.close();
-                    con.setAutoCommit(true);
-                } catch (SQLException e) { e.printStackTrace(); }
+                    System.out.print("¿Generar pedido para este proveedor? (S/N): ");
+                    String resp = leer.nextLine();
+                    if (resp.equalsIgnoreCase("S")) {
+
+                        PreparedStatement stmtOrd = null;
+                        PreparedStatement stmtLin = null;
+                        PreparedStatement stmtUpd = null;
+                        ResultSet rs = null;
+                        double total = 0.0;
+                        int numLinea = 1;
+
+                        try {
+                            con.setAutoCommit(false);
+                            String insertOrd = "INSERT INTO Orden_compra (Direccion, Telefono, Empleado, Proveedor, Precio_total) VALUES (?, ?, ?, ?, ?)";
+                            stmtOrd = con.prepareStatement(insertOrd, Statement.RETURN_GENERATED_KEYS);
+                            stmtOrd.setString(1, "Pedido automático");
+                            stmtOrd.setString(2, empleado.getTelefono());
+                            stmtOrd.setInt(3, empleado.getCodigo());
+                            stmtOrd.setInt(4, prov.getCodigo());
+                            stmtOrd.setDouble(5, 0.0);
+                            stmtOrd.executeUpdate();
+                            rs = stmtOrd.getGeneratedKeys();
+                            int idCompra = 0;
+                            if (rs.next()) idCompra = rs.getInt(1);
+
+                            String insertLin = "INSERT INTO Lineas_compra (No_compra, No_linea, Cantidad, Producto) VALUES (?, ?, ?, ?)";
+                            for (Producto p : productosProv) {
+                                double precio = obtenerPrecio(con, p.getCOD());
+                                total += precio * 10;
+
+                                stmtLin = con.prepareStatement(insertLin);
+                                stmtLin.setInt(1, idCompra);
+                                stmtLin.setInt(2, numLinea++);
+                                stmtLin.setInt(3, 10);
+                                stmtLin.setInt(4, p.getCOD());
+                                stmtLin.executeUpdate();
+                                stmtLin.close();
+
+                            }
+
+                            double totalIVA = (total + total * 0.21);
+
+                            String updatePrecio = "UPDATE Orden_compra SET Precio_total = ? WHERE No_orden = ?";
+                            stmtUpd = con.prepareStatement(updatePrecio);
+                            stmtUpd.setDouble(1, totalIVA);
+                            stmtUpd.setInt(2, idCompra);
+                            stmtUpd.executeUpdate();
+                            stmtUpd.close();
+
+                            con.commit();
+                            System.out.printf("Pedido #%d creado con éxito. Total: %.2f%n", idCompra, totalIVA);
+
+                        } catch (SQLException e) {
+                            try { if (con != null) con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (rs != null) rs.close();
+                                if (stmtOrd != null) stmtOrd.close();
+                                con.setAutoCommit(true);
+                            } catch (SQLException e) { e.printStackTrace(); }
+
+                        }
+                    }
+                }
             }
         }
-    }
+    } 
+
 
     /**
      * Muestra solo los pedidos con estado 'Pendiente' (pendientes de confirmar).
@@ -433,60 +442,71 @@ public class PedidosDAO {
 
             pstmtCab.setInt(1, idPedido);
             try (ResultSet rsCab = pstmtCab.executeQuery()) {
-                if (!rsCab.next()) {
-                    System.out.println("Pedido no encontrado.");
-                    return;
-                }
 
-                int numOrden = rsCab.getInt("No_orden");
-                String direccion = rsCab.getString("Direccion");
-                LocalDate fecha = rsCab.getDate("Fecha").toLocalDate();
-                String telefono = rsCab.getString("Telefono");
-                int codEmpleado = rsCab.getInt("Empleado");
-                double totalBD = rsCab.getDouble("Precio_total");
-                String nomProv = rsCab.getString("nom_prov");
-                String idProv = rsCab.getString("Id_proveedor");
+                if (rsCab.next()) {
+                    int numOrden = rsCab.getInt("No_orden");
+                    String direccion = rsCab.getString("Direccion");
+                    LocalDate fecha = rsCab.getDate("Fecha").toLocalDate();
+                    String telefono = rsCab.getString("Telefono");
+                    int codEmpleado = rsCab.getInt("Empleado");
+                    double totalBD = rsCab.getDouble("Precio_total");
+                    String nomProv = rsCab.getString("nom_prov");
+                    String idProv = rsCab.getString("Id_proveedor");
 
-                EmpleadosDAO empDAO = new EmpleadosDAO();
-                Empleado empleado = empDAO.obtenerEmpleadoPorId(con, codEmpleado);
+                    double subtotal = totalBD / 1.21;
+                    double importeIva = totalBD - subtotal;
 
-                File dir = new File("Facturas");
-                if (!dir.exists()) dir.mkdirs();
+                    EmpleadosDAO empDAO = new EmpleadosDAO();
+                    Empleado empleado = empDAO.obtenerEmpleadoPorId(con, codEmpleado);
 
-                File f = new File(dir, "factura_Pedido_" + numOrden + ".html");
-                try (FileWriter fw = new FileWriter(f)) {
-                    fw.write("<html><body><h1>Factura #" + numOrden + "</h1>\n");
-                    fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n<hr>\n");
+                    File dir = new File("Facturas");
+                    if (!dir.exists()) dir.mkdirs();
 
-                    fw.write("<pre>\n");
-                    fw.write("Fecha:       " + fecha + "\n");
-                    fw.write("Proveedor:   " + nomProv + " (" + idProv + ")\n");
-                    fw.write("Direccion:   " + direccion + "\n");
-                    fw.write("Telefono:    " + telefono + "\n");
-                    fw.write("Empleado:    " + (empleado != null ? empleado.getNombre() : "---") + "\n");
-                    fw.write("</pre>\n<hr>\n<pre>\n");
+                    File f = new File(dir, "factura_Pedido_" + numOrden + ".html");
+                    try (FileWriter fw = new FileWriter(f)) {
+                        fw.write("<html><body><h1>Factura #" + numOrden + "</h1>\n");
+                        fw.write("<p>Generado el " + java.time.LocalDate.now() + "</p>\n<hr>\n");
 
-                    pstmtLin.setInt(1, idPedido);
-                    try (ResultSet rsLin = pstmtLin.executeQuery()) {
-                        while (rsLin.next()) {
-                            int noLinea = rsLin.getInt("No_linea");
-                            String nomProd = rsLin.getString("Nombre");
-                            int idProd = rsLin.getInt("Producto");
-                            double precioUnidad = rsLin.getDouble("Precio_unidad");
-                            int cantidad = rsLin.getInt("Cantidad");
-                            double totalLinea = precioUnidad * cantidad;
-                            fw.write(noLinea + "  " + nomProd + " (ID: " + idProd + ")"
-                                   + "  " + String.format("%.2f", precioUnidad) + " €"
-                                   + "  x" + cantidad
-                                   + "  = " + String.format("%.2f", totalLinea) + " €\n");
+                        fw.write("<pre>\n");
+                        fw.write("Fecha:       " + fecha + "\n");
+                        fw.write("Proveedor:   " + nomProv + " (" + idProv + ")\n");
+                        fw.write("Direccion:   " + direccion + "\n");
+                        fw.write("Telefono:    " + telefono + "\n");
+                        fw.write("Empleado:    " + (empleado != null ? empleado.getNombre() : "---") + "\n");
+                        fw.write("</pre>\n<hr>\n<pre>\n");
+
+                        pstmtLin.setInt(1, idPedido);
+                        try (ResultSet rsLin = pstmtLin.executeQuery()) {
+                            while (rsLin.next()) {
+                                int noLinea = rsLin.getInt("No_linea");
+                                String nomProd = rsLin.getString("Nombre");
+                                int idProd = rsLin.getInt("Producto");
+                                double precioUnidad = rsLin.getDouble("Precio_unidad");
+                                int cantidad = rsLin.getInt("Cantidad");
+                                double totalLinea = precioUnidad * cantidad;
+                                fw.write(noLinea + "  " + nomProd + " (ID: " + idProd + ")"
+                                       + "  " + String.format("%.2f", precioUnidad) + " €"
+                                       + "  x" + cantidad
+                                       + "  = " + String.format("%.2f", totalLinea) + " €\n");
+                            }
                         }
+
+                        // Desglose visual en el archivo HTML
+                        fw.write("\n-------------------------------------------");
+                        fw.write("\nSubtotal (Sin IVA): " + String.format("%.2f", subtotal) + " €");
+                        fw.write("\nIVA (21%):          " + String.format("%.2f", importeIva) + " €");
+                        fw.write("\nTOTAL FACTURA:      " + String.format("%.2f", totalBD) + " €\n");
+                        fw.write("-------------------------------------------\n");
+                        fw.write("</pre>\n</body></html>\n");
                     }
 
-                    fw.write("\nTOTAL: " + String.format("%.2f", totalBD) + " €\n");
-                    fw.write("</pre>\n</body></html>\n");
+                    System.out.println("Factura generada con desglose de IVA: " + f.getAbsolutePath());
+                    
+                } else {
+                    // Si el rsCab.next() devuelve false, cae directamente aquí de forma natural
+                    System.out.println("Pedido no encontrado.");
                 }
-
-                System.out.println("Factura generada: " + f.getAbsolutePath());
+                
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -528,7 +548,7 @@ public class PedidosDAO {
                 break;
             default:
                 System.out.println("Opción no válida.");
-                return;
+                break;
         }
 
         try {
