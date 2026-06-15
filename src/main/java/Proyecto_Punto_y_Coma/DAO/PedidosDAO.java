@@ -59,7 +59,7 @@ public class PedidosDAO {
                 int idCompra = -1;
 
                 stmt = con.prepareStatement(insertOrden, Statement.RETURN_GENERATED_KEYS);
-                stmt.setString(1, "Calle wawawa");
+                stmt.setString(1, "Calle Principal de la Gestión, 123");
                 stmt.setString(2, empleado.getTelefono());
                 stmt.setInt(3, empleado.getCodigo());
                 stmt.setInt(4, cod);
